@@ -4,9 +4,29 @@ Next.js (App Router) + TypeScript + Tailwind + shadcn/ui web client for the
 [EduFlow backend](https://github.com/karus-cmd/eduflow-backend). A **separate** project so the
 backend's Railway deploy stays untouched. Deploy target: Vercel.
 
-> **Status — F0 (thin vertical slice):** login → httpOnly-cookie session with silent refresh →
-> role-based routing, and **one live dashboard per role** (admin / counselor / student) rendering
-> real data from the backend. The full screen build-out is planned in `../eduflow-backend/PROGRESS.md`.
+> **Status — F1 (student revenue path):** on top of F0 (login → httpOnly-cookie session with silent
+> refresh → role-based routing → one live dashboard per role), the full student money path is built:
+> **browse catalog → course detail → checkout with referral (Razorpay TEST) → provisioning poll →
+> My Learning → course player (HLS + progress) → profile**. The remaining role areas (counselor F2,
+> admin content F3, managers/money F4, polish F5) are planned in `../eduflow-backend/PROGRESS.md`.
+
+## F1 — student revenue path (what's built)
+All under `/student/*` (guarded by `proxy.ts`; server components fetch with the cookie, the browser
+mutates through same-origin `/api/*` BFF route handlers that proxy to the backend with the bearer token):
+
+| Route | Screen |
+|---|---|
+| `/student` | **My Learning** — enrolled courses, live progress bars, resume CTA, live next-class countdown |
+| `/student/browse` | **Catalog** — published courses, instant search, enrolled badges |
+| `/student/courses/[id]` | **Course detail** — syllabus tree (free previews playable), overview, sticky purchase card |
+| `/student/checkout/[courseId]` | **Checkout** — referral code → Razorpay TEST widget |
+| `/student/orders/[id]/provisioning` | **Payment received** — polls order status until the webhook grants access |
+| `/student/learn/[courseId]` | **Course player** — HLS.js video, lesson sidebar, throttled progress + mark-complete, resource downloads |
+| `/student/profile` | **Profile & settings** — account details + email-based password reset |
+
+**Money still flows only through the webhook** (invariant #3): checkout opens a Razorpay order; the
+`payment.captured` webhook on the backend provisions the enrollment + accrues commission. The client's
+payment-success callback only routes to the provisioning page, which polls until access is granted.
 
 ## How it talks to the backend
 - **Typed against the contract.** `src/lib/api/schema.ts` is generated from the backend's
@@ -47,6 +67,27 @@ Local `http://localhost:3000/api/v1` · Railway `https://eduflow-backend-product
   Frontend response types are hand-mirrored for now; the backend fix is typed `@ApiOkResponse` DTOs.
 - **`/dashboard/admin` returns only top-stats, not the manager list** (the blueprint describes "stats +
   manager list"). The manager list here comes from `GET /counselors` instead.
+- **No self-service profile update.** `PATCH /users/:id` requires `user.update` (admin only), so a
+  student can't edit their own name/email/phone. The profile page shows details read-only + reports this.
+  _Fix:_ a `PATCH /me` (self, non-privileged) endpoint.
+- **No authenticated change-password.** Only public `POST /auth/forgot-password` / `reset-password`
+  (email-token) exist. The profile Security tab uses the email reset flow. _Fix:_ `POST /auth/change-password`.
+- **No per-lesson progress read.** `GET /me/enrollments` gives the rolled-up `progressPct` but nothing
+  exposes which lessons are already complete (or `lastPositionSec`) on load. The player marks lessons
+  complete as you finish them in-session and treats `progressPct` as authoritative (refreshed after each
+  action); on reload the per-lesson checkmarks reset. _Fix:_ `GET /me/lessons/:id/progress` (or embed
+  progress in the course tree / enrollment).
+- **Free (₹0) courses can't be self-enrolled.** `POST /orders/:id/checkout` rejects a non-positive total,
+  and there's no zero-price enrol path, so the catalog disables enrol on free courses. _Fix:_ a free-enrol
+  endpoint, or allow ₹0 orders to provision directly.
+
+## Live verification deferred to the deployed backend (build correct, verify there)
+- **Provisioning needs the public Railway backend + a registered Razorpay webhook.** Against a local
+  backend the `payment.captured` webhook can't reach it, so the provisioning poller will hit its
+  "still provisioning" fallback after a test payment. Verify end-to-end enrolment on the deployed backend.
+- **Real playback needs the video Worker deployed + an HLS clip uploaded** (`VIDEO_HOST`). Until then
+  `GET /lessons/:id/playback` returns 404 for lessons without a `ready` asset and the player shows its
+  "video is being prepared" state.
 
 ## Scripts
 | Script | What |

@@ -17,28 +17,30 @@ interface NextClass {
   joinUrl: string | null;
 }
 
-/** Live "next live class" countdown. Ticks each second on the client; SSR renders the same fields. */
+/** Live "next live class" countdown. Renders "—" until mounted so SSR and first client render match. */
 export function NextClassBanner({ nextClass }: { nextClass: NextClass }) {
-  const [now, setNow] = useState<number>(() => new Date(nextClass.scheduledAt).getTime() - 0);
-  // Start from the target so the first client render matches SSR, then switch to real time.
+  const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
     setNow(Date.now());
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
 
-  const c = countdownParts(nextClass.scheduledAt, now);
-  const soon = !c.past && c.days === 0 && c.hours === 0 && c.minutes <= 15;
-  const label = c.past
-    ? 'Live now'
-    : [
-        c.days ? `${c.days}d` : null,
-        c.days || c.hours ? `${c.hours}h` : null,
-        `${c.minutes}m`,
-        c.days ? null : `${c.seconds}s`,
-      ]
-        .filter(Boolean)
-        .join(' ');
+  const c = countdownParts(nextClass.scheduledAt, now ?? Date.now());
+  const soon = now !== null && !c.past && c.days === 0 && c.hours === 0 && c.minutes <= 15;
+  const label =
+    now === null
+      ? '—'
+      : c.past
+        ? 'Live now'
+        : [
+            c.days ? `${c.days}d` : null,
+            c.days || c.hours ? `${c.hours}h` : null,
+            `${c.minutes}m`,
+            c.days ? null : `${c.seconds}s`,
+          ]
+            .filter(Boolean)
+            .join(' ');
 
   return (
     <Card className={cn('mb-6 border-primary/30', (soon || c.past) && 'border-primary bg-primary/5')}>
