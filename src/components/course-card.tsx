@@ -8,9 +8,17 @@ import { formatDuration } from '@/lib/format';
 import type { Course } from '@/lib/api/types';
 
 /** A catalog tile linking to the course detail page. `enrolled` shows an "Enrolled" badge. */
-export function CourseCard({ course, enrolled }: { course: Course; enrolled?: boolean }) {
+export function CourseCard({
+  course,
+  enrolled,
+  basePath = '/student/courses',
+}: {
+  course: Course;
+  enrolled?: boolean;
+  basePath?: string;
+}) {
   return (
-    <Link href={`/student/courses/${course.id}`} className="group block focus:outline-none">
+    <Link href={`${basePath}/${course.id}`} className="group block focus:outline-none">
       <Card className="h-full gap-0 py-0 transition-shadow group-hover:shadow-md group-focus-visible:ring-2 group-focus-visible:ring-ring">
         <div className="relative aspect-video w-full overflow-hidden bg-muted">
           <CourseThumb title={course.title} thumbnailUrl={course.thumbnailUrl} />
