@@ -196,6 +196,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/change-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Authenticated password change (§12.1): current + new, argon2, rate-limited, audited. */
+        post: operations["AuthController_changePassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["MeController_updateMe"];
+        trace?: never;
+    };
     "/api/v1/users": {
         parameters: {
             query?: never;
@@ -1149,6 +1182,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/courses/{id}/progress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CourseProgressController_courseProgress"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/admin": {
         parameters: {
             query?: never;
@@ -1275,6 +1324,27 @@ export interface components {
             phone?: string;
             password?: string;
         };
+        AuthUserPublicDto: {
+            id: string;
+            fullName: string;
+            email: string | null;
+            phone: string | null;
+            /**
+             * @description admin | counselor | student | finance | team_lead
+             * @example student
+             */
+            role: string;
+            /** @example active */
+            status: string;
+        };
+        TokenPairDto: {
+            accessToken: string;
+            refreshToken: string;
+        };
+        AuthLoginResponseDto: {
+            user: components["schemas"]["AuthUserPublicDto"];
+            tokens: components["schemas"]["TokenPairDto"];
+        };
         LoginDto: {
             /** Format: email */
             email: string;
@@ -1283,6 +1353,11 @@ export interface components {
         };
         OtpRequestDto: {
             phone: string;
+        };
+        OtpRequestResponseDto: {
+            /** @description dev only — the OTP (never returned in production) */
+            devOtp?: string;
+            ttlSeconds: number;
         };
         OtpVerifyDto: {
             phone: string;
@@ -1294,6 +1369,29 @@ export interface components {
         LogoutDto: {
             refreshToken: string;
         };
+        SuccessResponseDto: {
+            /** @example true */
+            success: boolean;
+        };
+        MeResponseDto: {
+            id: string;
+            fullName: string;
+            email: string | null;
+            phone: string | null;
+            /** @example student */
+            role: string;
+            /** @example active */
+            status: string;
+            orgId: string;
+            lastLoginAt: string | null;
+            permissions: string[];
+        };
+        TwoFaSetupResponseDto: {
+            /** @description base32 secret to enter into an authenticator app */
+            secret: string;
+            /** @description otpauth:// URI for QR provisioning */
+            otpauthUri: string;
+        };
         TwoFaCodeDto: {
             code: string;
         };
@@ -1301,9 +1399,58 @@ export interface components {
             /** Format: email */
             email: string;
         };
+        ForgotPasswordResponseDto: {
+            /** @example If that email exists, a reset link has been sent */
+            message: string;
+            /** @description dev only — the reset token (never in production) */
+            devResetToken?: string;
+        };
         ResetPasswordDto: {
             token: string;
             newPassword: string;
+        };
+        ChangePasswordDto: {
+            currentPassword: string;
+            newPassword: string;
+        };
+        UpdateMeDto: {
+            fullName?: string;
+        };
+        UpdateMeResponseDto: {
+            id: string;
+            fullName: string;
+            email: string | null;
+            phone: string | null;
+            /**
+             * @description admin | counselor | student | finance | team_lead
+             * @example student
+             */
+            role: string;
+            /** @example active */
+            status: string;
+        };
+        PageMetaDto: {
+            /** @example 1 */
+            page: number;
+            /** @example 20 */
+            limit: number;
+            /** @example 42 */
+            total: number;
+        };
+        UserPublicResponseDto: {
+            id: string;
+            fullName: string;
+            email: string | null;
+            phone: string | null;
+            /**
+             * @description admin | counselor | student | finance | team_lead
+             * @example counselor
+             */
+            role: string;
+            /** @example active */
+            status: string;
+            lastLoginAt: string | null;
+            createdAt: string;
         };
         CreateUserDto: {
             fullName: string;
@@ -1320,6 +1467,123 @@ export interface components {
             /** @enum {string} */
             status?: "active" | "inactive" | "suspended" | "invited";
         };
+        CounselorListStatsDto: {
+            students: number;
+            conversations: number;
+            /** @description paise as string */
+            earnedPaise: string;
+            /** @description paise as string */
+            paidPaise: string;
+            /** @description paise as string */
+            pendingPaise: string;
+        };
+        CounselorListItemDto: {
+            id: string;
+            fullName: string;
+            email: string | null;
+            /** @example active */
+            status: string;
+            employeeCode: string | null;
+            isAcceptingLeads: boolean | null;
+            stats: components["schemas"]["CounselorListStatsDto"];
+        };
+        CounselorProfileDto: {
+            employeeCode: string | null;
+            joiningDate: string | null;
+            leadCapacity: number | null;
+            isAcceptingLeads: boolean | null;
+            defaultCommissionRuleId: string | null;
+            referralCode: string | null;
+        };
+        CounselorPayoutInfoDto: {
+            /**
+             * @description manual | auto
+             * @example manual
+             */
+            mode: string;
+            bankVerifiedAt: string | null;
+            bankAccountName: string | null;
+            bankAccountLast4: string | null;
+            bankIfsc: string | null;
+            hasFundAccount: boolean;
+        };
+        CommissionBalanceDto: {
+            /** @description paise as string */
+            earnedPaise: string;
+            /** @description paise as string */
+            paidPaise: string;
+            /** @description paise as string */
+            reversedPaise: string;
+            /** @description paise as string */
+            pendingPaise: string;
+        };
+        CounselorDetailStatsDto: {
+            students: number;
+            conversations: number;
+        };
+        CounselorDetailResponseDto: {
+            id: string;
+            fullName: string;
+            email: string | null;
+            phone: string | null;
+            /** @example active */
+            status: string;
+            profile: components["schemas"]["CounselorProfileDto"];
+            payout: components["schemas"]["CounselorPayoutInfoDto"];
+            balance: components["schemas"]["CommissionBalanceDto"];
+            stats: components["schemas"]["CounselorDetailStatsDto"];
+        };
+        LedgerEntryDto: {
+            id: string;
+            /**
+             * @description accrual | clawback | payout
+             * @example accrual
+             */
+            type: string;
+            /** @description paise as string (signed) */
+            amountPaise: string;
+            sourceType: string | null;
+            sourceId?: string | null;
+            note: string | null;
+            createdAt: string;
+        };
+        CommissionResponseDto: {
+            counselorId?: string;
+            balance: components["schemas"]["CommissionBalanceDto"];
+            ledger: components["schemas"]["LedgerEntryDto"][];
+        };
+        LeadResponseDto: {
+            id: string;
+            orgId: string;
+            fullName: string;
+            phone: string;
+            email: string | null;
+            /**
+             * @description LeadSource enum
+             * @example other
+             */
+            source: string;
+            /**
+             * @description new | contacted | qualified | interested | negotiation | enrolled | lost | junk
+             * @example new
+             */
+            stage: string;
+            interestedCourseId: string | null;
+            assignedTo: string | null;
+            assignedAt: string | null;
+            score: number;
+            lastContactedAt: string | null;
+            nextFollowUpAt: string | null;
+            convertedStudentId: string | null;
+            convertedAt: string | null;
+            lostReason: string | null;
+            metadata: {
+                [key: string]: unknown;
+            };
+            createdAt: string;
+            updatedAt: string;
+            deletedAt: string | null;
+        };
         CreateLeadDto: {
             fullName: string;
             phone: string;
@@ -1332,6 +1596,26 @@ export interface components {
             /** Format: uuid */
             assignedTo?: string;
         };
+        QueueLeadRefDto: {
+            id: string;
+            fullName: string;
+            phone: string;
+            stage: string;
+        };
+        QueueFollowUpDto: {
+            id: string;
+            leadId: string;
+            counselorId: string;
+            dueAt: string;
+            note: string | null;
+            completedAt: string | null;
+            createdAt: string;
+            lead: components["schemas"]["QueueLeadRefDto"];
+        };
+        QueueTodayResponseDto: {
+            dueFollowUps: components["schemas"]["QueueFollowUpDto"][];
+            newLeads: components["schemas"]["LeadResponseDto"][];
+        };
         CreateAssignmentRuleDto: {
             name: string;
             /** @enum {string} */
@@ -1342,6 +1626,90 @@ export interface components {
             counselorPool?: string[];
             priority?: number;
             isActive?: boolean;
+        };
+        LeadAssignmentRuleResponseDto: {
+            id: string;
+            orgId: string;
+            name: string;
+            /**
+             * @description round_robin | by_course | by_capacity | manual
+             * @example round_robin
+             */
+            strategy: string;
+            filter: {
+                [key: string]: unknown;
+            };
+            counselorPool: string[];
+            priority: number;
+            isActive: boolean;
+            createdAt: string;
+        };
+        ConversationResponseDto: {
+            id: string;
+            orgId: string;
+            leadId: string;
+            counselorId: string;
+            /**
+             * @description ConvoChannel enum
+             * @example call
+             */
+            channel: string;
+            /**
+             * @description ConvoDisposition enum
+             * @example connected
+             */
+            disposition: string;
+            durationSec: number | null;
+            notes: string | null;
+            occurredAt: string;
+            recordingUrl: string | null;
+            createdAt: string;
+        };
+        FollowUpResponseDto: {
+            id: string;
+            leadId: string;
+            counselorId: string;
+            dueAt: string;
+            note: string | null;
+            completedAt: string | null;
+            createdAt: string;
+        };
+        LeadTimelineDto: {
+            conversations: components["schemas"]["ConversationResponseDto"][];
+            followUps: components["schemas"]["FollowUpResponseDto"][];
+        };
+        LeadDetailResponseDto: {
+            id: string;
+            orgId: string;
+            fullName: string;
+            phone: string;
+            email: string | null;
+            /**
+             * @description LeadSource enum
+             * @example other
+             */
+            source: string;
+            /**
+             * @description new | contacted | qualified | interested | negotiation | enrolled | lost | junk
+             * @example new
+             */
+            stage: string;
+            interestedCourseId: string | null;
+            assignedTo: string | null;
+            assignedAt: string | null;
+            score: number;
+            lastContactedAt: string | null;
+            nextFollowUpAt: string | null;
+            convertedStudentId: string | null;
+            convertedAt: string | null;
+            lostReason: string | null;
+            metadata: {
+                [key: string]: unknown;
+            };
+            createdAt: string;
+            updatedAt: string;
+            deletedAt: string | null;
+            timeline: components["schemas"]["LeadTimelineDto"];
         };
         UpdateLeadDto: {
             fullName?: string;
@@ -1375,6 +1743,30 @@ export interface components {
             dueAt: string;
             note?: string;
         };
+        CourseResponseDto: {
+            id: string;
+            orgId: string;
+            title: string;
+            slug: string;
+            description: string | null;
+            thumbnailUrl: string | null;
+            /**
+             * @description draft | published | archived
+             * @example published
+             */
+            status: string;
+            /** @description paise as string */
+            pricePaise: string;
+            /** @description paise as string */
+            mrpPaise: string | null;
+            /** @example INR */
+            currency: string;
+            accessDays: number | null;
+            totalLessons: number;
+            totalDurationSec: number;
+            publishedAt: string | null;
+            createdAt: string;
+        };
         CreateCourseDto: {
             title: string;
             slug: string;
@@ -1384,6 +1776,69 @@ export interface components {
             mrpPaise?: number;
             /** @description Access window in days; omit/null = use org default (365) at enrollment time. */
             accessDays?: number;
+        };
+        ResourceResponseDto: {
+            id: string;
+            courseId: string | null;
+            lessonId: string | null;
+            title: string;
+            /**
+             * @description pdf | doc | link | image | archive | other
+             * @example pdf
+             */
+            type: string;
+            url: string;
+            /** @description bytes as string */
+            sizeBytes: string | null;
+            isDownloadable: boolean;
+            sortOrder: number;
+        };
+        LessonNodeResponseDto: {
+            id: string;
+            title: string;
+            durationSec: number;
+            sortOrder: number;
+            isFreePreview: boolean;
+            availableAt: string | null;
+            locked: boolean;
+            description: string | null;
+            contentHtml: string | null;
+            videoAssetId: string | null;
+            resources: components["schemas"]["ResourceResponseDto"][];
+        };
+        SectionNodeResponseDto: {
+            id: string;
+            title: string;
+            sortOrder: number;
+            lessons: components["schemas"]["LessonNodeResponseDto"][];
+        };
+        CourseDetailResponseDto: {
+            id: string;
+            orgId: string;
+            title: string;
+            slug: string;
+            description: string | null;
+            thumbnailUrl: string | null;
+            /**
+             * @description draft | published | archived
+             * @example published
+             */
+            status: string;
+            /** @description paise as string */
+            pricePaise: string;
+            /** @description paise as string */
+            mrpPaise: string | null;
+            /** @example INR */
+            currency: string;
+            accessDays: number | null;
+            totalLessons: number;
+            totalDurationSec: number;
+            publishedAt: string | null;
+            createdAt: string;
+            sections: components["schemas"]["SectionNodeResponseDto"][];
+            resources: components["schemas"]["ResourceResponseDto"][];
+            /** @description true when the caller has active access (student view only) */
+            enrolled?: boolean;
         };
         UpdateCourseDto: {
             title?: string;
@@ -1396,6 +1851,14 @@ export interface components {
         CreateSectionDto: {
             title: string;
             sortOrder?: number;
+        };
+        SectionResponseDto: {
+            id: string;
+            courseId: string;
+            title: string;
+            sortOrder: number;
+            createdAt: string;
+            updatedAt: string;
         };
         UpdateSectionDto: {
             title?: string;
@@ -1424,6 +1887,24 @@ export interface components {
             /** @description Drip release: listed but locked for students until this time. */
             availableAt?: string;
         };
+        LessonResponseDto: {
+            id: string;
+            sectionId: string;
+            courseId: string;
+            title: string;
+            description: string | null;
+            contentHtml: string | null;
+            videoAssetId: string | null;
+            durationSec: number;
+            sortOrder: number;
+            isFreePreview: boolean;
+            /** @example published */
+            status: string;
+            availableAt: string | null;
+            createdAt: string;
+            updatedAt: string;
+            resources?: components["schemas"]["ResourceResponseDto"][];
+        };
         UpdateLessonDto: {
             title?: string;
             /** @enum {string} */
@@ -1446,6 +1927,10 @@ export interface components {
             isDownloadable?: boolean;
             sortOrder?: number;
         };
+        ResourceDownloadResponseDto: {
+            url: string;
+            isDownloadable: boolean;
+        };
         OrderItemDto: {
             /** Format: uuid */
             courseId: string;
@@ -1461,9 +1946,155 @@ export interface components {
             couponCode?: string;
             referralCode?: string;
         };
+        OrderItemResponseDto: {
+            id: string;
+            orderId: string;
+            courseId: string;
+            /** @description paise as string */
+            unitPricePaise: string;
+            quantity: number;
+            /** @description paise as string */
+            totalPaise: string;
+        };
+        OrderResponseDto: {
+            id: string;
+            orgId: string;
+            studentId: string;
+            counselorId: string | null;
+            leadId: string | null;
+            /**
+             * @description created | paid | refunded | partially_refunded | cancelled
+             * @example created
+             */
+            status: string;
+            /** @description paise as string */
+            subtotalPaise: string;
+            /** @description paise as string */
+            discountPaise: string;
+            /** @description paise as string */
+            taxPaise: string;
+            /** @description paise as string */
+            totalPaise: string;
+            /** @description paise as string */
+            amountPaidPaise: string;
+            /** @example INR */
+            currency: string;
+            couponCode: string | null;
+            /** @description raw manager referral code entered at checkout */
+            referralCode: string | null;
+            createdAt: string;
+            updatedAt: string;
+            items: components["schemas"]["OrderItemResponseDto"][];
+        };
+        CheckoutResponseDto: {
+            orderId: string;
+            gatewayOrderId: string | null;
+            /** @description Razorpay key id (test/live) */
+            keyId: string;
+            /** @description paise as string */
+            amountPaise: string;
+            /** @example INR */
+            currency: string;
+        };
+        WebhookAckResponseDto: {
+            /** @example true */
+            received: boolean;
+            /** @description the handled event type */
+            event?: string;
+            /** @description true when this event id was already processed */
+            duplicate?: boolean;
+        };
+        PaymentResponseDto: {
+            id: string;
+            orgId: string;
+            orderId: string;
+            /** @example razorpay */
+            gateway: string;
+            gatewayOrderId: string | null;
+            gatewayPaymentId: string | null;
+            /**
+             * @description created | captured | failed | refunded
+             * @example captured
+             */
+            status: string;
+            method: string | null;
+            /** @description paise as string */
+            amountPaise: string;
+            /** @description paise as string */
+            feePaise: string | null;
+            /** @description paise as string */
+            taxPaise: string | null;
+            capturedAt: string | null;
+            createdAt: string;
+            updatedAt: string;
+        };
         RefundPaymentDto: {
             amountPaise?: string;
             reason?: string;
+        };
+        RefundResponseDto: {
+            id: string;
+            orgId: string | null;
+            paymentId: string;
+            /** @description paise as string */
+            amountPaise: string;
+            /** @description paise as string */
+            clawbackPaise: string;
+            reason: string | null;
+            gatewayRefundId: string | null;
+            /** @example initiated */
+            status: string;
+            processedAt: string | null;
+            createdBy: string | null;
+            createdAt: string;
+        };
+        CourseSummaryDto: {
+            id: string;
+            title: string;
+            slug: string;
+            thumbnailUrl: string | null;
+        };
+        EnrollmentResponseDto: {
+            id: string;
+            orgId: string;
+            studentId: string;
+            courseId: string;
+            orderId: string | null;
+            counselorId: string | null;
+            /**
+             * @description active | cancelled | expired
+             * @example active
+             */
+            status: string;
+            /** @description paise as string */
+            pricePaidPaise: string;
+            accessStartsAt: string;
+            accessEndsAt: string | null;
+            /** @description Decimal percent as string, e.g. "50.00" */
+            progressPct: string;
+            completedAt: string | null;
+            createdAt: string;
+            course: components["schemas"]["CourseSummaryDto"];
+        };
+        PayableCounselorRefDto: {
+            fullName: string;
+            email: string | null;
+            phone: string | null;
+        };
+        PayableBalanceDto: {
+            counselorId: string;
+            /** @description paise as string */
+            pendingPaise: string;
+            /** @description paise as string */
+            totalEarnedPaise: string;
+            /** @description paise as string */
+            totalPaidPaise: string;
+            counselor: components["schemas"]["PayableCounselorRefDto"];
+        };
+        PayableResponseDto: {
+            /** @description paise as string */
+            thresholdPaise: string;
+            counselors: components["schemas"]["PayableBalanceDto"][];
         };
         RecordManualPayoutDto: {
             amountPaise: string;
@@ -1474,6 +2105,31 @@ export interface components {
             paidAt?: string;
             idempotencyKey: string;
         };
+        PayoutItemResponseDto: {
+            id: string;
+            payoutRunId: string | null;
+            counselorId: string;
+            /** @description paise as string */
+            amountPaise: string;
+            /**
+             * @description PayoutStatus enum
+             * @example paid
+             */
+            status: string;
+            /** @description manual | auto */
+            mode: string | null;
+            /** @description phonepe | paytm | cash | bank_transfer | upi */
+            method: string | null;
+            reference: string | null;
+            note: string | null;
+            paidAt: string | null;
+            recordedBy: string | null;
+            gatewayPayoutId: string | null;
+            utr: string | null;
+            failureReason: string | null;
+            createdAt: string;
+            updatedAt: string;
+        };
         SetBankDto: {
             accountName: string;
             accountNumber: string;
@@ -1482,12 +2138,81 @@ export interface components {
             email?: string;
             phone?: string;
         };
+        PayoutSettingsResponseDto: {
+            counselorId: string;
+            /**
+             * @description manual | auto
+             * @example manual
+             */
+            payoutMode: string;
+            bankVerifiedAt: string | null;
+            bankAccountName: string | null;
+            bankAccountLast4: string | null;
+            bankIfsc: string | null;
+            hasFundAccount: boolean;
+        };
         SetPayoutModeDto: {
             /** @enum {string} */
             mode: "manual" | "auto";
         };
+        RunEligibilityResponseDto: {
+            processed: number;
+            auto: number;
+            manual: number;
+            failed: number;
+        };
+        PayoutWebhookAckDto: {
+            /** @example true */
+            received: boolean;
+            event?: string;
+            duplicate?: boolean;
+        };
+        NotificationResponseDto: {
+            id: string;
+            orgId: string;
+            userId: string | null;
+            /**
+             * @description NotifChannel enum
+             * @example in_app
+             */
+            channel: string;
+            templateId: string | null;
+            payload: {
+                [key: string]: unknown;
+            };
+            /**
+             * @description queued | sent | failed
+             * @example queued
+             */
+            status: string;
+            providerMsgId: string | null;
+            error: string | null;
+            sentAt: string | null;
+            readAt: string | null;
+            createdAt: string;
+        };
+        DispatchResponseDto: {
+            dispatched: number;
+            failed: number;
+        };
+        EnqueueResponseDto: {
+            enqueued: number;
+        };
         ClassReminderDto: {
             windowMin?: number;
+        };
+        NotificationTemplateResponseDto: {
+            id: string;
+            /**
+             * @description NotifChannel enum
+             * @example email
+             */
+            channel: string;
+            subject: string | null;
+            body: string;
+            /** @description India DLT template id */
+            dltTemplateId: string | null;
+            isActive: boolean;
         };
         UpsertTemplateDto: {
             id: string;
@@ -1497,6 +2222,25 @@ export interface components {
             body: string;
             dltTemplateId?: string;
             isActive?: boolean;
+        };
+        LiveClassResponseDto: {
+            id: string;
+            courseId: string;
+            title: string;
+            scheduledAt: string;
+            durationMin: number | null;
+            joinUrl: string | null;
+            /**
+             * @description scheduled | live | ended | cancelled
+             * @example scheduled
+             */
+            status: string;
+            createdBy: string | null;
+            createdAt: string;
+            updatedAt: string;
+        };
+        NextClassWrapperDto: {
+            nextClass: components["schemas"]["LiveClassResponseDto"] | null;
         };
         CreateLiveClassDto: {
             title: string;
@@ -1519,6 +2263,15 @@ export interface components {
             lessonId: string;
             allowDownload?: boolean;
         };
+        VideoRegisterResponseDto: {
+            videoAssetId: string;
+            r2Bucket: string;
+            hlsKeyPrefix: string;
+            /** @description bucket/prefix to rclone the HLS package to */
+            uploadTarget: string;
+            /** @description next step hint */
+            next: string;
+        };
         RenditionDto: {
             height: number;
             bandwidth: number;
@@ -1533,13 +2286,185 @@ export interface components {
             downloadMp4Key?: string;
             checksum?: string;
         };
+        VideoAssetResponseDto: {
+            id: string;
+            orgId: string;
+            /** @example r2 */
+            provider: string;
+            r2Bucket: string;
+            hlsKeyPrefix: string;
+            masterPlaylistKey: string | null;
+            renditions: {
+                [key: string]: unknown;
+            }[];
+            downloadMp4Key: string | null;
+            thumbnailKey: string | null;
+            /**
+             * @description uploading | ready | integrity_failed
+             * @example ready
+             */
+            status: string;
+            durationSec: number | null;
+            /** @description bytes as string */
+            sizeBytes: string | null;
+            allowDownload: boolean;
+            checksum: string | null;
+            createdAt: string;
+            updatedAt: string;
+        };
+        PlaybackResponseDto: {
+            masterUrl: string;
+            poster: string;
+            /** @description seconds until the token expires */
+            expiresIn: number;
+        };
+        VideoDownloadResponseDto: {
+            downloadUrl: string;
+            expiresIn: number;
+        };
+        PlaybackAuditResponseDto: {
+            id: string;
+            orgId: string;
+            userId: string;
+            lessonId: string | null;
+            videoAssetId: string | null;
+            keyPrefix: string;
+            /**
+             * @description playback | download
+             * @example playback
+             */
+            kind: string;
+            tokenExp: string | null;
+            ip: string | null;
+            createdAt: string;
+        };
+        VideoIntegrityResponseDto: {
+            checked: number;
+            /** @description video asset ids that no longer resolve */
+            failed: string[];
+        };
         UpdateProgressDto: {
             watchedSec: number;
             lastPositionSec?: number;
         };
+        LessonProgressResponseDto: {
+            id: string;
+            enrollmentId: string;
+            studentId: string;
+            lessonId: string;
+            watchedSec: number;
+            lastPositionSec: number;
+            isCompleted: boolean;
+            completedAt: string | null;
+            updatedAt: string;
+        };
+        LessonProgressStateDto: {
+            lessonId: string;
+            isCompleted: boolean;
+            watchedSec: number;
+            lastPositionSec: number;
+            completedAt: string | null;
+        };
+        CourseProgressResponseDto: {
+            courseId: string;
+            enrollmentId: string;
+            /** @description Decimal percent as string, e.g. "50.00" */
+            progressPct: string;
+            completedAt: string | null;
+            lessons: components["schemas"]["LessonProgressStateDto"][];
+        };
+        AdminDashboardStatsDto: {
+            counselors: number;
+            students: number;
+            leads: number;
+            conversationsToday: number;
+            enrollments: number;
+            /** @description paise as string */
+            revenuePaise: string;
+        };
+        AdminDashboardResponseDto: {
+            stats: components["schemas"]["AdminDashboardStatsDto"];
+        };
+        CounselorDashboardBalanceDto: {
+            /** @description paise as string */
+            earnedPaise: string;
+            /** @description paise as string */
+            paidPaise: string;
+            /** @description paise as string */
+            pendingPaise: string;
+        };
+        CounselorDashboardStatsDto: {
+            studentsEnrolled: number;
+            conversationsToday: number;
+            openLeads: number;
+        };
+        RecentConversationDto: {
+            id: string;
+            leadId: string;
+            disposition: string;
+            occurredAt: string;
+        };
+        CounselorDashboardResponseDto: {
+            balance: components["schemas"]["CounselorDashboardBalanceDto"];
+            stats: components["schemas"]["CounselorDashboardStatsDto"];
+            recentConversations: components["schemas"]["RecentConversationDto"][];
+        };
+        StudentDashboardEnrollmentDto: {
+            id: string;
+            course: components["schemas"]["CourseSummaryDto"];
+            /** @example active */
+            status: string;
+            /** @description Decimal percent as string */
+            progressPct: string;
+            accessEndsAt: string | null;
+            completedAt: string | null;
+        };
+        NextClassDto: {
+            id: string;
+            courseId: string;
+            title: string;
+            scheduledAt: string;
+            joinUrl: string | null;
+        };
+        StudentDashboardResponseDto: {
+            enrollments: components["schemas"]["StudentDashboardEnrollmentDto"][];
+            nextClass: components["schemas"]["NextClassDto"] | null;
+        };
+        CounselorDailyStatsDto: {
+            counselorId: string;
+            /** @description date (YYYY-MM-DD) as ISO string */
+            statDate: string;
+            conversationsCount: number;
+            connectedCount: number;
+            enrollmentsCount: number;
+            /** @description paise as string */
+            revenuePaise: string;
+            /** @description paise as string */
+            commissionPaise: string;
+        };
         RollupDailyDto: {
             /** @description Day to (re)build, YYYY-MM-DD. Defaults to yesterday (UTC) when omitted. */
             date?: string;
+        };
+        RollupDailyResponseDto: {
+            /** @description date (YYYY-MM-DD) */
+            statDate: string;
+            counselors: number;
+        };
+        BalanceDriftDto: {
+            counselorId: string;
+            /** @example pendingPaise */
+            field: string;
+            /** @description recomputed from the ledger (paise string) */
+            expected: string;
+            /** @description what counselor_balances holds (paise string) */
+            actual: string;
+        };
+        ReconcileBalancesResponseDto: {
+            checked: number;
+            drifts: components["schemas"]["BalanceDriftDto"][];
+            /** @description true when there is no drift */
+            ok: boolean;
         };
         ErrorEnvelope: {
             error: {
@@ -1584,7 +2509,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AuthLoginResponseDto"];
+                };
             };
         };
     };
@@ -1605,7 +2532,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AuthLoginResponseDto"];
+                };
             };
         };
     };
@@ -1626,7 +2555,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["OtpRequestResponseDto"];
+                };
             };
         };
     };
@@ -1647,7 +2578,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AuthLoginResponseDto"];
+                };
             };
         };
     };
@@ -1669,7 +2602,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["TokenPairDto"];
                 };
             };
         };
@@ -1691,7 +2624,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SuccessResponseDto"];
+                };
             };
         };
     };
@@ -1708,7 +2643,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["MeResponseDto"];
+                };
             };
         };
     };
@@ -1725,7 +2662,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["TwoFaSetupResponseDto"];
+                };
             };
         };
     };
@@ -1746,7 +2685,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SuccessResponseDto"];
+                };
             };
         };
     };
@@ -1767,7 +2708,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SuccessResponseDto"];
+                };
             };
         };
     };
@@ -1788,7 +2731,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ForgotPasswordResponseDto"];
+                };
             };
         };
     };
@@ -1809,7 +2754,55 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SuccessResponseDto"];
+                };
+            };
+        };
+    };
+    AuthController_changePassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuccessResponseDto"];
+                };
+            };
+        };
+    };
+    MeController_updateMe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMeDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdateMeResponseDto"];
+                };
             };
         };
     };
@@ -1829,7 +2822,12 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["UserPublicResponseDto"][];
+                        meta: components["schemas"]["PageMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -1850,7 +2848,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["UserPublicResponseDto"];
+                };
             };
         };
     };
@@ -1869,7 +2869,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["UserPublicResponseDto"];
+                };
             };
         };
     };
@@ -1892,7 +2894,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["UserPublicResponseDto"];
+                };
             };
         };
     };
@@ -1911,7 +2915,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["UserPublicResponseDto"];
+                };
             };
         };
     };
@@ -1928,7 +2934,12 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CounselorListItemDto"][];
+                        meta: components["schemas"]["PageMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -1947,7 +2958,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["CounselorDetailResponseDto"];
+                };
             };
         };
     };
@@ -1966,7 +2979,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["CommissionResponseDto"];
+                };
             };
         };
     };
@@ -1987,7 +3002,12 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["LeadResponseDto"][];
+                        meta: components["schemas"]["PageMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -2008,7 +3028,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["LeadResponseDto"];
+                };
             };
         };
     };
@@ -2025,7 +3047,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["QueueTodayResponseDto"];
+                };
             };
         };
     };
@@ -2046,7 +3070,12 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["LeadResponseDto"][];
+                        meta: components["schemas"]["PageMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -2063,7 +3092,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["LeadAssignmentRuleResponseDto"][];
+                };
             };
         };
     };
@@ -2084,7 +3115,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["LeadAssignmentRuleResponseDto"];
+                };
             };
         };
     };
@@ -2103,7 +3136,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["LeadDetailResponseDto"];
+                };
             };
         };
     };
@@ -2122,7 +3157,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SuccessResponseDto"];
+                };
             };
         };
     };
@@ -2145,7 +3182,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["LeadResponseDto"];
+                };
             };
         };
     };
@@ -2168,7 +3207,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["LeadResponseDto"];
+                };
             };
         };
     };
@@ -2187,7 +3228,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ConversationResponseDto"][];
+                };
             };
         };
     };
@@ -2208,7 +3251,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ConversationResponseDto"];
+                };
             };
         };
     };
@@ -2229,7 +3274,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["FollowUpResponseDto"];
+                };
             };
         };
     };
@@ -2248,7 +3295,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["FollowUpResponseDto"];
+                };
             };
         };
     };
@@ -2265,11 +3314,17 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Published courses (students) or all (staff). */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CourseResponseDto"][];
+                        meta: components["schemas"]["PageMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -2290,7 +3345,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["CourseResponseDto"];
+                };
             };
         };
     };
@@ -2310,7 +3367,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["CourseDetailResponseDto"];
                 };
             };
         };
@@ -2330,7 +3387,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SuccessResponseDto"];
+                };
             };
         };
     };
@@ -2353,7 +3412,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["CourseResponseDto"];
+                };
             };
         };
     };
@@ -2372,7 +3433,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["CourseResponseDto"];
+                };
             };
         };
     };
@@ -2395,7 +3458,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SectionResponseDto"];
+                };
             };
         };
     };
@@ -2414,7 +3479,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SuccessResponseDto"];
+                };
             };
         };
     };
@@ -2437,7 +3504,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SectionResponseDto"];
+                };
             };
         };
     };
@@ -2460,7 +3529,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SuccessResponseDto"];
+                };
             };
         };
     };
@@ -2483,7 +3554,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["LessonResponseDto"];
+                };
             };
         };
     };
@@ -2503,7 +3576,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["LessonResponseDto"];
                 };
             };
         };
@@ -2523,7 +3596,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SuccessResponseDto"];
+                };
             };
         };
     };
@@ -2546,7 +3621,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["LessonResponseDto"];
+                };
             };
         };
     };
@@ -2569,7 +3646,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ResourceResponseDto"];
+                };
             };
         };
     };
@@ -2592,7 +3671,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ResourceResponseDto"];
+                };
             };
         };
     };
@@ -2611,7 +3692,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SuccessResponseDto"];
+                };
             };
         };
     };
@@ -2630,7 +3713,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ResourceDownloadResponseDto"];
+                };
             };
         };
     };
@@ -2649,7 +3734,12 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["OrderResponseDto"][];
+                        meta: components["schemas"]["PageMetaDto"];
+                    };
+                };
             };
         };
     };
@@ -2671,7 +3761,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["OrderResponseDto"];
                 };
             };
         };
@@ -2692,7 +3782,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["OrderResponseDto"];
                 };
             };
         };
@@ -2712,7 +3802,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["CheckoutResponseDto"];
+                };
             };
         };
     };
@@ -2729,7 +3821,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["WebhookAckResponseDto"];
+                };
             };
         };
     };
@@ -2748,7 +3842,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PaymentResponseDto"][];
+                };
             };
         };
     };
@@ -2771,7 +3867,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["RefundResponseDto"];
+                };
             };
         };
     };
@@ -2789,7 +3887,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["EnrollmentResponseDto"][];
                 };
             };
         };
@@ -2810,7 +3908,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["EnrollmentResponseDto"];
                 };
             };
         };
@@ -2828,7 +3926,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PayableResponseDto"];
+                };
             };
         };
     };
@@ -2847,7 +3947,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PayoutItemResponseDto"][];
+                };
             };
         };
     };
@@ -2870,7 +3972,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PayoutItemResponseDto"];
+                };
             };
         };
     };
@@ -2893,7 +3997,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PayoutSettingsResponseDto"];
+                };
             };
         };
     };
@@ -2912,7 +4018,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PayoutSettingsResponseDto"];
+                };
             };
         };
     };
@@ -2935,7 +4043,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PayoutSettingsResponseDto"];
+                };
             };
         };
     };
@@ -2952,7 +4062,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["RunEligibilityResponseDto"];
+                };
             };
         };
     };
@@ -2969,7 +4081,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PayoutWebhookAckDto"];
+                };
             };
         };
     };
@@ -2986,7 +4100,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["NotificationResponseDto"][];
+                };
             };
         };
     };
@@ -3003,7 +4119,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["DispatchResponseDto"];
+                };
             };
         };
     };
@@ -3020,7 +4138,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["EnqueueResponseDto"];
+                };
             };
         };
     };
@@ -3041,7 +4161,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["EnqueueResponseDto"];
+                };
             };
         };
     };
@@ -3059,7 +4181,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["NotificationTemplateResponseDto"][];
                 };
             };
         };
@@ -3081,7 +4203,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["NotificationTemplateResponseDto"];
+                };
             };
         };
     };
@@ -3100,7 +4224,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["LiveClassResponseDto"][];
+                };
             };
         };
     };
@@ -3123,7 +4249,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["LiveClassResponseDto"];
+                };
             };
         };
     };
@@ -3142,7 +4270,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["NextClassWrapperDto"];
+                };
             };
         };
     };
@@ -3165,7 +4295,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["LiveClassResponseDto"];
+                };
             };
         };
     };
@@ -3186,7 +4318,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["VideoRegisterResponseDto"];
+                };
             };
         };
     };
@@ -3209,7 +4343,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["VideoAssetResponseDto"];
+                };
             };
         };
     };
@@ -3228,7 +4364,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PlaybackResponseDto"];
+                };
             };
         };
     };
@@ -3247,7 +4385,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["VideoDownloadResponseDto"];
+                };
             };
         };
     };
@@ -3267,7 +4407,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PlaybackAuditResponseDto"][];
+                };
             };
         };
     };
@@ -3284,7 +4426,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["VideoIntegrityResponseDto"];
+                };
             };
         };
     };
@@ -3307,7 +4451,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["LessonProgressResponseDto"];
+                };
             };
         };
     };
@@ -3326,7 +4472,30 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["LessonProgressResponseDto"];
+                };
+            };
+        };
+    };
+    CourseProgressController_courseProgress: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseProgressResponseDto"];
+                };
             };
         };
     };
@@ -3343,7 +4512,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AdminDashboardResponseDto"];
+                };
             };
         };
     };
@@ -3360,7 +4531,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["CounselorDashboardResponseDto"];
+                };
             };
         };
     };
@@ -3377,7 +4550,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["StudentDashboardResponseDto"];
+                };
             };
         };
     };
@@ -3394,7 +4569,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["CommissionResponseDto"];
+                };
             };
         };
     };
@@ -3414,7 +4591,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["CounselorDailyStatsDto"][];
+                };
             };
         };
     };
@@ -3435,7 +4614,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["RollupDailyResponseDto"];
+                };
             };
         };
     };
@@ -3452,7 +4633,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ReconcileBalancesResponseDto"];
+                };
             };
         };
     };

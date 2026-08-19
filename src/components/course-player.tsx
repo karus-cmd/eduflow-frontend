@@ -38,6 +38,8 @@ export function CoursePlayer({
   initialLessonId,
   initialProgressPct,
   totalLessons,
+  initialCompletedLessonIds = [],
+  lastPositions = {},
 }: {
   courseId: string;
   courseTitle: string;
@@ -47,6 +49,10 @@ export function CoursePlayer({
   initialLessonId: string | null;
   initialProgressPct: number;
   totalLessons: number;
+  /** Lessons already completed (from GET /me/courses/:id/progress) — keeps checkmarks on reload. */
+  initialCompletedLessonIds?: string[];
+  /** Per-lesson last watched position (seconds) for resume. */
+  lastPositions?: Record<string, number>;
 }) {
   const flat = useMemo<FlatLesson[]>(() => {
     const out: FlatLesson[] = [];
@@ -59,7 +65,7 @@ export function CoursePlayer({
   const [currentId, setCurrentId] = useState<string | null>(
     initialLessonId ?? firstPlayable?.lesson.id ?? null,
   );
-  const [completed, setCompleted] = useState<Set<string>>(new Set());
+  const [completed, setCompleted] = useState<Set<string>>(() => new Set(initialCompletedLessonIds));
   const [progressPct, setProgressPct] = useState(initialProgressPct);
   const [marking, setMarking] = useState(false);
 
@@ -146,7 +152,12 @@ export function CoursePlayer({
             {currentLesson.locked ? (
               <LockedPanel courseId={courseId} />
             ) : currentLesson.videoAssetId ? (
-              <VideoPlayer lessonId={currentLesson.id} title={currentLesson.title} onProgress={reportProgress} />
+              <VideoPlayer
+                lessonId={currentLesson.id}
+                title={currentLesson.title}
+                onProgress={reportProgress}
+                startPositionSec={lastPositions[currentLesson.id] ?? 0}
+              />
             ) : (
               <div className="flex aspect-video w-full items-center justify-center rounded-xl border bg-muted/40 text-center text-sm text-muted-foreground">
                 <div>

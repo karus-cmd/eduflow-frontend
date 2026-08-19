@@ -1,11 +1,11 @@
 /**
- * Response types for the endpoints F0 uses.
+ * Response types for the endpoints the client uses.
  *
- * The backend's OpenAPI spec types every REQUEST body (from the DTOs) but NOT response bodies —
- * controllers return plain service objects the swagger plugin can't infer, so every operation shows
- * `200` with no schema. (Reported as a contract gap; the fix is to add typed @ApiOkResponse DTOs on
- * the backend.) Until then these hand-written types mirror the backend services 1:1. Money fields are
- * strings (paise); progressPct is a Decimal string.
+ * As of the 2026-08-19 contract-close, the backend's OpenAPI spec DOES type response bodies (typed
+ * `@ApiOkResponse` DTOs), so `schema.ts` now carries `components['schemas'][...]Dto` for every
+ * operation. These hand-written aliases are kept 1:1 with those schemas for ergonomic call sites and
+ * remain the app's convenience types; new code may also read straight from `components`. Money fields
+ * are strings (paise); progressPct is a Decimal string.
  */
 import type { components } from './schema';
 
@@ -249,4 +249,22 @@ export interface LiveClass {
   durationMin: number | null;
   joinUrl: string | null;
   status: string;
+}
+
+/** One lesson's saved state — `GET /me/courses/:id/progress` (contract-close slice b). */
+export interface LessonProgressState {
+  lessonId: string;
+  isCompleted: boolean;
+  watchedSec: number;
+  lastPositionSec: number;
+  completedAt: string | null;
+}
+
+/** `GET /me/courses/:id/progress` — restores the player's checkmarks + resume position on load. */
+export interface CourseProgress {
+  courseId: string;
+  enrollmentId: string;
+  progressPct: string;
+  completedAt: string | null;
+  lessons: LessonProgressState[];
 }

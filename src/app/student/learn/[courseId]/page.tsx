@@ -5,7 +5,7 @@ import { requireRole } from '@/lib/auth';
 import { ApiError, serverApi } from '@/lib/server-api';
 import { STUDENT_NAV } from '@/lib/nav';
 import { formatPct } from '@/lib/money';
-import type { CourseDetail, Enrollment, LessonNode } from '@/lib/api/types';
+import type { CourseDetail, CourseProgress, Enrollment, LessonNode } from '@/lib/api/types';
 
 export const metadata = { title: 'Course player · EduFlow' };
 
@@ -26,6 +26,15 @@ export default async function LearnPage(props: PageProps<'/student/learn/[course
   const enrollment = enrollments.find((e) => e.courseId === courseId);
   const progressPct = enrollment ? formatPct(enrollment.progressPct) : 0;
 
+  // Per-lesson state (contract-close slice b): restores checkmarks + resume position on load.
+  // 403 for a non-enrolled viewer (free-preview only) → no saved state.
+  const progress = enrollment
+    ? await serverApi<CourseProgress>(`/me/courses/${courseId}/progress`).catch(() => null)
+    : null;
+  const completedLessonIds = progress?.lessons.filter((l) => l.isCompleted).map((l) => l.lessonId) ?? [];
+  const lastPositions: Record<string, number> = {};
+  for (const l of progress?.lessons ?? []) if (l.lastPositionSec > 0) lastPositions[l.lessonId] = l.lastPositionSec;
+
   // Resolve the lesson to open: a valid, unlocked ?lesson= wins; else the first unlocked lesson.
   const allLessons: LessonNode[] = course.sections.flatMap((s) => s.lessons);
   const requested = typeof search.lesson === 'string' ? search.lesson : undefined;
@@ -44,6 +53,8 @@ export default async function LearnPage(props: PageProps<'/student/learn/[course
         initialLessonId={initialLessonId}
         initialProgressPct={progressPct}
         totalLessons={course.totalLessons}
+        initialCompletedLessonIds={completedLessonIds}
+        lastPositions={lastPositions}
       />
     </AppShell>
   );

@@ -18,10 +18,13 @@ export function VideoPlayer({
   lessonId,
   title,
   onProgress,
+  startPositionSec = 0,
 }: {
   lessonId: string;
   title: string;
   onProgress?: (watchedSec: number, positionSec: number) => void;
+  /** Resume from this position (seconds) once the media is ready. */
+  startPositionSec?: number;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [status, setStatus] = useState<Status>('loading');
@@ -29,6 +32,9 @@ export function VideoPlayer({
   const lastReport = useRef(0);
   const onProgressRef = useRef(onProgress);
   onProgressRef.current = onProgress;
+  const startRef = useRef(startPositionSec);
+  startRef.current = startPositionSec;
+  const didSeek = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -36,6 +42,7 @@ export function VideoPlayer({
     let hls: any = null;
     const video = videoRef.current;
     lastReport.current = 0;
+    didSeek.current = false;
     setStatus('loading');
     setMessage('');
 
@@ -113,6 +120,17 @@ export function VideoPlayer({
     onProgressRef.current?.(Math.floor(video.currentTime), Math.floor(video.currentTime));
   }
 
+  function handleLoadedMetadata() {
+    const video = videoRef.current;
+    if (!video || didSeek.current) return;
+    didSeek.current = true;
+    const pos = startRef.current;
+    // Resume a bit before the saved point; ignore if it's basically the end.
+    if (pos > 3 && Number.isFinite(video.duration) && pos < video.duration - 5) {
+      video.currentTime = pos;
+    }
+  }
+
   function handleEnded() {
     const video = videoRef.current;
     if (!video) return;
@@ -128,6 +146,7 @@ export function VideoPlayer({
         controls
         playsInline
         className="h-full w-full"
+        onLoadedMetadata={handleLoadedMetadata}
         onTimeUpdate={handleTimeUpdate}
         onEnded={handleEnded}
       />
