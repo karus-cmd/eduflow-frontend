@@ -268,3 +268,99 @@ export interface CourseProgress {
   completedAt: string | null;
   lessons: LessonProgressState[];
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// F2 — Counselor / manager (CRM, commission, payouts)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface Lead {
+  id: string;
+  orgId: string;
+  fullName: string;
+  phone: string;
+  email: string | null;
+  source: string;
+  stage: string; // new | contacted | qualified | interested | negotiation | enrolled | lost | junk
+  interestedCourseId: string | null;
+  assignedTo: string | null;
+  assignedAt: string | null;
+  score: number;
+  lastContactedAt: string | null;
+  nextFollowUpAt: string | null;
+  convertedStudentId: string | null;
+  convertedAt: string | null;
+  lostReason: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Conversation {
+  id: string;
+  leadId: string;
+  counselorId: string;
+  channel: string; // call | whatsapp | email | sms | in_person | other
+  disposition: string; // connected | callback | interested | not_interested | enrolled | ...
+  durationSec: number | null;
+  notes: string | null;
+  occurredAt: string;
+  createdAt: string;
+}
+
+export interface FollowUp {
+  id: string;
+  leadId: string;
+  counselorId: string;
+  dueAt: string;
+  note: string | null;
+  completedAt: string | null;
+  createdAt: string;
+}
+
+/** `GET /leads/:id` — the lead + its activity timeline. */
+export interface LeadDetail extends Lead {
+  timeline: { conversations: Conversation[]; followUps: FollowUp[] };
+}
+
+/** `GET /leads/queue/today`. */
+export interface QueueToday {
+  dueFollowUps: (FollowUp & { lead: { id: string; fullName: string; phone: string; stage: string } })[];
+  newLeads: Lead[];
+}
+
+export interface CommissionBalance {
+  earnedPaise: string;
+  paidPaise: string;
+  reversedPaise: string;
+  pendingPaise: string;
+}
+
+export interface LedgerEntry {
+  id: string;
+  type: string; // accrual | clawback | payout
+  amountPaise: string; // signed
+  sourceType: string | null;
+  sourceId?: string | null;
+  note: string | null;
+  createdAt: string;
+}
+
+/** `GET /me/commission` (and `/counselors/:id/commission`). */
+export interface MyCommission {
+  counselorId?: string;
+  balance: CommissionBalance;
+  ledger: LedgerEntry[];
+}
+
+/** A recorded payout to a counselor — `GET /counselors/:id/payouts`. */
+export interface PayoutItem {
+  id: string;
+  counselorId: string;
+  amountPaise: string;
+  status: string;
+  mode: string | null; // manual | auto
+  method: string | null; // phonepe | paytm | cash | bank_transfer | upi
+  reference: string | null;
+  note: string | null;
+  paidAt: string | null;
+  createdAt: string;
+}
