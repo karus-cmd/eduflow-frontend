@@ -364,3 +364,58 @@ export interface PayoutItem {
   paidAt: string | null;
   createdAt: string;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// F3 — Admin content authoring (full course tree, not the student-gated view)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** A lesson as the admin sees it — full fields, no student `locked` gating. */
+export interface AdminLesson {
+  id: string;
+  sectionId: string;
+  courseId: string;
+  title: string;
+  description: string | null;
+  contentHtml: string | null;
+  videoAssetId: string | null;
+  durationSec: number;
+  sortOrder: number;
+  isFreePreview: boolean;
+  status: string; // draft | published
+  availableAt: string | null;
+  resources?: ResourceItem[];
+}
+
+export interface AdminSection {
+  id: string;
+  courseId: string;
+  title: string;
+  sortOrder: number;
+  lessons: AdminLesson[];
+}
+
+/** `GET /courses/:id` as an admin — the raw course + full tree (no `enrolled`/`locked`). */
+export interface AdminCourseDetail extends Course {
+  sections: AdminSection[];
+  resources: ResourceItem[];
+}
+
+/** `POST /videos` — the register response: where to upload the transcoded HLS package. */
+export interface VideoRegisterResult {
+  videoAssetId: string;
+  r2Bucket: string;
+  hlsKeyPrefix: string;
+  uploadTarget: string;
+  next: string;
+}
+
+/** A video asset (finalize response / lesson.videoAsset). */
+export interface VideoAsset {
+  id: string;
+  status: string; // uploading | ready | integrity_failed
+  durationSec: number | null;
+  sizeBytes: string | null;
+  allowDownload: boolean;
+  masterPlaylistKey: string | null;
+  downloadMp4Key: string | null;
+}

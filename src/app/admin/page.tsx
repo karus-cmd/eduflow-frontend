@@ -5,6 +5,7 @@ import { StatCard } from '@/components/stat-card';
 import { requireRole } from '@/lib/auth';
 import { serverApi } from '@/lib/server-api';
 import { formatPaise } from '@/lib/money';
+import { ADMIN_NAV } from '@/lib/nav';
 import type { AdminDashboard, CounselorListItem, Paginated } from '@/lib/api/types';
 
 export default async function AdminDashboardPage() {
@@ -16,7 +17,7 @@ export default async function AdminDashboardPage() {
   const s = dash.stats;
 
   return (
-    <AppShell title="Admin" user={me}>
+    <AppShell title="Admin" user={me} nav={ADMIN_NAV} homeHref="/admin">
       <h1 className="mb-4 text-2xl font-semibold tracking-tight">Dashboard</h1>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
         <StatCard label="Revenue" value={formatPaise(s.revenuePaise)} hint="paid orders" />
