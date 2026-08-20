@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AppShell } from '@/components/app-shell';
@@ -48,7 +49,11 @@ export default async function AdminDashboardPage() {
               <TableBody>
                 {managers.data.map((m) => (
                   <TableRow key={m.id}>
-                    <TableCell className="font-medium">{m.fullName}</TableCell>
+                    <TableCell className="font-medium">
+                      <Link href={`/admin/managers/${m.id}`} className="hover:text-primary">
+                        {m.fullName}
+                      </Link>
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{m.email}</TableCell>
                     <TableCell className="text-right tabular-nums">{m.stats.students}</TableCell>
                     <TableCell className="text-right tabular-nums">{formatPaise(m.stats.earnedPaise)}</TableCell>
