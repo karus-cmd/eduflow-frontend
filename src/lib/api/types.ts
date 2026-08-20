@@ -419,3 +419,82 @@ export interface VideoAsset {
   masterPlaylistKey: string | null;
   downloadMp4Key: string | null;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// F4 — Admin managers + money (payout console, org drill-down, reporting)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface CounselorPayoutInfo {
+  mode: string; // manual | auto
+  bankVerifiedAt: string | null;
+  bankAccountName: string | null;
+  bankAccountLast4: string | null;
+  bankIfsc: string | null;
+  hasFundAccount: boolean;
+}
+
+/** `GET /counselors/:id` (admin). */
+export interface CounselorDetail {
+  id: string;
+  fullName: string;
+  email: string | null;
+  phone: string | null;
+  status: string;
+  profile: {
+    employeeCode: string | null;
+    joiningDate: string | null;
+    leadCapacity: number | null;
+    isAcceptingLeads: boolean | null;
+    defaultCommissionRuleId: string | null;
+    referralCode: string | null;
+  };
+  payout: CounselorPayoutInfo;
+  balance: CommissionBalance;
+  stats: { students: number; conversations: number };
+}
+
+/** Returned by set-bank / verify / set-mode. */
+export interface PayoutSettings {
+  counselorId: string;
+  payoutMode: string;
+  bankVerifiedAt: string | null;
+  bankAccountName: string | null;
+  bankAccountLast4: string | null;
+  bankIfsc: string | null;
+  hasFundAccount: boolean;
+}
+
+/** `GET /payouts/payable` (admin) — who to pay next. */
+export interface PayableResponse {
+  thresholdPaise: string;
+  counselors: {
+    counselorId: string;
+    pendingPaise: string;
+    totalEarnedPaise: string;
+    totalPaidPaise: string;
+    counselor: { fullName: string; email: string | null; phone: string | null };
+  }[];
+}
+
+/** `GET /users/:id` (admin). */
+export interface UserPublic {
+  id: string;
+  fullName: string;
+  email: string | null;
+  phone: string | null;
+  role: string;
+  status: string;
+  lastLoginAt: string | null;
+  createdAt: string;
+}
+
+/** `GET /reports/counselors?from=&to=` — a counselor_daily_stats row. */
+export interface CounselorDailyStat {
+  counselorId: string;
+  statDate: string;
+  conversationsCount: number;
+  connectedCount: number;
+  enrollmentsCount: number;
+  revenuePaise: string;
+  commissionPaise: string;
+}

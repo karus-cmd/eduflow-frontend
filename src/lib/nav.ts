@@ -15,8 +15,11 @@ export const COUNSELOR_NAV: { href: string; label: string }[] = [
   { href: '/counselor/profile', label: 'Profile' },
 ];
 
-/** The admin area's top-level sections (F4 adds Managers / Payouts / Reports). */
+/** The admin area's top-level sections. */
 export const ADMIN_NAV: { href: string; label: string }[] = [
   { href: '/admin', label: 'Dashboard' },
   { href: '/admin/content', label: 'Content' },
+  { href: '/admin/managers', label: 'Managers' },
+  { href: '/admin/payouts', label: 'Payouts' },
+  { href: '/admin/reports', label: 'Reports' },
 ];
