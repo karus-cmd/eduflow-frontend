@@ -4,11 +4,32 @@ Next.js (App Router) + TypeScript + Tailwind + shadcn/ui web client for the
 [EduFlow backend](https://github.com/karus-cmd/eduflow-backend). A **separate** project so the
 backend's Railway deploy stays untouched. Deploy target: Vercel.
 
-> **Status — F1 (student revenue path):** on top of F0 (login → httpOnly-cookie session with silent
-> refresh → role-based routing → one live dashboard per role), the full student money path is built:
-> **browse catalog → course detail → checkout with referral (Razorpay TEST) → provisioning poll →
-> My Learning → course player (HLS + progress) → profile**. The remaining role areas (counselor F2,
-> admin content F3, managers/money F4, polish F5) are planned in `../eduflow-backend/PROGRESS.md`.
+> **Status — F2 (counselor/manager) awaiting review:** F0 (auth + role routing) and F1 (student revenue
+> path) are merged to `main`. **F2 is on branch `f2-counselor`** — the whole counselor surface: dashboard
+> (KPIs + earnings-trend chart), leads pipeline + lead detail (log conversation, follow-ups), my students,
+> commission & payouts (read-only), view-only content, and settings. It builds on the **contract-close**
+> backend slice (typed OpenAPI responses + `PATCH /me` + `POST /auth/change-password` +
+> `GET /me/courses/:id/progress`). Remaining: admin content F3, managers/money F4, polish F5
+> (see `../eduflow-backend/PROGRESS.md`).
+
+## F2 — counselor / manager (branch `f2-counselor`, awaiting review)
+All under `/counselor/*` (same BFF architecture as F1):
+
+| Route | Screen |
+|---|---|
+| `/counselor` | **Dashboard** — Total earnings / Awaiting payout / Paid out / Enrollments tiles, a commission earned-over-time area chart (Recharts), recent activity |
+| `/counselor/leads` | **Leads pipeline** — own leads, stage-filter pills + search, and a "Today's queue" (due follow-ups with mark-done + new leads) |
+| `/counselor/leads/[id]` | **Lead detail** — activity timeline (conversations + follow-ups), log-a-conversation (channel + outcome + notes → advances stage), schedule + complete follow-ups |
+| `/counselor/students` | **My students** — converted-lead roster (per-course progress flagged as a gap) |
+| `/counselor/commission` | **Commission & payouts** — read-only earned/pending/paid/reversed + signed ledger + payout history (no payout triggers) |
+| `/counselor/courses[/id]` | **Content** — view-only course browser + read-only syllabus |
+| `/counselor/profile` | **Settings** — edit name (`PATCH /me`) + change password |
+
+## Contract-close (backend, 2026-08-19) — the F1 gaps are now fixed in the API
+`PATCH /me`, `POST /auth/change-password`, `GET /me/courses/:id/progress`, and **typed response schemas
+on every operation** landed on the backend. The typed client (`src/lib/api/schema.ts`) was regenerated;
+the student profile is now editable, passwords are changeable in-app, and the player keeps its checkmarks
++ resume position across reloads.
 
 ## F1 — student revenue path (what's built)
 All under `/student/*` (guarded by `proxy.ts`; server components fetch with the cookie, the browser
@@ -61,25 +82,29 @@ payment-success callback only routes to the provisioning page, which polls until
 `API_BASE_URL` (server-only, in `.env.local`) — the backend API base.
 Local `http://localhost:3000/api/v1` · Railway `https://eduflow-backend-production-dae8.up.railway.app/api/v1`.
 
-## Contract gaps found (reported, not silently patched)
-- **Response bodies are untyped in `openapi.json`.** The backend types every request body (from DTOs)
-  but responses show `200` with no schema (the swagger plugin can't infer untyped service returns).
-  Frontend response types are hand-mirrored for now; the backend fix is typed `@ApiOkResponse` DTOs.
-- **`/dashboard/admin` returns only top-stats, not the manager list** (the blueprint describes "stats +
-  manager list"). The manager list here comes from `GET /counselors` instead.
-- **No self-service profile update.** `PATCH /users/:id` requires `user.update` (admin only), so a
-  student can't edit their own name/email/phone. The profile page shows details read-only + reports this.
-  _Fix:_ a `PATCH /me` (self, non-privileged) endpoint.
-- **No authenticated change-password.** Only public `POST /auth/forgot-password` / `reset-password`
-  (email-token) exist. The profile Security tab uses the email reset flow. _Fix:_ `POST /auth/change-password`.
-- **No per-lesson progress read.** `GET /me/enrollments` gives the rolled-up `progressPct` but nothing
-  exposes which lessons are already complete (or `lastPositionSec`) on load. The player marks lessons
-  complete as you finish them in-session and treats `progressPct` as authoritative (refreshed after each
-  action); on reload the per-lesson checkmarks reset. _Fix:_ `GET /me/lessons/:id/progress` (or embed
-  progress in the course tree / enrollment).
-- **Free (₹0) courses can't be self-enrolled.** `POST /orders/:id/checkout` rejects a non-positive total,
-  and there's no zero-price enrol path, so the catalog disables enrol on free courses. _Fix:_ a free-enrol
-  endpoint, or allow ₹0 orders to provision directly.
+## Contract gaps — status
+
+**✅ Closed by the 2026-08-19 backend contract-close slice:**
+- ~~Response bodies untyped in `openapi.json`~~ → every operation now has a typed response schema; client regenerated.
+- ~~No self-service profile update~~ → **`PATCH /me`** (basic fields only).
+- ~~No authenticated change-password~~ → **`POST /auth/change-password`**.
+- ~~No per-lesson progress read~~ → **`GET /me/courses/:id/progress`** (checkmarks + resume survive reload).
+
+**⏳ Still open (reported, not silently patched):**
+- **No counselor "my students + progress" endpoint.** Counselors lack `enrollment.read_all`, and
+  `GET /me/enrollments` is the *caller's own* enrollments. F2's "My students" is built from the counselor's
+  **converted leads** instead — so it shows who they enrolled but **not per-course progress**. _Fix:_ a
+  counselor-scoped `GET /me/students` (enrolled students + progress).
+- **No counselor commission time-series.** `GET /reports/counselors` is admin-only (`report.read_all`), so
+  the dashboard's earnings-trend chart is derived client-side by bucketing `GET /me/commission` **ledger
+  accruals** by month. Works, but a counselor-readable monthly rollup would be cleaner.
+- **No per-commission payout lifecycle for counselors.** The counselor sees balance (earned/pending/paid/
+  reversed) + the ledger + recorded payouts, but not each commission's Awaiting→Processing→Paid state.
+  _Fix:_ expose `commission_payouts` on `GET /me/commission`.
+- **`/dashboard/admin` returns only top-stats, not the manager list** (F4 territory; the admin manager list
+  comes from `GET /counselors`).
+- **Free (₹0) courses can't be self-enrolled** (`POST /orders/:id/checkout` rejects a non-positive total).
+  Product decision is DEFER — the catalog disables enrol on free courses for now.
 
 ## Live verification deferred to the deployed backend (build correct, verify there)
 - **Provisioning needs the public Railway backend + a registered Razorpay webhook.** Against a local
