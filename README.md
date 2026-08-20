@@ -4,13 +4,24 @@ Next.js (App Router) + TypeScript + Tailwind + shadcn/ui web client for the
 [EduFlow backend](https://github.com/karus-cmd/eduflow-backend). A **separate** project so the
 backend's Railway deploy stays untouched. Deploy target: Vercel.
 
-> **Status — F2 (counselor/manager) awaiting review:** F0 (auth + role routing) and F1 (student revenue
-> path) are merged to `main`. **F2 is on branch `f2-counselor`** — the whole counselor surface: dashboard
-> (KPIs + earnings-trend chart), leads pipeline + lead detail (log conversation, follow-ups), my students,
-> commission & payouts (read-only), view-only content, and settings. It builds on the **contract-close**
-> backend slice (typed OpenAPI responses + `PATCH /me` + `POST /auth/change-password` +
-> `GET /me/courses/:id/progress`). Remaining: admin content F3, managers/money F4, polish F5
+> **Status — F3 (admin content) awaiting review:** F0/F1/F2 are merged to `main` (student revenue path +
+> counselor/manager). **F3 is on branch `f3-admin-content`** — the Udemy-style admin content studio:
+> content library + course editor (Curriculum / Settings / Resources / Live-classes tabs), inline lesson
+> editor (visibility, drip, free-preview, HTML content, resources), the video register→finalize pipeline
+> (§13.7), publish/draft, and live-class scheduling. Remaining: admin managers/money F4, polish F5
 > (see `../eduflow-backend/PROGRESS.md`).
+
+## F3 — admin content (branch `f3-admin-content`, awaiting review)
+All under `/admin/*` (same BFF architecture):
+
+| Route | Screen |
+|---|---|
+| `/admin/content` | **Content library** — all courses incl. **drafts**, status filter + search, **New course** (auto-slug → `POST /courses` → opens the editor) |
+| `/admin/content/[courseId]` | **Course editor** — tabs: **Curriculum** (sections + lessons: add/rename/delete/reorder + inline lesson editor), **Settings** (title/price/MRP/thumbnail/access + **Publish** + soft-**Delete**), **Resources** (course-level), **Live classes** (schedule/cancel) |
+| lesson editor (inline) | visibility (draft/published), drip `availableAt`, free-preview, description, **HTML content**, lesson resources, and the **video register → (CLI transcode/upload) → finalize** flow (§13.7) |
+
+Every mutation goes through new `/api/*` BFF route handlers (courses/sections/lessons/resources/videos/
+live-classes CRUD + reorder + publish). Destructive actions use **inline confirms** (no blocking dialogs).
 
 ## F2 — counselor / manager (branch `f2-counselor`, awaiting review)
 All under `/counselor/*` (same BFF architecture as F1):
@@ -91,6 +102,14 @@ Local `http://localhost:3000/api/v1` · Railway `https://eduflow-backend-product
 - ~~No per-lesson progress read~~ → **`GET /me/courses/:id/progress`** (checkmarks + resume survive reload).
 
 **⏳ Still open (reported, not silently patched):**
+- **No in-browser video upload.** `POST /videos` returns an **R2 rclone target** (register), then the HLS
+  package is uploaded via the CLI (`transcode.sh → upload.sh`) and marked ready via `POST /videos/:id/
+  finalize`. The blueprint §11.4 line mentions "presigned PUT creds", but the implemented backend is
+  rclone-based — so the admin studio does **register → show upload target/commands → finalize**, not a
+  drag-drop upload. _Fix (for browser upload):_ a presigned-PUT (or multipart) endpoint.
+- **Publish is one-way.** `POST /courses/:id/publish` sets `published`; there's no unpublish/archive
+  endpoint (`PATCH` doesn't change status). To hide a live course you soft-delete it. _Fix:_ a status
+  transition on `PATCH /courses/:id` (draft/archived).
 - **No counselor "my students + progress" endpoint.** Counselors lack `enrollment.read_all`, and
   `GET /me/enrollments` is the *caller's own* enrollments. F2's "My students" is built from the counselor's
   **converted leads** instead — so it shows who they enrolled but **not per-course progress**. _Fix:_ a
