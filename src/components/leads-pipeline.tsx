@@ -3,116 +3,86 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { CheckCircle2, ChevronRight, Loader2, Phone, Search } from 'lucide-react';
+import { CheckCircle2, Loader2, Phone, Search } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { clientApi } from '@/lib/client-api';
-import { LEAD_STAGES, labelize, stageBadge } from '@/lib/crm';
+import { LEAD_STAGES, labelize } from '@/lib/crm';
 import { formatDate } from '@/lib/format';
-import { cn } from '@/lib/utils';
 import type { Lead, QueueToday } from '@/lib/api/types';
 
-export function LeadsPipeline({ leads, queue }: { leads: Lead[]; queue: QueueToday }) {
-  const [stage, setStage] = useState<string>('all');
-  const [q, setQ] = useState('');
+// a colour per pipeline column, cycling the brand ramp (identity, not status)
+const COLUMN_DOT = ['bg-primary', 'bg-coral', 'bg-lime', 'bg-foreground', 'bg-primary', 'bg-coral', 'bg-lime'];
 
-  const counts = useMemo(() => {
-    const c: Record<string, number> = {};
-    for (const l of leads) c[l.stage] = (c[l.stage] ?? 0) + 1;
-    return c;
-  }, [leads]);
+export function LeadsPipeline({ leads, queue }: { leads: Lead[]; queue: QueueToday }) {
+  const [q, setQ] = useState('');
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    return leads.filter(
-      (l) =>
-        (stage === 'all' || l.stage === stage) &&
-        (!needle || l.fullName.toLowerCase().includes(needle) || l.phone.includes(needle)),
-    );
-  }, [leads, stage, q]);
+    if (!needle) return leads;
+    return leads.filter((l) => l.fullName.toLowerCase().includes(needle) || l.phone.includes(needle));
+  }, [leads, q]);
+
+  const byStage = useMemo(() => {
+    const map: Record<string, Lead[]> = {};
+    for (const s of LEAD_STAGES) map[s] = [];
+    for (const l of filtered) (map[l.stage] ??= []).push(l);
+    return map;
+  }, [filtered]);
 
   return (
     <div className="space-y-6">
       <QueueCard queue={queue} />
 
-      {/* Stage filter pills */}
-      <div className="flex flex-wrap items-center gap-2">
-        <FilterPill active={stage === 'all'} onClick={() => setStage('all')} label="All" count={leads.length} />
-        {LEAD_STAGES.filter((s) => counts[s]).map((s) => (
-          <FilterPill key={s} active={stage === s} onClick={() => setStage(s)} label={labelize(s)} count={counts[s]} />
-        ))}
-        <div className="relative ml-auto w-full max-w-xs">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name or phone…" className="h-9 pl-8" />
-        </div>
+      <div className="relative w-full max-w-xs">
+        <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name or phone…" className="h-9 pl-8" />
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Stage</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Last contacted</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((l) => (
-                <TableRow key={l.id} className="cursor-pointer">
-                  <TableCell className="font-medium">
-                    <Link href={`/counselor/leads/${l.id}`} className="block hover:text-primary">
-                      {l.fullName}
+      {/* Kanban board — one column per pipeline stage */}
+      <div className="-mx-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+        <div className="flex min-w-max gap-4">
+          {LEAD_STAGES.map((s, i) => {
+            const items = byStage[s] ?? [];
+            return (
+              <div key={s} className="flex w-[248px] flex-none flex-col rounded-2xl bg-muted/50 p-2.5">
+                <div className="mb-2 flex items-center gap-2 px-1.5 py-1">
+                  <span className={`size-2.5 rounded-full ${COLUMN_DOT[i % COLUMN_DOT.length]}`} />
+                  <span className="font-heading text-sm font-bold tracking-tight">{labelize(s)}</span>
+                  <span className="ml-auto rounded-full bg-background px-2 py-0.5 text-xs font-semibold tabular-nums text-muted-foreground">
+                    {items.length}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {items.map((l) => (
+                    <Link
+                      key={l.id}
+                      href={`/counselor/leads/${l.id}`}
+                      className="group block rounded-xl border border-border/70 bg-card p-3 shadow-[0_1px_2px_rgba(31,28,43,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_24px_-14px_rgba(31,28,43,0.4)]"
+                    >
+                      <div className="font-medium leading-tight group-hover:text-primary">{l.fullName}</div>
+                      <div className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground tabular-nums">
+                        <Phone className="size-3" /> {l.phone}
+                      </div>
+                      <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
+                        <span className="rounded-md bg-muted px-1.5 py-0.5">{labelize(l.source)}</span>
+                        <span>{l.lastContactedAt ? formatDate(l.lastContactedAt) : 'new'}</span>
+                      </div>
                     </Link>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground tabular-nums">{l.phone}</TableCell>
-                  <TableCell>
-                    <Badge variant={stageBadge(l.stage)} className="capitalize">
-                      {labelize(l.stage)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{labelize(l.source)}</TableCell>
-                  <TableCell className="text-muted-foreground">{l.lastContactedAt ? formatDate(l.lastContactedAt) : '—'}</TableCell>
-                  <TableCell className="text-right">
-                    <Link href={`/counselor/leads/${l.id}`}>
-                      <ChevronRight className="ml-auto size-4 text-muted-foreground" />
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {filtered.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
-                    No leads {stage === 'all' ? 'yet' : `in “${labelize(stage)}”`}.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                  ))}
+                  {items.length === 0 && (
+                    <div className="rounded-xl border border-dashed border-border/60 py-6 text-center text-xs text-muted-foreground">
+                      empty
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
-  );
-}
-
-function FilterPill({ active, onClick, label, count }: { active: boolean; onClick: () => void; label: string; count: number }) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors',
-        active ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-muted',
-      )}
-    >
-      {label}
-      <span className={cn('tabular-nums', active ? 'opacity-80' : 'text-muted-foreground')}>{count}</span>
-    </button>
   );
 }
 
@@ -139,7 +109,7 @@ function QueueCard({ queue }: { queue: QueueToday }) {
   if (pending.length === 0 && queue.newLeads.length === 0) return null;
 
   return (
-    <Card className="border-primary/30">
+    <Card className="ring-1 ring-primary/20">
       <CardHeader className="pb-3">
         <CardTitle className="text-base">Today&rsquo;s queue</CardTitle>
       </CardHeader>
@@ -149,7 +119,7 @@ function QueueCard({ queue }: { queue: QueueToday }) {
             Follow-ups due ({pending.length})
           </p>
           {pending.length === 0 ? (
-            <p className="text-sm text-muted-foreground">All caught up. 🎉</p>
+            <p className="text-sm text-muted-foreground">All caught up.</p>
           ) : (
             <ul className="space-y-1.5">
               {pending.map((f) => (
