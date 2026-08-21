@@ -254,7 +254,6 @@
   animation: dealCard 620ms var(--ease-spring) forwards;
   animation-delay: var(--delay, 0ms);
 }
-.slotWrap:has(.slot:hover) { z-index: 30; }
 @keyframes dealCard {
   from { opacity: 0; transform: translateY(26px) scale(0.94); }
   to { opacity: 1; transform: none; }
