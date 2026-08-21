@@ -13,6 +13,16 @@ export async function getMe(): Promise<MeResponse> {
   }
 }
 
+/** The current user, or `null` if unauthenticated — never redirects. For public pages (the landing). */
+export async function getMeOrNull(): Promise<MeResponse | null> {
+  try {
+    return await serverApi<MeResponse>('/auth/me');
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 401) return null;
+    throw e; // a real outage shouldn't masquerade as "logged out"
+  }
+}
+
 /** Require one of `allowed` roles; otherwise send the user to their own home. */
 export async function requireRole(allowed: string[]): Promise<MeResponse> {
   const me = await getMe();
