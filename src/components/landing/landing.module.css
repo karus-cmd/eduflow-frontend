@@ -253,6 +253,7 @@
   opacity: 0;
   animation: dealCard 620ms var(--ease-spring) forwards;
   animation-delay: var(--delay, 0ms);
+  pointer-events: none; /* transparent wrappers must not intercept; only the card surface does */
 }
 @keyframes dealCard {
   from { opacity: 0; transform: translateY(26px) scale(0.94); }
@@ -261,22 +262,25 @@
 .slot {
   position: absolute;
   inset: 0;
-  cursor: pointer;
   transform-origin: 50% 155%; /* pivot well below the card → a circular hand-of-cards fan */
   /* rotate first, THEN translate along the card's own axis → the lift slides radially outward */
   transform: rotate(var(--r, 0deg)) translateY(calc(-1 * var(--lift, 0px)));
   transition: transform 360ms var(--ease-out);
   will-change: transform;
 }
+/* hover is detected on the card surface (the only pointer target), so every card — even one
+   whose visible sliver sits inside the deck rect (Physics) — responds. */
 @media (hover: hover) and (pointer: fine) {
-  .slot:hover { --lift: 44px; }
-  .slot:hover .deckCard {
+  .slot:has(.deckCard:hover) { --lift: 44px; }
+  .deckCard:hover {
     box-shadow: 0 38px 78px -28px rgba(31, 28, 43, 0.55), 0 6px 0 rgba(31, 28, 43, 0.05);
   }
 }
 .deckCard {
   position: absolute;
   inset: 0;
+  pointer-events: auto;
+  cursor: pointer;
   border-radius: 22px;
   background: var(--paper);
   border: 1px solid var(--line);
