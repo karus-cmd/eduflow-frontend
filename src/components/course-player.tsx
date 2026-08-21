@@ -244,10 +244,10 @@ export function CoursePlayer({
       </div>
 
       {/* Curriculum sidebar */}
-      <aside className="lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-y-auto">
-        <div className="rounded-xl border">
-          <div className="border-b px-4 py-3">
-            <h2 className="font-medium">Course content</h2>
+      <aside className="lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:self-start lg:overflow-y-auto">
+        <div className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-[0_1px_2px_rgba(31,28,43,0.04),0_14px_34px_-24px_rgba(31,28,43,0.4)]">
+          <div className="border-b border-border/70 px-4 py-3">
+            <h2 className="font-heading font-bold">Course content</h2>
             <p className="text-xs text-muted-foreground">
               {totalLessons} {totalLessons === 1 ? 'lesson' : 'lessons'}
             </p>
@@ -277,7 +277,7 @@ export function CoursePlayer({
                           {l.locked ? (
                             <Lock className="size-4 shrink-0 text-muted-foreground" />
                           ) : done ? (
-                            <CheckCircle2 className="size-4 shrink-0 text-emerald-600 dark:text-emerald-500" />
+                            <CheckCircle2 className="size-4 shrink-0 text-primary" />
                           ) : (
                             <PlayCircle className={cn('size-4 shrink-0', isCurrent ? 'text-primary' : 'text-muted-foreground')} />
                           )}
