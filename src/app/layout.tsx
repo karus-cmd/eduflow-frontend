@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Archivo } from "next/font/google";
+import { Geist, Geist_Mono, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,12 +12,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Display voice for "The Register" — a structural grotesque with institutional weight,
-// deliberately off the AI-default face list (no Fraunces/Playfair/Space Grotesk).
-const archivo = Archivo({
-  variable: "--font-archivo",
+// Display voice — a characterful grotesque with real edge, deliberately off the AI-default
+// face list (no Space Grotesk / DM Sans / Outfit / Plus Jakarta).
+const display = Bricolage_Grotesque({
+  variable: "--font-display",
   subsets: ["latin"],
-  axes: ["wdth"],
+  axes: ["opsz"],
 });
 
 export const metadata: Metadata = {
@@ -29,7 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${archivo.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${display.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
