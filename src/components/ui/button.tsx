@@ -44,12 +44,17 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  type,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants> & { type?: "button" | "submit" | "reset" }) {
+  // base-ui's useButton forces `type="button"` (merged after our props), so a plain
+  // `type="submit"` never reaches the DOM and the button won't submit its form. Provide the
+  // native element via `render` so our `type` wins the base-ui prop merge (render props override).
   return (
     <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      {...(type ? { render: <button type={type} /> } : {})}
       {...props}
     />
   )
