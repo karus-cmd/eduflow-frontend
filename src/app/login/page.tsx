@@ -5,9 +5,12 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from './login.module.css';
 
+// Demo logins point at accounts seeded in the production DB. Admin + Counselor come from the base
+// seed; the manager1..4 / student1..3 @demo.eduflow.local accounts only exist once the demo seed
+// (seed:demo:dev) has been run against that DB.
 const DEMOS = [
   { label: 'Admin', email: 'admin@eduflow.local', password: 'Admin@12345' },
-  { label: 'Manager', email: 'manager1@demo.eduflow.local', password: 'Demo@12345' },
+  { label: 'Manager', email: 'counselor@eduflow.local', password: 'Counselor@12345' },
   { label: 'Student', email: 'student1@demo.eduflow.local', password: 'Demo@12345' },
 ];
 
