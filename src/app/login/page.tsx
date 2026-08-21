@@ -2,10 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import Link from 'next/link';
+import styles from './login.module.css';
 
 const DEMOS = [
   { label: 'Admin', email: 'admin@eduflow.local', password: 'Admin@12345' },
@@ -53,57 +51,95 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 p-6">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-xl">EduFlow</CardTitle>
-          <CardDescription>Sign in to your account</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={submit} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            </div>
-            {needTotp && (
-              <div className="space-y-1.5">
-                <Label htmlFor="totp">2FA code</Label>
-                <Input id="totp" inputMode="numeric" pattern="\d{6}" maxLength={6} value={totp} onChange={(e) => setTotp(e.target.value)} />
-              </div>
-            )}
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Signing in…' : 'Sign in'}
-            </Button>
-          </form>
+    <div className={styles.wrap}>
+      <div className={styles.bg} aria-hidden>
+        <div className={styles.aurora} />
+        <div className={styles.grid} />
+        <div className={styles.vignette} />
+      </div>
 
-          <div className="mt-6">
-            <p className="mb-2 text-xs text-muted-foreground">Demo logins (run the demo seed first):</p>
-            <div className="flex flex-wrap gap-2">
-              {DEMOS.map((d) => (
-                <Button
-                  key={d.label}
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setEmail(d.email);
-                    setPassword(d.password);
-                    setNeedTotp(false);
-                    setError('');
-                  }}
-                >
-                  {d.label}
-                </Button>
-              ))}
-            </div>
+      <Link href="/" className={styles.back}>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M19 12H5M11 6l-6 6 6 6" />
+        </svg>
+        Back
+      </Link>
+
+      <div className={styles.card}>
+        <span className={styles.brand}>
+          <span className={styles.spark} /> EduFlow
+        </span>
+        <p className={styles.sub}>Sign in to your account</p>
+
+        <form onSubmit={submit} className={styles.form}>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="email">Email</label>
+            <input
+              id="email"
+              className={styles.input}
+              type="email"
+              autoComplete="username"
+              placeholder="you@school.edu"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
-        </CardContent>
-      </Card>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="password">Password</label>
+            <input
+              id="password"
+              className={styles.input}
+              type="password"
+              autoComplete="current-password"
+              placeholder="••••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          {needTotp && (
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="totp">2FA code</label>
+              <input
+                id="totp"
+                className={styles.input}
+                inputMode="numeric"
+                pattern="\d{6}"
+                maxLength={6}
+                placeholder="123456"
+                value={totp}
+                onChange={(e) => setTotp(e.target.value)}
+              />
+            </div>
+          )}
+          {error && <p className={styles.error}>{error}</p>}
+          <button type="submit" className={styles.btn} disabled={loading}>
+            {loading ? 'Signing in…' : 'Sign in'}
+          </button>
+        </form>
+
+        <div className={styles.demos}>
+          <p className={styles.demosLabel}>Demo logins · run the demo seed first</p>
+          <div className={styles.demoRow}>
+            {DEMOS.map((d) => (
+              <button
+                key={d.label}
+                type="button"
+                className={styles.chip}
+                onClick={() => {
+                  setEmail(d.email);
+                  setPassword(d.password);
+                  setNeedTotp(false);
+                  setError('');
+                }}
+              >
+                {d.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
