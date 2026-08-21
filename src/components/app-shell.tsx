@@ -21,6 +21,12 @@ export function AppShell({
 }) {
   return (
     <div className="min-h-screen bg-muted/30">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:shadow focus:ring-2 focus:ring-ring"
+      >
+        Skip to content
+      </a>
       <header className="border-b bg-background">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
           <div className="flex items-baseline gap-3">
@@ -45,7 +51,9 @@ export function AppShell({
           </div>
         )}
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">{children}</main>
+      <main id="main" className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+        {children}
+      </main>
     </div>
   );
 }
