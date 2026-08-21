@@ -32,7 +32,7 @@ export function AppShell({
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5 sm:px-6">
           <div className="flex items-baseline gap-3">
             <Link href={homeHref} className="flex items-center gap-2 font-heading text-lg font-extrabold tracking-tight">
-              <span className="grid size-6 -rotate-6 place-items-center rounded-lg bg-primary text-primary-foreground shadow-[0_2px_0_var(--azure-deep,#1a37b8),0_5px_12px_-4px_color-mix(in_oklch,var(--primary)_55%,transparent)]">
+              <span className="grid size-6 -rotate-6 place-items-center rounded-lg bg-primary text-primary-foreground shadow-[0_2px_0_var(--azure-deep,#065f3f),0_5px_12px_-4px_color-mix(in_oklch,var(--primary)_55%,transparent)]">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 3v6M12 15v6M3 12h6M15 12h6" />
                 </svg>

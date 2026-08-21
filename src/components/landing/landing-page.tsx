@@ -358,10 +358,10 @@ function Reveal({ className, children }: { className?: string; children: ReactNo
 /* ---------------- content ---------------- */
 
 const TRACKS = [
-  { name: 'Coding Interviews', tint: '#2f5bf0', lessons: '480 lessons', desc: 'Data structures, patterns, and timed mock rounds until they feel automatic.', icon: <IconCode /> },
+  { name: 'Coding Interviews', tint: '#0a7f56', lessons: '480 lessons', desc: 'Data structures, patterns, and timed mock rounds until they feel automatic.', icon: <IconCode /> },
   { name: 'System Design', tint: '#ff5a36', lessons: '12 case studies', desc: 'Scale, trade-offs, and the diagrams interviewers actually want to see.', icon: <IconGraph /> },
   { name: 'Aptitude & Reasoning', tint: '#1f1c2b', lessons: '900 questions', desc: 'Quant, logical reasoning, and speed drills for placement tests.', icon: <IconPuzzle /> },
-  { name: 'NEET / JEE', tint: '#16a34a', lessons: 'Physics · Chem · Bio', desc: 'Concept-first lessons and full-length mocks mapped to the syllabus.', icon: <IconAtom /> },
+  { name: 'NEET / JEE', tint: '#0ca3ad', lessons: 'Physics · Chem · Bio', desc: 'Concept-first lessons and full-length mocks mapped to the syllabus.', icon: <IconAtom /> },
   { name: 'Core CS', tint: '#d99a00', lessons: 'OS · DBMS · Networks', desc: 'The fundamentals every technical round circles back to.', icon: <IconChip /> },
   { name: 'Communication & HR', tint: '#ff5a36', lessons: '40 scenarios', desc: 'Behavioural answers and mock HR rounds that stop feeling scripted.', icon: <IconChat /> },
 ];

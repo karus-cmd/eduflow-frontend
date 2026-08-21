@@ -64,7 +64,7 @@ export function CheckoutClient({ course, user }: { course: CheckoutCourse; user:
           contact: user.phone ?? undefined,
         },
         notes: { orderId: checkout.orderId },
-        theme: { color: '#4f46e5' },
+        theme: { color: '#0a7f56' },
         handler: () => {
           // Payment succeeded on the client; the webhook provisions access server-side.
           router.push(`/student/orders/${checkout.orderId}/provisioning`);
