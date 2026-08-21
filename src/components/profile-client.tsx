@@ -95,7 +95,10 @@ function ProfileTab({ user }: { user: ProfileUser }) {
             <ReadOnlyField icon={<Phone className="size-4" />} label="Phone" value={user.phone ?? '—'} />
           </div>
           <p className="text-xs text-muted-foreground">
-            Email and phone are managed by your counsellor. You can update your display name here.
+            {user.role === 'student'
+              ? 'Email and phone are managed by your counsellor.'
+              : 'Email and phone are managed by an administrator.'}{' '}
+            You can update your display name here.
           </p>
 
           <div className="flex items-center gap-3">

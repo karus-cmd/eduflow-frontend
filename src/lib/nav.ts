@@ -22,4 +22,5 @@ export const ADMIN_NAV: { href: string; label: string }[] = [
   { href: '/admin/managers', label: 'Managers' },
   { href: '/admin/payouts', label: 'Payouts' },
   { href: '/admin/reports', label: 'Reports' },
+  { href: '/admin/settings', label: 'Settings' },
 ];
