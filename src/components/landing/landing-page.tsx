@@ -234,32 +234,38 @@ function Deck() {
         {CARDS.map((c) => (
           <div
             key={c.tag}
-            className={styles.deckCard}
+            className={styles.slotWrap}
             style={{ ['--x' as string]: `${c.x}px`, ['--y' as string]: `${c.y}px`, ['--z' as string]: `${c.z}px`, ['--r' as string]: `${c.r}deg`, ['--delay' as string]: `${c.d}ms` } as CSSProperties}
           >
-            <span className={`${styles.cardTag} ${styles[c.tagClass]}`}>{c.tag}</span>
-            <span className={styles.cardQ}>{c.q}</span>
-            <span className={styles.cardMeta}>
-              <span>{c.meta}</span>
-              <b>Drill</b>
-            </span>
+            <div className={styles.slot}>
+              <div className={styles.deckCard}>
+                <span className={`${styles.cardTag} ${styles[c.tagClass]}`}>{c.tag}</span>
+                <span className={styles.cardQ}>{c.q}</span>
+                <span className={styles.cardMeta}>
+                  <span>{c.meta}</span>
+                  <b>Drill</b>
+                </span>
+              </div>
+            </div>
           </div>
         ))}
         {/* top card: flips between question and answer */}
         <div
-          className={styles.deckCard}
-          style={{ ['--x' as string]: '116px', ['--y' as string]: '6px', ['--z' as string]: '40px', ['--r' as string]: '13deg', ['--delay' as string]: '270ms', background: 'transparent', border: 'none', boxShadow: 'none', padding: 0 } as CSSProperties}
+          className={styles.slotWrap}
+          style={{ ['--x' as string]: '116px', ['--y' as string]: '6px', ['--z' as string]: '40px', ['--r' as string]: '13deg', ['--delay' as string]: '270ms' } as CSSProperties}
         >
-          <div className={`${styles.flipper} ${flipped ? styles.flipped : ''}`}>
-            <div className={styles.deckCard} style={{ position: 'absolute', animation: 'none', opacity: 1, transform: 'none' } as CSSProperties}>
-              <span className={`${styles.cardTag} ${styles.cardTagAzure}`}>DSA</span>
-              <span className={styles.cardQ}>Reverse a linked list in O(1) space.</span>
-              <span className={styles.cardMeta}><span>tap to flip</span><b>Answer</b></span>
-            </div>
-            <div className={`${styles.deckCard} ${styles.faceBack}`} style={{ position: 'absolute', animation: 'none', opacity: 1, transform: 'rotateY(180deg)' } as CSSProperties}>
-              <span className={styles.cardTag}>DSA · answer</span>
-              <span className={styles.cardQ}>Walk the list once: keep prev, curr, next, and relink each node backward.</span>
-              <span className={styles.cardMeta}><span>O(1) space · O(n) time</span><b>Got it</b></span>
+          <div className={styles.slot}>
+            <div className={`${styles.flipper} ${flipped ? styles.flipped : ''}`}>
+              <div className={styles.deckCard}>
+                <span className={`${styles.cardTag} ${styles.cardTagAzure}`}>DSA</span>
+                <span className={styles.cardQ}>Reverse a linked list in O(1) space.</span>
+                <span className={styles.cardMeta}><span>tap to flip</span><b>Answer</b></span>
+              </div>
+              <div className={`${styles.deckCard} ${styles.faceBack}`}>
+                <span className={styles.cardTag}>DSA · answer</span>
+                <span className={styles.cardQ}>Walk the list once: keep prev, curr, next, and relink each node backward.</span>
+                <span className={styles.cardMeta}><span>O(1) space · O(n) time</span><b>Got it</b></span>
+              </div>
             </div>
           </div>
         </div>
