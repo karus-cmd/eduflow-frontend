@@ -166,76 +166,30 @@ export function LandingPage() {
 
 /* ---------------- The 3D deck (hero artifact + signature motion) ------------ */
 
-// fan geometry: each card offset + rotated, dealt with a stagger
+// circular fan: each card is only rotated (around a pivot below); hovering slides it up out of the pack
 const CARDS = [
-  { tag: 'System Design', tagClass: 'cardTagInk', q: 'Design a URL shortener.', meta: '9 min · case study', x: -128, y: 8, z: -80, r: -14, d: 60 },
-  { tag: 'Aptitude', tagClass: 'cardTagCoral', q: 'Big-O of binary search?', meta: 'timed drill', x: -66, y: -6, z: -40, r: -7, d: 130 },
-  { tag: 'Physics', tagClass: 'cardTagAzure', q: "Newton's third law, in one line.", meta: 'NEET · JEE', x: 62, y: -4, z: -40, r: 7, d: 200 },
+  { tag: 'System Design', tagClass: 'cardTagInk', q: 'Design a URL shortener.', meta: '9 min · case study', r: -24, d: 60 },
+  { tag: 'Aptitude', tagClass: 'cardTagCoral', q: 'Big-O of binary search?', meta: 'timed drill', r: -8, d: 140 },
+  { tag: 'Physics', tagClass: 'cardTagAzure', q: "Newton's third law, in one line.", meta: 'NEET · JEE', r: 8, d: 220 },
+  { tag: 'DSA', tagClass: 'cardTagCoral', q: 'Reverse a linked list in O(1) space.', meta: 'pattern drill', r: 24, d: 300 },
 ];
 
 function Deck() {
-  const deckRef = useRef<HTMLDivElement>(null);
-  const chipARef = useRef<HTMLDivElement>(null);
-  const chipBRef = useRef<HTMLDivElement>(null);
-  const [flipped, setFlipped] = useState(false);
-
-  // pointer-tilt the whole deck with a critically-damped spring (Emil: never raw 1:1)
-  useEffect(() => {
-    const stage = deckRef.current?.parentElement;
-    const deck = deckRef.current;
-    if (!stage || !deck) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-
-    let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0, last = 0;
-    const onMove = (e: PointerEvent) => {
-      const r = stage.getBoundingClientRect();
-      tx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (r.width / 2)));
-      ty = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (r.height / 2)));
-    };
-    const onLeave = () => { tx = 0; ty = 0; };
-    const frame = (now: number) => {
-      const dt = last ? Math.min((now - last) / 1000, 0.05) : 0.016;
-      last = now;
-      const k = 1 - Math.exp(-7 * dt);
-      cx += (tx - cx) * k; cy += (ty - cy) * k;
-      deck.style.transform = `rotateY(${(cx * 12).toFixed(2)}deg) rotateX(${(-cy * 12).toFixed(2)}deg)`;
-      if (chipARef.current) chipARef.current.style.transform = `translate3d(${(cx * 22).toFixed(1)}px, ${(cy * 16).toFixed(1)}px, 0)`;
-      if (chipBRef.current) chipBRef.current.style.transform = `translate3d(${(cx * -18).toFixed(1)}px, ${(cy * -14).toFixed(1)}px, 0)`;
-      raf = requestAnimationFrame(frame);
-    };
-    window.addEventListener('pointermove', onMove, { passive: true });
-    window.addEventListener('pointerleave', onLeave);
-    raf = requestAnimationFrame(frame);
-    return () => {
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerleave', onLeave);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
-
-  // flip the top card Q -> A on a gentle loop
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const id = setInterval(() => setFlipped((f) => !f), 3400);
-    return () => clearInterval(id);
-  }, []);
-
   return (
     <div className={styles.deckStage}>
-      <div ref={chipARef} className={`${styles.chip} ${styles.chipStreak}`} style={{ top: '6%', left: '2%' }}>
+      <div className={`${styles.chip} ${styles.chipStreak}`} style={{ top: '1%', left: '-1%' }}>
         <IconFlame /> 7-day streak
       </div>
-      <div ref={chipBRef} className={`${styles.chip} ${styles.chipRank}`} style={{ bottom: '8%', right: '0%' }}>
+      <div className={`${styles.chip} ${styles.chipRank}`} style={{ bottom: '3%', right: '-3%' }}>
         <IconTrend /> Top 5% this week
       </div>
 
-      <div ref={deckRef} className={styles.deck}>
+      <div className={styles.deck}>
         {CARDS.map((c) => (
           <div
             key={c.tag}
             className={styles.slotWrap}
-            style={{ ['--x' as string]: `${c.x}px`, ['--y' as string]: `${c.y}px`, ['--z' as string]: `${c.z}px`, ['--r' as string]: `${c.r}deg`, ['--delay' as string]: `${c.d}ms` } as CSSProperties}
+            style={{ ['--r' as string]: `${c.r}deg`, ['--delay' as string]: `${c.d}ms` } as CSSProperties}
           >
             <div className={styles.slot}>
               <div className={styles.deckCard}>
@@ -249,26 +203,6 @@ function Deck() {
             </div>
           </div>
         ))}
-        {/* top card: flips between question and answer */}
-        <div
-          className={styles.slotWrap}
-          style={{ ['--x' as string]: '116px', ['--y' as string]: '6px', ['--z' as string]: '40px', ['--r' as string]: '13deg', ['--delay' as string]: '270ms' } as CSSProperties}
-        >
-          <div className={styles.slot}>
-            <div className={`${styles.flipper} ${flipped ? styles.flipped : ''}`}>
-              <div className={styles.deckCard}>
-                <span className={`${styles.cardTag} ${styles.cardTagAzure}`}>DSA</span>
-                <span className={styles.cardQ}>Reverse a linked list in O(1) space.</span>
-                <span className={styles.cardMeta}><span>tap to flip</span><b>Answer</b></span>
-              </div>
-              <div className={`${styles.deckCard} ${styles.faceBack}`}>
-                <span className={styles.cardTag}>DSA · answer</span>
-                <span className={styles.cardQ}>Walk the list once: keep prev, curr, next, and relink each node backward.</span>
-                <span className={styles.cardMeta}><span>O(1) space · O(n) time</span><b>Got it</b></span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

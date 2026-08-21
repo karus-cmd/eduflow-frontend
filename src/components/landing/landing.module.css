@@ -241,39 +241,37 @@
 }
 .deck {
   position: relative;
-  width: min(320px, 78%);
-  aspect-ratio: 3 / 4;
-  transform-style: preserve-3d;
-  will-change: transform; /* tilt is JS-driven per frame */
+  width: min(280px, 70%);
+  aspect-ratio: 3 / 4.1;
 }
-/* Each card lives in a slot. slotWrap deals it in (opacity + entrance, once); slot holds the fan
-   position and a smooth, interruptible hover lift; deckCard is the surface. All four lift the same. */
+/* Cards fan out circularly (rotate around a pivot below). slotWrap deals each in once; slot holds
+   the fan angle and slides the card straight up out of the pack on hover; deckCard is the surface.
+   Each card is independent — no whole-deck 3D tilt. */
 .slotWrap {
   position: absolute;
   inset: 0;
-  transform-style: preserve-3d;
   opacity: 0;
-  animation: dealCard 700ms var(--ease-spring) forwards;
+  animation: dealCard 620ms var(--ease-spring) forwards;
   animation-delay: var(--delay, 0ms);
 }
+.slotWrap:has(.slot:hover) { z-index: 30; }
 @keyframes dealCard {
-  from { opacity: 0; transform: translate3d(0, 30px, -46px) scale(0.96); }
+  from { opacity: 0; transform: translateY(26px) scale(0.94); }
   to { opacity: 1; transform: none; }
 }
 .slot {
   position: absolute;
   inset: 0;
-  transform-style: preserve-3d;
   cursor: pointer;
-  /* fan position + a hover lift that rides translateZ (rises toward you) */
-  transform: translate3d(var(--x, 0), var(--y, 0), calc(var(--z, 0px) + var(--lift, 0px))) rotate(var(--r, 0deg));
-  transition: transform 440ms var(--ease-out);
+  transform-origin: 50% 155%; /* pivot well below the card → a circular hand-of-cards fan */
+  transform: translateY(calc(-1 * var(--lift, 0px))) rotate(var(--r, 0deg));
+  transition: transform 360ms var(--ease-out);
   will-change: transform;
 }
 @media (hover: hover) and (pointer: fine) {
-  .slot:hover { --lift: 62px; }
+  .slot:hover { --lift: 46px; }
   .slot:hover .deckCard {
-    box-shadow: 0 44px 90px -30px rgba(31, 28, 43, 0.6), 0 6px 0 rgba(31, 28, 43, 0.05);
+    box-shadow: 0 38px 78px -28px rgba(31, 28, 43, 0.55), 0 6px 0 rgba(31, 28, 43, 0.05);
   }
 }
 .deckCard {
