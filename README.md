@@ -4,12 +4,22 @@ Next.js (App Router) + TypeScript + Tailwind + shadcn/ui web client for the
 [EduFlow backend](https://github.com/karus-cmd/eduflow-backend). A **separate** project so the
 backend's Railway deploy stays untouched. Deploy target: Vercel.
 
-> **Status — F3 (admin content) awaiting review:** F0/F1/F2 are merged to `main` (student revenue path +
-> counselor/manager). **F3 is on branch `f3-admin-content`** — the Udemy-style admin content studio:
-> content library + course editor (Curriculum / Settings / Resources / Live-classes tabs), inline lesson
-> editor (visibility, drip, free-preview, HTML content, resources), the video register→finalize pipeline
-> (§13.7), publish/draft, and live-class scheduling. Remaining: admin managers/money F4, polish F5
-> (see `../eduflow-backend/PROGRESS.md`).
+> **Status — F4 (admin managers + money) awaiting review:** F0/F1/F2/F3 are merged to `main` (student
+> path, counselor, admin content). **F4 is on branch `f4-admin-money`** — the admin money surface:
+> onboard managers (auto referral code), per-manager payout settings (bank → verify → manual/auto mode),
+> record manual payouts (pending→paid), the payout console (who to pay next ≥ threshold), org drill-down
+> (manager → leads/students → student detail), and reporting over the daily-stats rollup. **Only F5 (settings
+> + polish) remains** to complete the architecture (see `../eduflow-backend/PROGRESS.md`).
+
+## F4 — admin managers + money (branch `f4-admin-money`, awaiting review)
+
+| Route | Screen |
+|---|---|
+| `/admin/managers` | Manager list (earned/pending/paid) + **Onboard manager** (`POST /users` → auto `MGR-XXXX` referral code) |
+| `/admin/managers/[id]` | Manager detail — referral code, balance tiles, **payout settings** (set bank → verify → manual/auto toggle; auto refused without a verified bank), **record manual payout** (pending→paid, idempotent), commission ledger, payout history, and a leads→students drill-down |
+| `/admin/users/[id]` | Student detail (basic profile; per-course progress flagged as a gap) |
+| `/admin/payouts` | **Payout console** — payable managers (pending ≥ ₹1,000 threshold) with inline record-payout |
+| `/admin/reports` | Reporting over `counselor_daily_stats` — date range, org totals + per-manager table |
 
 ## F3 — admin content (branch `f3-admin-content`, awaiting review)
 All under `/admin/*` (same BFF architecture):
@@ -110,6 +120,14 @@ Local `http://localhost:3000/api/v1` · Railway `https://eduflow-backend-product
 - **Publish is one-way.** `POST /courses/:id/publish` sets `published`; there's no unpublish/archive
   endpoint (`PATCH` doesn't change status). To hide a live course you soft-delete it. _Fix:_ a status
   transition on `PATCH /courses/:id` (draft/archived).
+- **No admin view of a student's enrolment progress.** `/admin/users/[id]` shows the basic profile only —
+  admins can't read a specific student's per-course progress (only the student's own `GET /me/enrollments`).
+  Same family as the counselor gap. _Fix:_ `GET /users/:id/enrollments` (admin).
+
+> **Fixed along the way:** the shared `Button` now honours `type="submit"` — base-ui's `useButton` forces
+> `type="button"` (merged after our props), so form-submit buttons previously only fired on Enter, not on
+> click. `src/components/ui/button.tsx` supplies the native element via base-ui's `render` prop so our type
+> wins the merge.
 - **No counselor "my students + progress" endpoint.** Counselors lack `enrollment.read_all`, and
   `GET /me/enrollments` is the *caller's own* enrollments. F2's "My students" is built from the counselor's
   **converted leads** instead — so it shows who they enrolled but **not per-course progress**. _Fix:_ a
