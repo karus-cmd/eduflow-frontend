@@ -4,14 +4,26 @@ Next.js (App Router) + TypeScript + Tailwind + shadcn/ui web client for the
 [EduFlow backend](https://github.com/karus-cmd/eduflow-backend). A **separate** project so the
 backend's Railway deploy stays untouched. Deploy target: Vercel.
 
-> **Status — F4 (admin managers + money) awaiting review:** F0/F1/F2/F3 are merged to `main` (student
-> path, counselor, admin content). **F4 is on branch `f4-admin-money`** — the admin money surface:
-> onboard managers (auto referral code), per-manager payout settings (bank → verify → manual/auto mode),
-> record manual payouts (pending→paid), the payout console (who to pay next ≥ threshold), org drill-down
-> (manager → leads/students → student detail), and reporting over the daily-stats rollup. **Only F5 (settings
-> + polish) remains** to complete the architecture (see `../eduflow-backend/PROGRESS.md`).
+> **Status — F5 (settings + polish) awaiting review; the architecture is feature-complete.** F0–F4 are
+> merged to `main` (student revenue path, counselor CRM, admin content studio, admin managers + money).
+> **F5 is on branch `f5-settings-polish`** — the final milestone: an **admin settings page** (admins can now
+> edit their own name/password), a **root error boundary** + **route loading skeletons**, and an
+> **accessibility/nav pass** (correct active-section highlighting, `aria-current`, a skip-to-content link,
+> and a labelled `<main>` landmark). Merging F5 completes every surface the four roles were designed for
+> (see `../eduflow-backend/PROGRESS.md`).
 
-## F4 — admin managers + money (branch `f4-admin-money`, awaiting review)
+## F5 — settings + polish (branch `f5-settings-polish`, awaiting review)
+
+The last milestone. No new backend surface — it fills the cross-cutting gaps.
+
+| Area | What |
+|---|---|
+| **Admin settings** | New `/admin/settings` (+ nav entry) reusing the shared `ProfileClient` — admins previously had **no way to edit their own name or password**. The profile help text is now role-aware (students hear "your counsellor", staff hear "an administrator"). |
+| **Error boundary** | `app/error.tsx` — a friendly "Something went wrong" with **Try again** (`reset()`) + **Go home**; logs the raw error for devs, never shows it to the user. Missing resources still render the graceful `not-found` page (verified: a bogus `/admin/managers/[id]` → "Page not found"). |
+| **Loading states** | A `PageSkeleton` that mirrors the AppShell chrome, wired via `loading.tsx` at each role root (`/admin`, `/counselor`, `/student`) so section navigation shows a real skeleton instead of a blank flash. |
+| **Nav + a11y** | Section-index links (single-segment hrefs like `/admin`) now match **exactly** — they no longer stay highlighted on every child route (Dashboard used to light up alongside the real section). Adds `aria-current="page"` on the active tab, a labelled `<nav aria-label="Primary">`, a **skip-to-content** link, and `id="main"` on the content landmark. |
+
+## F4 — admin managers + money (merged to `main`)
 
 | Route | Screen |
 |---|---|
@@ -21,7 +33,7 @@ backend's Railway deploy stays untouched. Deploy target: Vercel.
 | `/admin/payouts` | **Payout console** — payable managers (pending ≥ ₹1,000 threshold) with inline record-payout |
 | `/admin/reports` | Reporting over `counselor_daily_stats` — date range, org totals + per-manager table |
 
-## F3 — admin content (branch `f3-admin-content`, awaiting review)
+## F3 — admin content (merged to `main`)
 All under `/admin/*` (same BFF architecture):
 
 | Route | Screen |
@@ -33,7 +45,7 @@ All under `/admin/*` (same BFF architecture):
 Every mutation goes through new `/api/*` BFF route handlers (courses/sections/lessons/resources/videos/
 live-classes CRUD + reorder + publish). Destructive actions use **inline confirms** (no blocking dialogs).
 
-## F2 — counselor / manager (branch `f2-counselor`, awaiting review)
+## F2 — counselor / manager (merged to `main`)
 All under `/counselor/*` (same BFF architecture as F1):
 
 | Route | Screen |
