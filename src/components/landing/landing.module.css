@@ -264,12 +264,13 @@
   inset: 0;
   cursor: pointer;
   transform-origin: 50% 155%; /* pivot well below the card → a circular hand-of-cards fan */
-  transform: translateY(calc(-1 * var(--lift, 0px))) rotate(var(--r, 0deg));
+  /* rotate first, THEN translate along the card's own axis → the lift slides radially outward */
+  transform: rotate(var(--r, 0deg)) translateY(calc(-1 * var(--lift, 0px)));
   transition: transform 360ms var(--ease-out);
   will-change: transform;
 }
 @media (hover: hover) and (pointer: fine) {
-  .slot:hover { --lift: 46px; }
+  .slot:hover { --lift: 44px; }
   .slot:hover .deckCard {
     box-shadow: 0 38px 78px -28px rgba(31, 28, 43, 0.55), 0 6px 0 rgba(31, 28, 43, 0.05);
   }
