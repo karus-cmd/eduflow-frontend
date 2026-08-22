@@ -1,0 +1,149 @@
+/* ============================================================================
+   My Learning — the student's own space. Elements that appear NOWHERE else:
+   a streak flame + day-dots, circular progress rings, a study-activity heatmap,
+   achievement badges. Every animation is a different material.
+   Colours come from the app tokens (emerald primary + coral) so it stays in-world.
+   ============================================================================ */
+
+.page { --s-ease: cubic-bezier(0.16, 1, 0.3, 1); position: relative; }
+
+/* soft emerald wash behind the hero, unique to this page */
+.wash {
+  position: absolute;
+  inset: -24px -40px auto -40px;
+  height: 320px;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 100% at 20% 0%, color-mix(in oklch, var(--primary) 16%, transparent), transparent 60%),
+              radial-gradient(90% 90% at 92% 10%, color-mix(in oklch, var(--coral) 12%, transparent), transparent 62%);
+}
+.inner { position: relative; z-index: 1; }
+
+/* ---- Hero: greeting + streak ------------------------------------------- */
+.hero { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 30px; }
+.greet { animation: heroRise 620ms var(--s-ease) both; }
+.eyebrow { font-size: 13px; font-weight: 500; color: var(--muted-foreground); }
+.hi { font-family: var(--font-display), sans-serif; font-weight: 800; font-size: clamp(1.9rem, 4vw, 2.8rem); letter-spacing: -0.03em; line-height: 1.02; margin: 4px 0 0; }
+.hiName { color: var(--primary); }
+@keyframes heroRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+.streak {
+  display: flex; align-items: center; gap: 16px;
+  padding: 14px 18px; border-radius: 18px;
+  background: var(--card); border: 1px solid var(--border);
+  box-shadow: 0 14px 34px -24px rgba(31, 28, 43, 0.4);
+  animation: heroRise 620ms var(--s-ease) both; animation-delay: 90ms;
+}
+.flame { font-size: 30px; line-height: 1; filter: drop-shadow(0 3px 8px color-mix(in oklch, var(--coral) 50%, transparent)); animation: flameFlicker 2.4s ease-in-out infinite; transform-origin: bottom center; }
+@keyframes flameFlicker { 0%, 100% { transform: rotate(-3deg) scale(1); } 30% { transform: rotate(2deg) scale(1.08); } 60% { transform: rotate(-1deg) scale(0.97); } }
+.streakNum { font-family: var(--font-display), sans-serif; font-weight: 800; font-size: 1.5rem; letter-spacing: -0.02em; line-height: 1; }
+.streakLbl { font-size: 11.5px; color: var(--muted-foreground); }
+.dayDots { display: flex; gap: 5px; margin-left: 4px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); border: 1px solid var(--border); transform: scale(0); animation: dotPop 400ms var(--s-ease) forwards; }
+.dotOn { background: var(--primary); border-color: transparent; box-shadow: 0 0 8px color-mix(in oklch, var(--primary) 55%, transparent); }
+@keyframes dotPop { to { transform: scale(1); } }
+
+/* ---- Momentum rings ---------------------------------------------------- */
+.rings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 30px; }
+@media (max-width: 620px) { .rings { grid-template-columns: 1fr; } }
+.ringTile { display: flex; align-items: center; gap: 16px; padding: 18px; border-radius: 18px; background: var(--card); border: 1px solid var(--border); box-shadow: 0 14px 34px -24px rgba(31, 28, 43, 0.4); }
+.ringSvg { width: 64px; height: 64px; flex: none; transform: rotate(-90deg); }
+.ringTrack { fill: none; stroke: var(--muted); stroke-width: 7; }
+.ringProg { fill: none; stroke-width: 7; stroke-linecap: round; transition: stroke-dashoffset 1100ms var(--s-ease); }
+.ringCenter { transform: rotate(90deg); transform-origin: center; font-family: var(--font-geist-mono), monospace; font-size: 13px; font-weight: 700; fill: var(--foreground); }
+.ringVal { font-family: var(--font-display), sans-serif; font-weight: 800; font-size: 1.5rem; letter-spacing: -0.02em; line-height: 1; }
+.ringLbl { margin-top: 3px; font-size: 12.5px; color: var(--muted-foreground); }
+
+/* ---- Resume strip (jump back in) --------------------------------------- */
+.resume {
+  display: flex; align-items: center; gap: 18px; margin-bottom: 34px;
+  padding: 18px 20px; border-radius: 20px;
+  background: linear-gradient(100deg, var(--primary), color-mix(in oklch, var(--primary) 78%, black));
+  color: var(--primary-foreground); overflow: hidden; position: relative;
+  box-shadow: 0 26px 60px -30px color-mix(in oklch, var(--primary) 80%, transparent);
+  animation: slideInLeft 640ms var(--s-ease) both; animation-delay: 140ms;
+}
+@keyframes slideInLeft { from { opacity: 0; transform: translateX(-22px); } to { opacity: 1; transform: none; } }
+.resumePlay { flex: none; width: 54px; height: 54px; border-radius: 50%; background: rgba(255, 255, 255, 0.16); display: grid; place-items: center; }
+.resumePlay svg { width: 24px; height: 24px; margin-left: 3px; fill: #fff; }
+.resumeBody { flex: 1; min-width: 0; }
+.resumeKicker { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.72); }
+.resumeTitle { font-family: var(--font-display), sans-serif; font-weight: 750; font-size: 1.15rem; letter-spacing: -0.02em; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.resumeBar { margin-top: 8px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.25); overflow: hidden; max-width: 320px; }
+.resumeFill { height: 100%; background: #fff; border-radius: 3px; width: 0; transition: width 1100ms var(--s-ease); }
+.resumeBtn { flex: none; height: 44px; padding: 0 20px; border-radius: 12px; background: #fff; color: var(--primary); font-family: var(--font-display), sans-serif; font-weight: 700; font-size: 14.5px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.16); transition: transform 150ms var(--s-ease); }
+.resumeBtn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.16); }
+@media (max-width: 640px) { .resume { flex-wrap: wrap; } .resumeBtn { width: 100%; justify-content: center; } }
+
+/* ---- Section heading -------------------------------------------------- */
+.sec { margin: 34px 0 14px; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.secTitle { font-family: var(--font-display), sans-serif; font-weight: 750; font-size: 1.25rem; letter-spacing: -0.02em; }
+.secNote { font-size: 13px; color: var(--muted-foreground); }
+
+/* ---- Course cards with a progress RING -------------------------------- */
+.courseGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 900px) { .courseGrid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .courseGrid { grid-template-columns: 1fr; } }
+.course {
+  position: relative; display: block; border-radius: 18px; overflow: hidden;
+  background: var(--card); border: 1px solid var(--border);
+  box-shadow: 0 14px 34px -24px rgba(31, 28, 43, 0.4);
+  transition: transform 260ms var(--s-ease), box-shadow 260ms var(--s-ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .course:hover { transform: translateY(-5px); box-shadow: 0 28px 56px -26px rgba(31, 28, 43, 0.5); }
+  .course:hover .courseImg { transform: scale(1.06); }
+}
+.courseThumb { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--muted); }
+.courseImg { width: 100%; height: 100%; transition: transform 500ms var(--s-ease); }
+.courseRing { position: absolute; right: 12px; bottom: -22px; width: 52px; height: 52px; }
+.courseRing svg { width: 52px; height: 52px; transform: rotate(-90deg); }
+.courseRingBg { fill: var(--card); }
+.courseRingTrack { fill: none; stroke: color-mix(in oklch, var(--foreground) 12%, transparent); stroke-width: 5; }
+.courseRingProg { fill: none; stroke: var(--primary); stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset 1000ms var(--s-ease); }
+.courseRingPct { transform: rotate(90deg); transform-origin: center; font-family: var(--font-geist-mono), monospace; font-size: 12px; font-weight: 700; fill: var(--foreground); }
+.courseBody { padding: 26px 16px 16px; }
+.courseName { font-family: var(--font-display), sans-serif; font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; line-height: 1.2; }
+.courseMeta { margin-top: 6px; font-size: 12.5px; color: var(--muted-foreground); display: flex; align-items: center; gap: 6px; }
+.doneTag { display: inline-flex; align-items: center; gap: 4px; color: var(--primary); font-weight: 600; }
+
+/* ---- Activity heatmap ------------------------------------------------- */
+.heat { padding: 20px; border-radius: 20px; background: var(--card); border: 1px solid var(--border); box-shadow: 0 14px 34px -24px rgba(31, 28, 43, 0.4); }
+.heatGrid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 1fr); gap: 5px; overflow-x: auto; padding-bottom: 4px; }
+.heatCell { width: 15px; height: 15px; border-radius: 4px; opacity: 0; }
+.heat[data-in] .heatCell { animation: cellReveal 420ms var(--s-ease) forwards; }
+@keyframes cellReveal { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
+.h0 { background: color-mix(in oklch, var(--foreground) 7%, transparent); }
+.h1 { background: color-mix(in oklch, var(--primary) 30%, transparent); }
+.h2 { background: color-mix(in oklch, var(--primary) 55%, transparent); }
+.h3 { background: color-mix(in oklch, var(--primary) 80%, transparent); }
+.h4 { background: var(--primary); }
+.heatCell:hover { outline: 2px solid var(--foreground); outline-offset: 1px; transform: scale(1.2); transition: transform 120ms var(--s-ease); }
+.heatLegend { margin-top: 12px; display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted-foreground); }
+.legendCell { width: 12px; height: 12px; border-radius: 3px; }
+
+/* ---- Achievements ---------------------------------------------------- */
+.badges { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+@media (max-width: 900px) { .badges { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 480px) { .badges { grid-template-columns: repeat(2, 1fr); } }
+.badge { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 10px; border-radius: 16px; background: var(--card); border: 1px solid var(--border); text-align: center; }
+.badges[data-in] .badge { animation: badgeStamp 500ms var(--s-ease) both; }
+@keyframes badgeStamp { 0% { opacity: 0; transform: scale(0.5) rotate(-12deg); } 60% { opacity: 1; transform: scale(1.08) rotate(3deg); } 100% { transform: scale(1) rotate(0); } }
+.badgeIcon { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; }
+.badgeIcon svg { width: 22px; height: 22px; }
+.badgeOn .badgeIcon { background: color-mix(in oklch, var(--primary) 16%, transparent); color: var(--primary); }
+.badgeLocked { opacity: 0.55; }
+.badgeLocked .badgeIcon { background: color-mix(in oklch, var(--foreground) 8%, transparent); color: var(--muted-foreground); }
+.badgeName { font-size: 12px; font-weight: 600; line-height: 1.2; }
+.badgeDesc { font-size: 10.5px; color: var(--muted-foreground); line-height: 1.2; }
+@media (hover: hover) and (pointer: fine) {
+  .badgeOn:hover { transform: translateY(-3px); transition: transform 200ms var(--s-ease); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .greet, .streak, .resume { animation: none; opacity: 1; transform: none; }
+  .flame { animation: none; }
+  .dot { animation: none; transform: scale(1); }
+  .heat[data-in] .heatCell, .badges[data-in] .badge { animation: none; opacity: 1; transform: none; }
+  .ringProg, .courseRingProg, .resumeFill, .courseImg { transition: none; }
+}
