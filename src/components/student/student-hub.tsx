@@ -172,18 +172,23 @@ export function StudentHub(props: HubProps) {
         {/* Study activity heatmap */}
         <div className={styles.sec}>
           <span className={styles.secTitle}>Your study rhythm</span>
-          <span className={styles.secNote}>last 5 weeks</span>
+          <span className={styles.secNote}>recent activity</span>
         </div>
         <div className={styles.heat}>
           <div ref={heat.ref} className={styles.heatGrid} {...(heat.seen ? { 'data-in': '' } : {})}>
             {heatmap.map((lvl, i) => (
-              <span key={i} className={`${styles.heatCell} ${styles[`h${lvl}`]}`} style={{ animationDelay: `${i * 9}ms` }} title={`${lvl === 0 ? 'no' : lvl} ${lvl === 1 ? 'session' : 'sessions'}`} />
+              <span key={i} className={`${styles.heatCell} ${styles[`h${lvl}`]}`} style={{ animationDelay: `${i * 5}ms` }} title={`${lvl === 0 ? 'no' : lvl} ${lvl === 1 ? 'session' : 'sessions'}`} />
             ))}
           </div>
-          <div className={styles.heatLegend}>
-            Less
-            {[0, 1, 2, 3, 4].map((l) => <span key={l} className={`${styles.legendCell} ${styles[`h${l}`]}`} />)}
-            More
+          <div className={styles.heatFoot}>
+            <div className={styles.heatLegend}>
+              Less
+              {[0, 1, 2, 3, 4].map((l) => <span key={l} className={`${styles.legendCell} ${styles[`h${l}`]}`} />)}
+              More
+            </div>
+            <div className={styles.heatSummary}>
+              <b>{heatmap.filter((v) => v > 0).length}</b> active days · best streak <b>{streak}</b>
+            </div>
           </div>
         </div>
 

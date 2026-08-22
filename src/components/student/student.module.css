@@ -110,8 +110,8 @@
 /* ---- Activity heatmap ------------------------------------------------- */
 .heat { padding: 20px; border-radius: 20px; background: var(--card); border: 1px solid var(--border); box-shadow: 0 14px 34px -24px rgba(31, 28, 43, 0.4); }
 .heatGrid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 1fr); gap: 5px; overflow-x: auto; padding-bottom: 4px; }
-.heatCell { width: 15px; height: 15px; border-radius: 4px; opacity: 0; }
-.heat[data-in] .heatCell { animation: cellReveal 420ms var(--s-ease) forwards; }
+.heatCell { width: 15px; height: 15px; border-radius: 4px; }
+.heatGrid[data-in] .heatCell { animation: cellReveal 420ms var(--s-ease) both; }
 @keyframes cellReveal { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
 .h0 { background: color-mix(in oklch, var(--foreground) 7%, transparent); }
 .h1 { background: color-mix(in oklch, var(--primary) 30%, transparent); }
@@ -119,8 +119,11 @@
 .h3 { background: color-mix(in oklch, var(--primary) 80%, transparent); }
 .h4 { background: var(--primary); }
 .heatCell:hover { outline: 2px solid var(--foreground); outline-offset: 1px; transform: scale(1.2); transition: transform 120ms var(--s-ease); }
-.heatLegend { margin-top: 12px; display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted-foreground); }
+.heatFoot { margin-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.heatLegend { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted-foreground); }
 .legendCell { width: 12px; height: 12px; border-radius: 3px; }
+.heatSummary { font-size: 12.5px; color: var(--muted-foreground); }
+.heatSummary b { color: var(--foreground); font-weight: 650; }
 
 /* ---- Achievements ---------------------------------------------------- */
 .badges { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
@@ -144,6 +147,6 @@
   .greet, .streak, .resume { animation: none; opacity: 1; transform: none; }
   .flame { animation: none; }
   .dot { animation: none; transform: scale(1); }
-  .heat[data-in] .heatCell, .badges[data-in] .badge { animation: none; opacity: 1; transform: none; }
+  .heatGrid[data-in] .heatCell, .badges[data-in] .badge { animation: none; opacity: 1; transform: none; }
   .ringProg, .courseRingProg, .resumeFill, .courseImg { transition: none; }
 }

@@ -12,7 +12,7 @@ import type { StudentDashboard } from '@/lib/api/types';
 
 export const metadata = { title: 'My Learning · EduFlow' };
 
-const HEAT_DAYS = 35;
+const HEAT_DAYS = 126; // 18 weeks — a proper contribution-graph span
 /** Deterministic study-activity intensity (0–4) for cell i, with the recent days kept active. */
 function heatIntensity(i: number): number {
   const h = ((i * 2654435761) >>> 0) % 100;
