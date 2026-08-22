@@ -56,13 +56,8 @@ export function LandingPage() {
                 </a>
               </div>
               <div className={styles.heroNote}>
-                <span className={styles.avatars}>
-                  <span className={styles.avatar} />
-                  <span className={styles.avatar} />
-                  <span className={styles.avatar} />
-                  <span className={styles.avatar} />
-                </span>
-                Join learners prepping here every day.
+                <span className={styles.noteSpark}>✦</span>
+                Big brain energy, zero cram, all aura.
               </div>
             </div>
 

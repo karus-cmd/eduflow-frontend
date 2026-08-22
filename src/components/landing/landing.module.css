@@ -222,13 +222,19 @@
   text-wrap: pretty;
 }
 .heroActions { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 14px; }
-.heroNote { margin-top: 22px; font-size: 13.5px; color: var(--ink-3); display: flex; align-items: center; gap: 8px; }
-.avatars { display: inline-flex; }
-.avatar { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--ivory); margin-left: -8px; background: var(--azure-2); }
-.avatar:first-child { margin-left: 0; }
-.avatar:nth-child(2) { background: var(--coral); }
-.avatar:nth-child(3) { background: var(--butter); }
-.avatar:nth-child(4) { background: var(--lime); }
+.heroNote { margin-top: 22px; font-size: 14px; font-weight: 500; color: var(--ink-2); display: flex; align-items: center; gap: 9px; }
+.noteSpark {
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--coral);
+  text-shadow: 0 0 14px color-mix(in srgb, var(--coral) 60%, transparent);
+  animation: auraPulse 3.2s var(--ease-out) infinite;
+}
+@keyframes auraPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.75; transform: scale(1.12); }
+}
+@media (prefers-reduced-motion: reduce) { .noteSpark { animation: none; } }
 
 /* ---- The 3D deck (hero artifact + signature motion) ---------------------- */
 
