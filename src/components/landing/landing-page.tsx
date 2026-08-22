@@ -57,7 +57,7 @@ export function LandingPage() {
               </div>
               <div className={styles.heroNote}>
                 <span className={styles.noteSpark}>✦</span>
-                Big brain energy, zero cram, all aura.
+                Big brain energy, zero cram, pure flow.
               </div>
             </div>
 
