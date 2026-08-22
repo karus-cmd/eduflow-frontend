@@ -54,6 +54,32 @@ export default function LoginPage() {
 
   return (
     <div className={styles.wrap}>
+      <div className={styles.scene} aria-hidden>
+        <div className={styles.aura} />
+        <div className={`${styles.floatCard} ${styles.fc1}`}>
+          <div className={styles.fcBody}>
+            <span className={`${styles.fcTag} ${styles.fcTagE}`}>DSA</span>
+            <span className={styles.fcLine}>Two pointers</span>
+            <span className={styles.fcMeta}>timed drill</span>
+          </div>
+        </div>
+        <div className={`${styles.floatCard} ${styles.fc2}`}>
+          <div className={styles.fcBody}>
+            <span className={`${styles.fcTag} ${styles.fcTagC}`}>NEET</span>
+            <span className={styles.fcLine}>Cell biology</span>
+            <span className={styles.fcMeta}>9 min</span>
+          </div>
+        </div>
+        <div className={`${styles.floatCard} ${styles.fc3}`}>
+          <div className={styles.fcBody}>
+            <span className={`${styles.fcTag} ${styles.fcTagI}`}>Aptitude</span>
+            <span className={styles.fcLine}>Big-O basics</span>
+            <span className={styles.fcMeta}>quick set</span>
+          </div>
+        </div>
+        <span className={styles.sparkle}>✦</span>
+      </div>
+
       <Link href="/" className={styles.back}>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M19 12H5M11 6l-6 6 6 6" />
@@ -76,43 +102,49 @@ export default function LoginPage() {
         <form onSubmit={submit} className={styles.form}>
           <div className={styles.field}>
             <label className={styles.label} htmlFor="email">Email</label>
-            <input
-              id="email"
-              className={styles.input}
-              type="email"
-              autoComplete="username"
-              placeholder="you@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <div className={styles.inputBox}>
+              <input
+                id="email"
+                className={styles.input}
+                type="email"
+                autoComplete="username"
+                placeholder="you@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
           </div>
           <div className={styles.field}>
             <label className={styles.label} htmlFor="password">Password</label>
-            <input
-              id="password"
-              className={styles.input}
-              type="password"
-              autoComplete="current-password"
-              placeholder="••••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className={styles.inputBox}>
+              <input
+                id="password"
+                className={styles.input}
+                type="password"
+                autoComplete="current-password"
+                placeholder="••••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
           </div>
           {needTotp && (
             <div className={styles.field}>
               <label className={styles.label} htmlFor="totp">2FA code</label>
-              <input
-                id="totp"
-                className={styles.input}
-                inputMode="numeric"
-                pattern="\d{6}"
-                maxLength={6}
-                placeholder="123456"
-                value={totp}
-                onChange={(e) => setTotp(e.target.value)}
-              />
+              <div className={styles.inputBox}>
+                <input
+                  id="totp"
+                  className={styles.input}
+                  inputMode="numeric"
+                  pattern="\d{6}"
+                  maxLength={6}
+                  placeholder="123456"
+                  value={totp}
+                  onChange={(e) => setTotp(e.target.value)}
+                />
+              </div>
             </div>
           )}
           {error && <p className={styles.error}>{error}</p>}
