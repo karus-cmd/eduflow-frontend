@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 import { formatPct } from '@/lib/money';
 import type { StudentDashboard } from '@/lib/api/types';
 
-export const metadata = { title: 'My Learning · EduFlow' };
+export const metadata = { title: 'My Learning · STEIN-X' };
 
 const HEAT_DAYS = 126; // 18 weeks — a proper contribution-graph span
 /** Deterministic study-activity intensity (0–4) for cell i, with the recent days kept active. */

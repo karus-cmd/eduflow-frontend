@@ -3,7 +3,7 @@ import { ProfileClient } from '@/components/profile-client';
 import { requireRole } from '@/lib/auth';
 import { COUNSELOR_NAV } from '@/lib/nav';
 
-export const metadata = { title: 'Profile · EduFlow' };
+export const metadata = { title: 'Profile · STEIN-X' };
 
 export default async function CounselorProfilePage() {
   const me = await requireRole(['counselor', 'team_lead']);

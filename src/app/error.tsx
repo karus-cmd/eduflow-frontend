@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
  */
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
-    console.error('[EduFlow] route error:', error);
+    console.error('[STEIN-X] route error:', error);
   }, [error]);
 
   return (

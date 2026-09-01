@@ -9,7 +9,7 @@ import { COUNSELOR_NAV } from '@/lib/nav';
 import { formatDate } from '@/lib/format';
 import type { Course, CounselorDashboard, Lead, Paginated } from '@/lib/api/types';
 
-export const metadata = { title: 'My students · EduFlow' };
+export const metadata = { title: 'My students · STEIN-X' };
 
 export default async function StudentsPage() {
   const me = await requireRole(['counselor', 'team_lead']);

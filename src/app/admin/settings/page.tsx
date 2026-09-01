@@ -3,7 +3,7 @@ import { ProfileClient } from '@/components/profile-client';
 import { requireRole } from '@/lib/auth';
 import { ADMIN_NAV } from '@/lib/nav';
 
-export const metadata = { title: 'Settings · EduFlow' };
+export const metadata = { title: 'Settings · STEIN-X' };
 
 export default async function AdminSettingsPage() {
   const me = await requireRole(['admin', 'finance']);

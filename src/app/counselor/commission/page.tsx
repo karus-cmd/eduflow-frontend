@@ -12,7 +12,7 @@ import { formatDate } from '@/lib/format';
 import { labelize } from '@/lib/crm';
 import type { MyCommission, PayoutItem } from '@/lib/api/types';
 
-export const metadata = { title: 'Commission · EduFlow' };
+export const metadata = { title: 'Commission · STEIN-X' };
 
 const LEDGER_BADGE: Record<string, 'default' | 'secondary' | 'destructive'> = {
   accrual: 'default',

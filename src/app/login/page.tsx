@@ -94,7 +94,7 @@ export default function LoginPage() {
               <path d="M12 3v6M12 15v6M3 12h6M15 12h6" />
             </svg>
           </span>
-          EduFlow
+          STEIN-X
         </span>
         <h1 className={styles.title}>Welcome back</h1>
         <p className={styles.sub}>Sign in to pick up where you left off.</p>

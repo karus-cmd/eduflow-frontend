@@ -21,8 +21,8 @@ const display = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: "EduFlow",
-  description: "EduFlow — enrollment CRM, LMS & commission ledger",
+  title: "STEIN-X",
+  description: "STEIN-X — enrollment CRM, LMS & commission ledger",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

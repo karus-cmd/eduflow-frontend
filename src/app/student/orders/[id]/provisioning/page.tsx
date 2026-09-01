@@ -3,7 +3,7 @@ import { ProvisioningPoller } from '@/components/provisioning-poller';
 import { requireRole } from '@/lib/auth';
 import { STUDENT_NAV } from '@/lib/nav';
 
-export const metadata = { title: 'Provisioning access · EduFlow' };
+export const metadata = { title: 'Provisioning access · STEIN-X' };
 
 export default async function ProvisioningPage(props: PageProps<'/student/orders/[id]/provisioning'>) {
   const { id } = await props.params;

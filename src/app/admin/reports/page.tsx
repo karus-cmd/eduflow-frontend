@@ -9,7 +9,7 @@ import { ADMIN_NAV } from '@/lib/nav';
 import { formatPaise } from '@/lib/money';
 import type { CounselorDailyStat, CounselorListItem, Paginated } from '@/lib/api/types';
 
-export const metadata = { title: 'Reports · EduFlow' };
+export const metadata = { title: 'Reports · STEIN-X' };
 
 function ymd(d: Date): string {
   return d.toISOString().slice(0, 10);

@@ -5,7 +5,7 @@ import { serverApi } from '@/lib/server-api';
 import { STUDENT_NAV } from '@/lib/nav';
 import type { Course, Enrollment, Paginated } from '@/lib/api/types';
 
-export const metadata = { title: 'Browse courses · EduFlow' };
+export const metadata = { title: 'Browse courses · STEIN-X' };
 
 export default async function BrowsePage() {
   const me = await requireRole(['student']);

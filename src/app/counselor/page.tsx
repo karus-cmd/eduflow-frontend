@@ -10,7 +10,7 @@ import { formatPaise } from '@/lib/money';
 import { formatDateTime } from '@/lib/format';
 import type { CounselorDashboard, MyCommission } from '@/lib/api/types';
 
-export const metadata = { title: 'Dashboard · EduFlow' };
+export const metadata = { title: 'Dashboard · STEIN-X' };
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 

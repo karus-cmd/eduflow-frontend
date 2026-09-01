@@ -5,7 +5,7 @@ import { serverApi } from '@/lib/server-api';
 import { COUNSELOR_NAV } from '@/lib/nav';
 import type { Course, Paginated } from '@/lib/api/types';
 
-export const metadata = { title: 'Courses · EduFlow' };
+export const metadata = { title: 'Courses · STEIN-X' };
 
 export default async function CounselorCoursesPage() {
   const me = await requireRole(['counselor', 'team_lead']);

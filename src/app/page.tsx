@@ -4,9 +4,9 @@ import { roleHome } from '@/lib/config';
 import { LandingPage } from '@/components/landing/landing-page';
 
 export const metadata = {
-  title: 'EduFlow — learn it, drill it, ace it',
+  title: 'STEIN-X — learn it, drill it, ace it',
   description:
-    'EduFlow turns courses, live classes, and thousands of practice questions into one habit that gets you exam and interview ready. Pick a track and start today.',
+    'STEIN-X turns courses, live classes, and thousands of practice questions into one habit that gets you exam and interview ready. Pick a track and start today.',
 };
 
 /** Root: signed-in users go to their dashboard; everyone else meets the landing page.

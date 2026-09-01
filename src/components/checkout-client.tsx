@@ -55,7 +55,7 @@ export function CheckoutClient({ course, user }: { course: CheckoutCourse; user:
         key: checkout.keyId,
         amount: Number(checkout.amountPaise),
         currency: checkout.currency,
-        name: 'EduFlow',
+        name: 'STEIN-X',
         description: checkout.courseTitle,
         order_id: checkout.gatewayOrderId,
         prefill: {

@@ -5,7 +5,7 @@ import { serverApi } from '@/lib/server-api';
 import { ADMIN_NAV } from '@/lib/nav';
 import type { PayableResponse } from '@/lib/api/types';
 
-export const metadata = { title: 'Payouts · EduFlow' };
+export const metadata = { title: 'Payouts · STEIN-X' };
 
 export default async function AdminPayoutsPage() {
   const me = await requireRole(['admin', 'finance']);

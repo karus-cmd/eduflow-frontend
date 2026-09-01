@@ -7,7 +7,7 @@ import { STUDENT_NAV } from '@/lib/nav';
 import { formatPct } from '@/lib/money';
 import type { CourseDetail, CourseProgress, Enrollment, LessonNode } from '@/lib/api/types';
 
-export const metadata = { title: 'Course player · EduFlow' };
+export const metadata = { title: 'Course player · STEIN-X' };
 
 export default async function LearnPage(props: PageProps<'/student/learn/[courseId]'>) {
   const { courseId } = await props.params;

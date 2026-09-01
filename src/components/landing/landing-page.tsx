@@ -18,7 +18,7 @@ export function LandingPage() {
       <nav className={styles.nav} {...(stuck ? { 'data-stuck': '' } : {})}>
         <div className={styles.navInner}>
           <span className={styles.wordmark}>
-            <span className={styles.mark}><IconSpark /></span> EduFlow
+            <span className={styles.mark}><IconSpark /></span> STEIN-X
           </span>
           <div className={styles.navLinks}>
             <a className={styles.navLink} href="#tracks">Tracks</a>
@@ -44,7 +44,7 @@ export function LandingPage() {
                 <span className={styles.hlCoral}>Ace it.</span>
               </h1>
               <p className={styles.lede}>
-                EduFlow turns courses, live classes, and thousands of practice questions into one habit that
+                STEIN-X turns courses, live classes, and thousands of practice questions into one habit that
                 gets you exam and interview ready. Pick a track and start today.
               </p>
               <div className={styles.heroActions}>
@@ -151,7 +151,7 @@ export function LandingPage() {
 
       <footer className={styles.footer}>
         <span className={styles.wordmark} style={{ fontSize: 17 }}>
-          <span className={styles.mark} style={{ width: 22, height: 22 }}><IconSpark /></span> EduFlow
+          <span className={styles.mark} style={{ width: 22, height: 22 }}><IconSpark /></span> STEIN-X
         </span>
         <span>Courses · Live classes · Practice · Mock interviews</span>
       </footer>

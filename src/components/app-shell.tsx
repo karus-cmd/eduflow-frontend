@@ -15,7 +15,7 @@ export function AppShell({
   user: { fullName: string; role: string };
   /** Optional secondary nav (e.g. the student's My Learning / Browse / Profile). */
   nav?: NavLink[];
-  /** Where the "EduFlow" wordmark links to (defaults to root, which bounces to the role home). */
+  /** Where the "STEIN-X" wordmark links to (defaults to root, which bounces to the role home). */
   homeHref?: string;
   children: ReactNode;
 }) {
@@ -37,7 +37,7 @@ export function AppShell({
                   <path d="M12 3v6M12 15v6M3 12h6M15 12h6" />
                 </svg>
               </span>
-              EduFlow
+              STEIN-X
             </Link>
             <span className="hidden text-sm text-muted-foreground sm:inline">{title}</span>
           </div>

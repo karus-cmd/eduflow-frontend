@@ -7,7 +7,7 @@ import { ApiError, serverApi } from '@/lib/server-api';
 import { STUDENT_NAV } from '@/lib/nav';
 import type { CourseDetail } from '@/lib/api/types';
 
-export const metadata = { title: 'Checkout · EduFlow' };
+export const metadata = { title: 'Checkout · STEIN-X' };
 
 export default async function CheckoutPage(props: PageProps<'/student/checkout/[courseId]'>) {
   const { courseId } = await props.params;

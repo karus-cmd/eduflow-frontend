@@ -5,7 +5,7 @@ import { serverApi } from '@/lib/server-api';
 import { ADMIN_NAV } from '@/lib/nav';
 import type { CounselorListItem, Paginated } from '@/lib/api/types';
 
-export const metadata = { title: 'Managers · EduFlow' };
+export const metadata = { title: 'Managers · STEIN-X' };
 
 export default async function AdminManagersPage() {
   const me = await requireRole(['admin', 'finance']);
