@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Ticket } from 'lucide-react';
+import { Building2, ChevronLeft, ChevronRight, Ticket } from 'lucide-react';
 import { AppShell } from '@/components/app-shell';
 import { StatCard } from '@/components/stat-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,13 +8,15 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ManagerPayoutSettings } from '@/components/admin/manager-payout-settings';
 import { RecordPayoutForm } from '@/components/admin/record-payout-form';
+import { ManagerLeadsBoard } from '@/components/admin/manager-leads-board';
+import { LeadsBarChart, type LeadsDayPoint } from '@/components/leads-bar-chart';
 import { requireRole } from '@/lib/auth';
 import { ApiError, serverApi } from '@/lib/server-api';
 import { ADMIN_NAV } from '@/lib/nav';
 import { formatPaise } from '@/lib/money';
 import { formatDate } from '@/lib/format';
-import { labelize, stageBadge } from '@/lib/crm';
-import type { CounselorDetail, Lead, MyCommission, Paginated, PayoutItem } from '@/lib/api/types';
+import { labelize } from '@/lib/crm';
+import type { CounselorDetail, Lead, LeadActivityItem, MyCommission, Paginated, PayoutItem } from '@/lib/api/types';
 
 const LEDGER_BADGE: Record<string, 'default' | 'secondary' | 'destructive'> = {
   accrual: 'default',
@@ -22,9 +24,50 @@ const LEDGER_BADGE: Record<string, 'default' | 'secondary' | 'destructive'> = {
   clawback: 'destructive',
 };
 
+/** Parses a `?month=YYYY-MM` search param into the 1st of that month; falls back to the current month. */
+function parseMonthParam(month: string | undefined): Date {
+  if (month && /^\d{4}-\d{2}$/.test(month)) {
+    const [y, m] = month.split('-').map(Number);
+    if (m >= 1 && m <= 12) return new Date(y, m - 1, 1);
+  }
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), 1);
+}
+
+/** The 1st-of-month date → its `?month=YYYY-MM` param value. */
+function monthParam(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/** Same day-of-month bucketing + qualifying-move rule as the manager's own dashboard chart
+ *  (§ counselor/page.tsx's dailyLeads) — kept in sync deliberately, not shared, since each
+ *  page's surrounding fetch shape differs slightly. */
+function dailyLeads(leads: Lead[], activity: LeadActivityItem[], monthDate: Date): LeadsDayPoint[] {
+  const daysInMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate();
+  const buckets: LeadsDayPoint[] = Array.from({ length: daysInMonth }, (_, i) => ({ day: i + 1, count: 0 }));
+  for (const l of leads) {
+    const day = new Date(l.createdAt).getDate();
+    if (buckets[day - 1]) buckets[day - 1].count += 1;
+  }
+  for (const a of activity) {
+    if (!a.before || !a.after || a.before === a.after) continue;
+    if (a.before === 'interested' && a.after === 'contacted') continue;
+    const day = new Date(a.occurredAt).getDate();
+    if (buckets[day - 1]) buckets[day - 1].count += 1;
+  }
+  return buckets;
+}
+
 export default async function ManagerDetailPage(props: PageProps<'/admin/managers/[id]'>) {
   const { id } = await props.params;
   const me = await requireRole(['admin', 'finance']);
+  const sp = await props.searchParams;
+  const monthDate = parseMonthParam(typeof sp.month === 'string' ? sp.month : undefined);
+  const monthFrom = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+  const monthTo = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1);
+  const prevMonth = monthParam(new Date(monthDate.getFullYear(), monthDate.getMonth() - 1, 1));
+  const nextMonth = monthParam(new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1));
+  const monthLabel = monthDate.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
 
   let manager: CounselorDetail;
   try {
@@ -33,12 +76,23 @@ export default async function ManagerDetailPage(props: PageProps<'/admin/manager
     if (e instanceof ApiError && (e.status === 404 || e.status === 400)) notFound();
     throw e;
   }
-  const [commission, payouts, leads] = await Promise.all([
+  const [commission, payouts, leads, monthLeads, monthActivity] = await Promise.all([
     serverApi<MyCommission>(`/counselors/${id}/commission`).catch(() => null),
     serverApi<PayoutItem[]>(`/counselors/${id}/payouts`).catch(() => [] as PayoutItem[]),
+    // All-time — for the board (current state, not scoped to any one month).
     serverApi<Paginated<Lead>>(`/leads?assignedTo=${id}&limit=100`).catch(() => null),
+    // Month-scoped — for the chart. Without this, a lead created in a DIFFERENT month bleeds
+    // into whichever month is currently viewed by day-of-month coincidence (a real bug: e.g.
+    // an Aug-29 lead would wrongly count toward Sept's day 29 when viewing September).
+    serverApi<Paginated<Lead>>(
+      `/leads?assignedTo=${id}&from=${encodeURIComponent(monthFrom.toISOString())}&to=${encodeURIComponent(monthTo.toISOString())}&limit=100`,
+    ).catch(() => null),
+    serverApi<LeadActivityItem[]>(
+      `/leads/activity?counselorId=${id}&from=${encodeURIComponent(monthFrom.toISOString())}&to=${encodeURIComponent(monthTo.toISOString())}`,
+    ).catch(() => [] as LeadActivityItem[]),
   ]);
   const b = manager.balance;
+  const leadsPerDay = dailyLeads(monthLeads?.data ?? [], monthActivity, monthDate);
 
   return (
     <AppShell title="Admin" user={me} nav={ADMIN_NAV} homeHref="/admin">
@@ -54,6 +108,11 @@ export default async function ManagerDetailPage(props: PageProps<'/admin/manager
         {manager.profile.referralCode && (
           <Badge className="gap-1">
             <Ticket className="size-3" /> {manager.profile.referralCode}
+          </Badge>
+        )}
+        {manager.college && (
+          <Badge variant="outline" className="gap-1">
+            <Building2 className="size-3" /> {manager.college.name}
           </Badge>
         )}
         <span className="text-sm text-muted-foreground">{manager.email}</span>
@@ -158,47 +217,43 @@ export default async function ManagerDetailPage(props: PageProps<'/admin/manager
         </Card>
       </div>
 
-      {/* Drill-down: this manager's leads + converted students */}
+      {/* Activity, month-wise — read-only mirror of this manager's own dashboard chart */}
+      <Card className="mt-6">
+        <CardHeader className="flex-row items-center justify-between gap-2 pb-1">
+          <div>
+            <CardTitle>Leads captured</CardTitle>
+            <p className="text-xs text-muted-foreground">By day, {monthLabel}</p>
+          </div>
+          <div className="flex items-center gap-1">
+            <Link
+              href={`/admin/managers/${id}?month=${prevMonth}`}
+              className="grid size-7 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+              aria-label="Previous month"
+            >
+              <ChevronLeft className="size-4" />
+            </Link>
+            <span className="w-28 text-center text-sm font-medium tabular-nums">{monthLabel}</span>
+            <Link
+              href={`/admin/managers/${id}?month=${nextMonth}`}
+              className="grid size-7 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+              aria-label="Next month"
+            >
+              <ChevronRight className="size-4" />
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <LeadsBarChart data={leadsPerDay} monthLabel={monthLabel} />
+        </CardContent>
+      </Card>
+
+      {/* Drill-down: this manager's leads, read-only — same 4 columns as their own board */}
       <Card className="mt-6">
         <CardHeader>
-          <CardTitle>Leads &amp; students ({leads?.meta.total ?? 0})</CardTitle>
+          <CardTitle>Leads ({leads?.meta.total ?? 0})</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Stage</TableHead>
-                <TableHead>Student</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {(leads?.data ?? []).map((l) => (
-                <TableRow key={l.id}>
-                  <TableCell className="font-medium">{l.fullName}</TableCell>
-                  <TableCell className="text-muted-foreground tabular-nums">{l.phone}</TableCell>
-                  <TableCell>
-                    <Badge variant={stageBadge(l.stage)} className="capitalize">{labelize(l.stage)}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    {l.convertedStudentId ? (
-                      <Link href={`/admin/users/${l.convertedStudentId}`} className="text-primary hover:underline">
-                        View student →
-                      </Link>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-              {(leads?.data.length ?? 0) === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">No leads assigned.</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+        <CardContent>
+          <ManagerLeadsBoard leads={leads?.data ?? []} />
         </CardContent>
       </Card>
     </AppShell>
