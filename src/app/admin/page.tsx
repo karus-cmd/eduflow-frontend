@@ -1,19 +1,18 @@
-import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AppShell } from '@/components/app-shell';
 import { StatCard } from '@/components/stat-card';
+import { DashboardManagers } from '@/components/admin/dashboard-managers';
 import { requireRole } from '@/lib/auth';
 import { serverApi } from '@/lib/server-api';
 import { formatPaise } from '@/lib/money';
 import { ADMIN_NAV } from '@/lib/nav';
-import type { AdminDashboard, CounselorListItem, Paginated } from '@/lib/api/types';
+import type { AdminDashboard, College, CounselorListItem, Paginated } from '@/lib/api/types';
 
 export default async function AdminDashboardPage() {
   const me = await requireRole(['admin', 'finance']);
-  const [dash, managers] = await Promise.all([
+  const [dash, managers, colleges] = await Promise.all([
     serverApi<AdminDashboard>('/dashboard/admin'),
     serverApi<Paginated<CounselorListItem>>('/counselors?limit=50'),
+    serverApi<College[]>('/colleges').catch(() => [] as College[]),
   ]);
   const s = dash.stats;
 
@@ -33,53 +32,7 @@ export default async function AdminDashboardPage() {
         <StatCard label="Convos today" value={s.conversationsToday} icon={<IconChat />} accent="coral" />
       </div>
 
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Managers ({managers.meta.total})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead className="text-right">Students</TableHead>
-                  <TableHead className="text-right">Earned</TableHead>
-                  <TableHead className="text-right">Pending</TableHead>
-                  <TableHead className="text-right">Paid</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {managers.data.map((m) => (
-                  <TableRow key={m.id}>
-                    <TableCell>
-                      <Link href={`/admin/managers/${m.id}`} className="flex items-center gap-2.5 font-medium hover:text-primary">
-                        <span className="grid size-7 flex-none place-items-center rounded-full bg-primary/12 text-xs font-bold text-primary">
-                          {m.fullName.trim().charAt(0).toUpperCase()}
-                        </span>
-                        {m.fullName}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{m.email}</TableCell>
-                    <TableCell className="text-right tabular-nums">{m.stats.students}</TableCell>
-                    <TableCell className="text-right tabular-nums">{formatPaise(m.stats.earnedPaise)}</TableCell>
-                    <TableCell className="text-right font-medium tabular-nums text-coral">{formatPaise(m.stats.pendingPaise)}</TableCell>
-                    <TableCell className="text-right tabular-nums text-muted-foreground">{formatPaise(m.stats.paidPaise)}</TableCell>
-                  </TableRow>
-                ))}
-                {managers.data.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={6} className="py-6 text-center text-muted-foreground">
-                      No managers yet.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+      <DashboardManagers managers={managers.data} colleges={colleges} />
     </AppShell>
   );
 }
