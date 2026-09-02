@@ -1,17 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Script from 'next/script';
 import styles from './login.module.css';
 
-// Demo logins — all seeded in the production DB (base seed for admin; demo seed for the
-// manager1..4 / student1..3 @demo.eduflow.local accounts, password Demo@12345).
-const DEMOS = [
-  { label: 'Admin', email: 'admin@eduflow.local', password: 'Admin@12345' },
-  { label: 'Manager', email: 'manager1@demo.eduflow.local', password: 'Demo@12345' },
-  { label: 'Student', email: 'student1@demo.eduflow.local', password: 'Demo@12345' },
-];
+// Empty until a real Google Cloud OAuth Client ID is provisioned — see .env.example. The Google
+// buttons below simply don't render while this is unset (graceful degradation, not a crash).
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '';
+
+interface GoogleCredentialResponse {
+  credential: string;
+}
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: {
+            client_id: string;
+            callback: (response: GoogleCredentialResponse) => void;
+          }) => void;
+          renderButton: (
+            parent: HTMLElement,
+            options: { theme?: string; size?: string; text?: string; width?: number },
+          ) => void;
+        };
+      };
+    };
+  }
+}
 
 function homeFor(role: string) {
   if (role === 'admin' || role === 'finance') return '/admin';
@@ -27,6 +47,52 @@ export default function LoginPage() {
   const [needTotp, setNeedTotp] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleError, setGoogleError] = useState('');
+
+  const signUpDivRef = useRef<HTMLDivElement>(null);
+  const signInDivRef = useRef<HTMLDivElement>(null);
+  const googleInitialized = useRef(false);
+
+  async function handleGoogleCredential(response: GoogleCredentialResponse) {
+    setGoogleError('');
+    const res = await fetch('/api/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken: response.credential }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setGoogleError(data?.error?.message ?? 'Google sign-in failed.');
+      return;
+    }
+    router.push(homeFor(data.role));
+    router.refresh();
+  }
+
+  function onGoogleScriptLoad() {
+    if (!GOOGLE_CLIENT_ID || googleInitialized.current || !window.google) return;
+    googleInitialized.current = true;
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleCredential,
+    });
+    if (signUpDivRef.current) {
+      window.google.accounts.id.renderButton(signUpDivRef.current, {
+        theme: 'outline',
+        size: 'large',
+        text: 'signup_with',
+        width: 240,
+      });
+    }
+    if (signInDivRef.current) {
+      window.google.accounts.id.renderButton(signInDivRef.current, {
+        theme: 'outline',
+        size: 'large',
+        text: 'signin_with',
+        width: 240,
+      });
+    }
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -99,6 +165,22 @@ export default function LoginPage() {
         <h1 className={styles.title}>Welcome back</h1>
         <p className={styles.sub}>Sign in to pick up where you left off.</p>
 
+        {GOOGLE_CLIENT_ID && (
+          <>
+            <Script
+              src="https://accounts.google.com/gsi/client"
+              strategy="afterInteractive"
+              onLoad={onGoogleScriptLoad}
+            />
+            <div className={styles.google}>
+              <div ref={signUpDivRef} />
+              <div ref={signInDivRef} />
+              {googleError && <p className={styles.error}>{googleError}</p>}
+            </div>
+            <div className={styles.divider}>or continue with email</div>
+          </>
+        )}
+
         <form onSubmit={submit} className={styles.form}>
           <div className={styles.field}>
             <label className={styles.label} htmlFor="email">Email</label>
@@ -152,27 +234,6 @@ export default function LoginPage() {
             {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
-
-        <div className={styles.demos}>
-          <p className={styles.demosLabel}>Demo logins · run the demo seed first</p>
-          <div className={styles.demoRow}>
-            {DEMOS.map((d) => (
-              <button
-                key={d.label}
-                type="button"
-                className={styles.chip}
-                onClick={() => {
-                  setEmail(d.email);
-                  setPassword(d.password);
-                  setNeedTotp(false);
-                  setError('');
-                }}
-              >
-                {d.label}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

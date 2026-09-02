@@ -157,6 +157,11 @@
 .title { margin: 20px 0 0; font-family: var(--font-display), sans-serif; font-weight: 800; font-size: 1.7rem; letter-spacing: -0.03em; }
 .sub { margin-top: 5px; font-size: 14px; color: var(--ink-2); }
 
+/* ---- Google Identity Services (only rendered once a client ID is configured) ------------- */
+.google { margin-top: 22px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.divider { display: flex; align-items: center; gap: 10px; margin-top: 18px; font-size: 12px; color: var(--ink-3); }
+.divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
 .form { margin-top: 22px; display: flex; flex-direction: column; gap: 15px; }
 .field { display: flex; flex-direction: column; gap: 7px; }
 .label { font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
@@ -226,26 +231,6 @@
 @media (hover: hover) and (pointer: fine) {
   .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 0 var(--emerald-deep), 0 16px 30px -8px color-mix(in oklch, var(--emerald) 62%, transparent); }
   .btn:hover:not(:disabled)::after { transform: translateX(120%); }
-}
-
-.demos { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
-.demosLabel { font-size: 12px; font-weight: 500; color: var(--ink-3); }
-.demoRow { margin-top: 11px; display: flex; gap: 8px; flex-wrap: wrap; }
-.chip {
-  height: 34px;
-  padding: 0 14px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 550;
-  color: var(--ink);
-  background: var(--ivory);
-  border: 1.5px solid var(--line);
-  cursor: pointer;
-  transition: transform 160ms var(--ease), border-color 180ms var(--ease), color 180ms var(--ease), box-shadow 180ms var(--ease);
-}
-.chip:active { transform: translateY(1px) scale(0.97); }
-@media (hover: hover) and (pointer: fine) {
-  .chip:hover { transform: translateY(-3px); border-color: var(--emerald); color: var(--emerald); box-shadow: 0 8px 16px -10px color-mix(in oklch, var(--emerald) 55%, transparent); }
 }
 
 @media (prefers-reduced-motion: reduce) {
