@@ -8,22 +8,25 @@ import { serverApi } from '@/lib/server-api';
 import { STUDENT_NAV } from '@/lib/nav';
 import { cn } from '@/lib/utils';
 import { formatPct } from '@/lib/money';
-import type { StudentDashboard } from '@/lib/api/types';
+import type { ActivitySummary, StudentDashboard } from '@/lib/api/types';
 
 export const metadata = { title: 'My Learning · STEIN-X' };
 
-const HEAT_DAYS = 126; // 18 weeks — a proper contribution-graph span
-/** Deterministic study-activity intensity (0–4) for cell i, with the recent days kept active. */
-function heatIntensity(i: number): number {
-  const h = ((i * 2654435761) >>> 0) % 100;
-  let lvl = h < 20 ? 0 : h < 45 ? 1 : h < 70 ? 2 : h < 88 ? 3 : 4;
-  if (HEAT_DAYS - 1 - i < 5 && lvl === 0) lvl = 1 + (h % 3);
-  return lvl;
+/** Bucket real accumulated seconds for a day into the 0–4 heatmap intensity `StudentHub` expects. */
+function heatLevel(activeSeconds: number): number {
+  if (activeSeconds <= 0) return 0;
+  if (activeSeconds < 900) return 1; // < 15 min
+  if (activeSeconds < 2700) return 2; // < 45 min
+  if (activeSeconds < 5400) return 3; // < 90 min
+  return 4;
 }
 
 export default async function MyLearningPage() {
   const me = await requireRole(['student']);
-  const dash = await serverApi<StudentDashboard>('/dashboard/student');
+  const [dash, activity] = await Promise.all([
+    serverApi<StudentDashboard>('/dashboard/student'),
+    serverApi<ActivitySummary>('/me/activity/summary'),
+  ]);
 
   const first = me.fullName.split(' ')[0];
 
@@ -53,14 +56,13 @@ export default async function MyLearningPage() {
   const resume = [...courses].filter((c) => !c.completed && c.pct > 0).sort((a, b) => b.pct - a.pct)[0]
     ?? courses.find((c) => !c.completed) ?? null;
 
-  // deterministic study rhythm + streak from it
-  const heatmap = Array.from({ length: HEAT_DAYS }, (_, i) => heatIntensity(i));
-  let streak = 0;
-  for (let i = HEAT_DAYS - 1; i >= 0 && heatmap[i] > 0; i--) streak++;
-  const dayDots = heatmap.slice(-7).map((v) => v > 0);
-  const daysThisWeek = dayDots.filter(Boolean).length;
+  // real study rhythm + streak, from the activity heartbeat
+  const heatmap = activity.heatmap.map((d) => heatLevel(d.activeSeconds));
+  const streak = activity.streak;
+  const dayDots = activity.heatmap.slice(-7).map((d) => d.activeSeconds > 0);
+  const daysThisWeek = activity.thisWeekDaysActive;
   const avgProgress = Math.round(courses.reduce((n, c) => n + c.pct, 0) / courses.length);
-  const hours = Math.round(heatmap.slice(-7).reduce((n, v) => n + v, 0) * 0.6);
+  const hours = Math.round((activity.studyTimeThisWeekSec / 3600) * 10) / 10;
 
   const rings: RingStat[] = [
     { label: 'This week', val: `${daysThisWeek}/7`, pct: (daysThisWeek / 7) * 100, tone: 'emerald' },
@@ -81,6 +83,7 @@ export default async function MyLearningPage() {
   return (
     <AppShell title="My Learning" user={me} nav={STUDENT_NAV} homeHref="/student">
       <StudentHub
+        userId={me.id}
         firstName={first}
         streak={streak}
         dayDots={dayDots}

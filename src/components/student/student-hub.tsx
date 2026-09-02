@@ -4,12 +4,14 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { CourseThumb } from '@/components/course-thumb';
 import { formatDateTime } from '@/lib/format';
+import { StreakCelebration } from './streak-celebration';
 import styles from './student.module.css';
 
 export interface HubCourse { id: string; title: string; slug: string; thumbnailUrl: string | null; pct: number; completed: boolean; }
 export interface RingStat { label: string; val: string; pct: number; tone: 'emerald' | 'coral' | 'gold'; }
 export interface Badge { key: string; name: string; desc: string; unlocked: boolean; }
 export interface HubProps {
+  userId: string;
   firstName: string;
   streak: number;
   dayDots: boolean[];
@@ -50,7 +52,7 @@ function Ring({ pct, size, stroke, sw }: { pct: number; size: number; stroke: st
 }
 
 export function StudentHub(props: HubProps) {
-  const { firstName, streak, dayDots, rings, resume, courses, heatmap, achievements, nextClass } = props;
+  const { userId, firstName, streak, dayDots, rings, resume, courses, heatmap, achievements, nextClass } = props;
   const [greeting, setGreeting] = useState('Welcome back');
   const [resumeFill, setResumeFill] = useState(0);
   const heat = useInView<HTMLDivElement>();
@@ -65,6 +67,7 @@ export function StudentHub(props: HubProps) {
 
   return (
     <div className={styles.page}>
+      <StreakCelebration userId={userId} streak={streak} />
       <div className={styles.wash} aria-hidden />
       <div className={styles.inner}>
         {/* Hero: greeting + streak */}
