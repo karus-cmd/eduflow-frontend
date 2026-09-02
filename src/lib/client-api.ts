@@ -23,8 +23,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const text = await res.text();
   const data = text ? JSON.parse(text) : {};
   if (!res.ok) {
+    const base = data?.error?.message ?? data?.message ?? `Request failed (${res.status})`;
+    // class-validator failures collapse to a generic "Validation failed" — surface the actual
+    // field-level reasons (§11 error envelope: error.details.violations) so the user can fix it.
+    const violations = data?.error?.details?.violations;
     const message =
-      data?.error?.message ?? data?.message ?? `Request failed (${res.status})`;
+      Array.isArray(violations) && violations.length > 0 ? `${base}: ${violations.join(', ')}` : base;
     throw new ClientApiError(res.status, message, data?.error?.details);
   }
   return data as T;

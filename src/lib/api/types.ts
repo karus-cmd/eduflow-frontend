@@ -36,8 +36,10 @@ export interface MeResponse {
   fullName: string;
   email: string | null;
   phone: string | null;
-  role: Role;
   status: string;
+  /** Populated only for counselors; `null` for admin/student/finance/team_lead. */
+  employeeCode: string | null;
+  role: Role;
   orgId: string;
   lastLoginAt: string | null;
   permissions: string[];
@@ -57,7 +59,21 @@ export interface AdminDashboard {
 export interface CounselorDashboard {
   balance: { earnedPaise: string; paidPaise: string; pendingPaise: string };
   stats: { studentsEnrolled: number; conversationsToday: number; openLeads: number };
-  recentConversations: { id: string; leadId: string; disposition: string; occurredAt: string }[];
+  recentActivity: {
+    id: string;
+    type: 'conversation' | 'lead_created' | 'lead_moved';
+    leadId: string | null;
+    label: string;
+    occurredAt: string;
+  }[];
+}
+
+/** `GET /me/activity/summary` — real study streak/heatmap, driven by the activity heartbeat. */
+export interface ActivitySummary {
+  streak: number;
+  thisWeekDaysActive: number;
+  studyTimeThisWeekSec: number;
+  heatmap: { date: string; activeSeconds: number }[];
 }
 
 export interface StudentDashboard {
@@ -96,6 +112,23 @@ export interface CounselorListItem {
     paidPaise: string;
     pendingPaise: string;
   };
+  college: { id: string; name: string } | null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// F5 — Colleges (org sub-scoping for managers/counselors)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** `GET /colleges` (list item) / `POST /colleges` / `PATCH /colleges/:id` response shape. */
+export interface College {
+  id: string;
+  orgId: string;
+  name: string;
+  slug: string;
+  city: string | null;
+  isDefault: boolean;
+  managerCount: number;
+  createdAt: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -327,6 +360,15 @@ export interface QueueToday {
   newLeads: Lead[];
 }
 
+/** `GET /leads/activity?from=&to=` — the caller's own lead stage moves in a date range. */
+export interface LeadActivityItem {
+  id: string;
+  leadId: string | null;
+  before: string | null;
+  after: string | null;
+  occurredAt: string;
+}
+
 export interface CommissionBalance {
   earnedPaise: string;
   paidPaise: string;
@@ -451,6 +493,21 @@ export interface CounselorDetail {
   payout: CounselorPayoutInfo;
   balance: CommissionBalance;
   stats: { students: number; conversations: number };
+  college: { id: string; name: string } | null;
+}
+
+/** `GET /counselors/:id/students` — one row per enrollment under that manager (admin drill-down). */
+export interface CounselorStudentRow {
+  id: string;
+  student: { id: string; fullName: string; email: string | null };
+  course: { id: string; title: string };
+  status: string;
+  progressPct: string;
+  pricePaidPaise: string;
+  accessStartsAt: string;
+  accessEndsAt: string | null;
+  completedAt: string | null;
+  createdAt: string;
 }
 
 /** Returned by set-bank / verify / set-mode. */
@@ -485,6 +542,19 @@ export interface UserPublic {
   role: string;
   status: string;
   lastLoginAt: string | null;
+  createdAt: string;
+}
+
+/**
+ * `GET /admin-invites` (list item) / `POST /admin-invites` response shape. Admin-only
+ * (`settings.manage`) allow-list: an email here is promoted to admin automatically the first time
+ * it signs in via Google.
+ */
+export interface AdminInvite {
+  id: string;
+  orgId: string;
+  email: string;
+  invitedBy: string | null;
   createdAt: string;
 }
 
