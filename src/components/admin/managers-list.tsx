@@ -13,6 +13,7 @@ import { Select } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { clientApi, ClientApiError } from '@/lib/client-api';
 import { formatPaise } from '@/lib/money';
+import { DeactivateUserButton } from '@/components/admin/deactivate-user-button';
 import type { College, CounselorListItem } from '@/lib/api/types';
 
 export function ManagersList({
@@ -104,9 +105,12 @@ export function ManagersList({
                   <TableCell className="text-right font-medium tabular-nums">{formatPaise(m.stats.pendingPaise)}</TableCell>
                   <TableCell className="text-right tabular-nums text-muted-foreground">{formatPaise(m.stats.paidPaise)}</TableCell>
                   <TableCell className="text-right">
-                    <Link href={`/admin/managers/${m.id}`}>
-                      <ChevronRight className="ml-auto size-4 text-muted-foreground" />
-                    </Link>
+                    <div className="flex items-center justify-end gap-1">
+                      <DeactivateUserButton userId={m.id} name={m.fullName} status={m.status} />
+                      <Link href={`/admin/managers/${m.id}`}>
+                        <ChevronRight className="size-4 text-muted-foreground" />
+                      </Link>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

@@ -4,6 +4,7 @@ import { Mail, Phone } from 'lucide-react';
 import { AppShell } from '@/components/app-shell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { DeactivateUserButton } from '@/components/admin/deactivate-user-button';
 import { requireRole } from '@/lib/auth';
 import { ApiError, serverApi } from '@/lib/server-api';
 import { ADMIN_NAV } from '@/lib/nav';
@@ -33,6 +34,11 @@ export default async function AdminUserDetailPage(props: PageProps<'/admin/users
             {user.fullName}
             <Badge variant="secondary" className="capitalize">{user.role}</Badge>
             {user.status !== 'active' && <Badge variant="destructive" className="capitalize">{user.status}</Badge>}
+            {me.role === 'admin' && user.id !== me.id && (
+              <span className="ml-auto">
+                <DeactivateUserButton userId={user.id} name={user.fullName} status={user.status} />
+              </span>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">

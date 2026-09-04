@@ -10,6 +10,7 @@ import { ManagerPayoutSettings } from '@/components/admin/manager-payout-setting
 import { RecordPayoutForm } from '@/components/admin/record-payout-form';
 import { ManagerLeadsBoard } from '@/components/admin/manager-leads-board';
 import { LeadsBarChart, type LeadsDayPoint } from '@/components/leads-bar-chart';
+import { DeactivateUserButton } from '@/components/admin/deactivate-user-button';
 import { requireRole } from '@/lib/auth';
 import { ApiError, serverApi } from '@/lib/server-api';
 import { ADMIN_NAV } from '@/lib/nav';
@@ -116,6 +117,9 @@ export default async function ManagerDetailPage(props: PageProps<'/admin/manager
           </Badge>
         )}
         <span className="text-sm text-muted-foreground">{manager.email}</span>
+        <span className="ml-auto">
+          <DeactivateUserButton userId={manager.id} name={manager.fullName} status={manager.status} />
+        </span>
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

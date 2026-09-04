@@ -1,6 +1,7 @@
 import { AppShell } from '@/components/app-shell';
 import { ManagersList } from '@/components/admin/managers-list';
 import { AdminInvitesPanel } from '@/components/admin/admin-invites-panel';
+import { PromoteUserForm } from '@/components/admin/promote-user-form';
 import { requireRole } from '@/lib/auth';
 import { serverApi } from '@/lib/server-api';
 import { ADMIN_NAV } from '@/lib/nav';
@@ -32,7 +33,8 @@ export default async function AdminManagersPage(props: PageProps<'/admin/manager
       </div>
       <ManagersList managers={managers.data} colleges={colleges} collegeId={collegeId ?? null} />
       {me.role === 'admin' && (
-        <div className="mt-5">
+        <div className="mt-5 space-y-5">
+          <PromoteUserForm colleges={colleges} />
           <AdminInvitesPanel invites={invites} />
         </div>
       )}
