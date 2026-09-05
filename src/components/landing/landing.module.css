@@ -1,25 +1,26 @@
 /* ============================================================================
-   THE PREP DECK — STEIN-X's student landing (Persuade). Knowledge lives on
-   dimensional cards in real 3D space. Electric azure brand, persimmon energy,
-   ink on warm ivory. Real perspective + shadow (never glass/glow), one cinematic
-   moment (the deck fans + flips), press/hover micro-interactions on every control.
+   CHROME MACHINE — STEIN-X's student landing (Persuade), reskinned. Knowledge
+   lives on dimensional cards in real 3D space. Industrial blue brand, steel
+   ground. Colour + type only were reskinned — the 3D layout, cinematic deck
+   fan/flip moment, and every micro-interaction are untouched.
    ============================================================================ */
 
 .page {
-  --ivory: #f4f0e7;
-  --ivory-2: #ece6d8;
+  /* Chrome Machine palette (names kept for continuity with the rest of the file) */
+  --ivory: #EDEFF2;
+  --ivory-2: #E3E7EC;
   --paper: #ffffff;
-  --ink: #1f1c2b;
-  --ink-2: #565270;
-  --ink-3: #817d97;
-  --azure: #0a7f56; /* emerald brand (name kept for continuity) */
-  --azure-2: #3fbf8c;
-  --azure-deep: #065f3f;
-  --coral: #ff5a36;
-  --coral-deep: #d83c1c;
-  --lime: #c4ef3d;
-  --butter: #ffc94a;
-  --line: #e2dccd;
+  --ink: #15181C;
+  --ink-2: #6B7280;
+  --ink-3: #9CA3AF;
+  --azure: #1D4ED8;
+  --azure-2: #3B82F6;
+  --azure-deep: #1E3A8A;
+  --coral: #EA580C;
+  --coral-deep: #C2410C;
+  --lime: #0D9488;
+  --butter: #D97706;
+  --line: #D6DBE1;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1);
 
@@ -85,7 +86,7 @@
   height: 26px;
   border-radius: 8px;
   background: var(--azure);
-  box-shadow: 0 3px 0 var(--azure-deep), 0 6px 14px -4px rgba(47, 91, 240, 0.5);
+  box-shadow: 0 3px 0 var(--azure-deep), 0 6px 14px -4px rgba(29, 78, 216, 0.5);
   display: grid;
   place-items: center;
   color: #fff;
@@ -136,7 +137,7 @@
   color: #fff;
   background: var(--azure);
   /* the "3D chunk": a hard bottom edge + soft cast shadow */
-  box-shadow: 0 4px 0 var(--azure-deep), 0 10px 22px -8px rgba(47, 91, 240, 0.55);
+  box-shadow: 0 4px 0 var(--azure-deep), 0 10px 22px -8px rgba(29, 78, 216, 0.55);
   transition: transform 150ms var(--ease-out), box-shadow 150ms var(--ease-out);
   will-change: transform;
 }
@@ -151,14 +152,14 @@
   transition: transform 620ms var(--ease-out);
 }
 @media (hover: hover) and (pointer: fine) {
-  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--azure-deep), 0 16px 30px -8px rgba(47, 91, 240, 0.62); }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--azure-deep), 0 16px 30px -8px rgba(29, 78, 216, 0.62); }
   .btn:hover::after { transform: translateX(120%); }
 }
-.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--azure-deep), 0 4px 12px -6px rgba(47, 91, 240, 0.5); }
-.btnCoral { background: var(--coral); box-shadow: 0 4px 0 var(--coral-deep), 0 10px 22px -8px rgba(255, 90, 54, 0.5); }
-.btnCoral:active { box-shadow: 0 1px 0 var(--coral-deep), 0 4px 12px -6px rgba(255, 90, 54, 0.45); }
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--azure-deep), 0 4px 12px -6px rgba(29, 78, 216, 0.5); }
+.btnCoral { background: var(--coral); box-shadow: 0 4px 0 var(--coral-deep), 0 10px 22px -8px rgba(234, 88, 12, 0.5); }
+.btnCoral:active { box-shadow: 0 1px 0 var(--coral-deep), 0 4px 12px -6px rgba(234, 88, 12, 0.45); }
 @media (hover: hover) and (pointer: fine) {
-  .btnCoral:hover { box-shadow: 0 6px 0 var(--coral-deep), 0 16px 30px -8px rgba(255, 90, 54, 0.6); }
+  .btnCoral:hover { box-shadow: 0 6px 0 var(--coral-deep), 0 16px 30px -8px rgba(234, 88, 12, 0.6); }
 }
 .btnGhost {
   color: var(--ink);
@@ -434,8 +435,8 @@
   overflow: hidden;
   box-shadow: 0 20px 44px -22px rgba(31, 28, 43, 0.6);
 }
-.step:nth-child(1) { background: var(--azure); box-shadow: 0 20px 44px -20px rgba(47, 91, 240, 0.6); }
-.step:nth-child(2) { background: var(--coral); box-shadow: 0 20px 44px -20px rgba(255, 90, 54, 0.55); }
+.step:nth-child(1) { background: var(--azure); box-shadow: 0 20px 44px -20px rgba(29, 78, 216, 0.6); }
+.step:nth-child(2) { background: var(--coral); box-shadow: 0 20px 44px -20px rgba(234, 88, 12, 0.55); }
 .step:nth-child(3) { background: var(--ink); }
 .step:nth-child(4) { background: #16351f; }
 .stepNo { font-family: var(--font-geist-mono), monospace; font-size: 12px; letter-spacing: 0.1em; opacity: 0.7; }
@@ -493,7 +494,7 @@
   background: var(--azure);
   color: #fff;
   overflow: hidden;
-  box-shadow: 0 40px 90px -34px rgba(47, 91, 240, 0.7);
+  box-shadow: 0 40px 90px -34px rgba(29, 78, 216, 0.7);
 }
 .close::before, .close::after {
   content: "";
@@ -502,7 +503,7 @@
   background: rgba(255, 255, 255, 0.1);
 }
 .close::before { width: 160px; height: 160px; top: -50px; left: -40px; transform: rotate(18deg); }
-.close::after { width: 130px; height: 130px; bottom: -40px; right: -30px; transform: rotate(-12deg); background: rgba(255, 90, 54, 0.28); }
+.close::after { width: 130px; height: 130px; bottom: -40px; right: -30px; transform: rotate(-12deg); background: rgba(234, 88, 12, 0.28); }
 .closeTitle { position: relative; font-family: var(--font-display), sans-serif; font-weight: 800; font-size: clamp(2.2rem, 5vw, 3.6rem); letter-spacing: -0.035em; line-height: 0.98; margin: 0; }
 .closeSub { position: relative; margin: 16px auto 0; max-width: 44ch; font-size: 1.1rem; line-height: 1.5; color: rgba(255, 255, 255, 0.82); }
 .closeActions { position: relative; margin-top: 32px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }

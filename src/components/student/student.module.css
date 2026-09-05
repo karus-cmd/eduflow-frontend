@@ -111,8 +111,16 @@
 .heat { padding: 20px; border-radius: 20px; background: var(--card); border: 1px solid var(--border); box-shadow: 0 14px 34px -24px rgba(31, 28, 43, 0.4); }
 .heatGrid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 1fr); gap: 5px; overflow-x: auto; padding-bottom: 4px; }
 .heatCell { width: 15px; height: 15px; border-radius: 4px; }
-.heatGrid[data-in] .heatCell { animation: cellReveal 420ms var(--s-ease) both; }
-@keyframes cellReveal { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
+.heatGrid[data-in] .heatCell { animation: cellGlowWave 620ms var(--s-ease) both; }
+/* The glow itself travels through the actual cells as a wave (each one flares in its own diagonal
+   turn — see the row+col delay in student-hub.tsx), rather than a separate bar sweeping over an
+   already-lit grid. The glow colour is always primary regardless of the cell's own h0–h4 shade,
+   so it still reads as one coherent light passing through, not cells flashing independently. */
+@keyframes cellGlowWave {
+  0% { opacity: 0; transform: scale(0.5); box-shadow: 0 0 0 0 transparent; filter: brightness(1); }
+  50% { opacity: 1; transform: scale(1.25); box-shadow: 0 0 10px 3px color-mix(in oklch, var(--primary) 65%, transparent); filter: brightness(1.7); }
+  100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 transparent; filter: brightness(1); }
+}
 .h0 { background: color-mix(in oklch, var(--foreground) 7%, transparent); }
 .h1 { background: color-mix(in oklch, var(--primary) 30%, transparent); }
 .h2 { background: color-mix(in oklch, var(--primary) 55%, transparent); }

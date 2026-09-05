@@ -123,17 +123,35 @@ export default async function CourseDetailPage(props: PageProps<'/student/course
               <CourseThumb title={course.title} thumbnailUrl={course.thumbnailUrl} />
             </div>
             <CardContent className="space-y-4 p-4">
-              <Price pricePaise={course.pricePaise} mrpPaise={course.mrpPaise} size="lg" />
+              <div>
+                {course.premiumPricePaise != null && (
+                  <span className="mb-1 block text-xs font-medium text-muted-foreground">From</span>
+                )}
+                <Price pricePaise={course.pricePaise} mrpPaise={course.mrpPaise} size="lg" />
+                {course.premiumPricePaise != null && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    A Complete plan with extra advanced modules is also available at checkout.
+                  </p>
+                )}
+              </div>
 
               {course.enrolled ? (
                 <>
                   <div className="flex items-center gap-2 rounded-lg bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-400">
                     <CheckCircle2 className="size-4" />
-                    You&rsquo;re enrolled
+                    You&rsquo;re enrolled{course.enrolledTier === 'complete' ? ' — Complete plan' : ''}
                   </div>
                   <Link href={`/student/learn/${course.id}`} className={cn(buttonVariants(), 'w-full')}>
                     Go to course
                   </Link>
+                  {course.enrolledTier === 'standard' && course.premiumPricePaise != null && (
+                    <Link
+                      href={`/student/checkout/${course.id}`}
+                      className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'w-full')}
+                    >
+                      Upgrade to Complete
+                    </Link>
+                  )}
                 </>
               ) : price > 0 ? (
                 <Link

@@ -1,23 +1,29 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Bricolage_Grotesque } from "next/font/google";
+import { Archivo, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
+// Chrome Machine theme fonts (see design/README handoff). Variable names kept as
+// `--font-geist-*`/`--font-display` on purpose — several CSS modules (login, landing, student
+// dashboard) reference those names directly, not just through the Tailwind font-sans/font-heading
+// abstraction, so keeping the names lets the whole app pick up the new faces with no other edits.
+const body = IBM_Plex_Sans({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
+const mono = IBM_Plex_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
-// Display voice — a characterful grotesque with real edge, deliberately off the AI-default
-// face list (no Space Grotesk / DM Sans / Outfit / Plus Jakarta).
-const display = Bricolage_Grotesque({
+// Display voice — precision-engineering grotesque, replaces Bricolage Grotesque under the
+// Chrome Machine reskin.
+const display = Archivo({
   variable: "--font-display",
   subsets: ["latin"],
-  axes: ["opsz"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -29,7 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${display.variable} h-full antialiased`}
+      className={`${body.variable} ${mono.variable} ${display.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

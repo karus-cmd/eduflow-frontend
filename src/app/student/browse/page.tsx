@@ -3,7 +3,6 @@ import { CatalogGrid } from '@/components/catalog-grid';
 import { PromoBanner } from '@/components/promo-banner';
 import { SpotlightCarousel } from '@/components/spotlight-carousel';
 import { SiteFooter } from '@/components/site-footer';
-import { ParticlesBackground } from '@/components/particles-background';
 import { requireRole } from '@/lib/auth';
 import { serverApi } from '@/lib/server-api';
 import { STUDENT_NAV } from '@/lib/nav';
@@ -23,7 +22,7 @@ export default async function BrowsePage() {
   return (
     <>
       <PromoBanner />
-      <AppShell title="Browse" user={me} nav={STUDENT_NAV} homeHref="/student" backgroundLayer={<ParticlesBackground />}>
+      <AppShell title="Browse" user={me} nav={STUDENT_NAV} homeHref="/student">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight">Browse courses</h1>
           <p className="mt-1 text-sm text-muted-foreground">

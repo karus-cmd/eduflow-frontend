@@ -138,6 +138,10 @@ export interface College {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** A course row as returned by `GET /courses` (list) and the base of the detail tree. */
+/** A course's tier: `standard` is the base curriculum; `complete` (when a course has
+ *  `premiumPricePaise`) additionally unlocks its `complete`-tier sections. */
+export type CourseTier = 'standard' | 'complete';
+
 export interface Course {
   id: string;
   orgId: string;
@@ -148,6 +152,9 @@ export interface Course {
   status: string;
   pricePaise: string;
   mrpPaise: string | null;
+  /** Non-null only on a course that offers a second, higher-priced "Complete" plan. */
+  premiumPricePaise: string | null;
+  premiumMrpPaise: string | null;
   currency: string;
   accessDays: number | null;
   totalLessons: number;
@@ -191,6 +198,8 @@ export interface LessonNode {
 export interface SectionNode {
   id: string;
   title: string;
+  /** Which tier unlocks this section — see CourseTier. */
+  tier: CourseTier;
   sortOrder: number;
   lessons: LessonNode[];
 }
@@ -200,6 +209,8 @@ export interface CourseDetail extends Course {
   sections: SectionNode[];
   resources: ResourceItem[];
   enrolled: boolean;
+  /** The tier the student is enrolled at, or null if not enrolled at all. */
+  enrolledTier: CourseTier | null;
 }
 
 /** `GET /me/enrollments` and `GET /enrollments/:id`. */
@@ -211,6 +222,7 @@ export interface Enrollment {
   orderId: string | null;
   counselorId: string | null;
   status: string; // active | cancelled | expired
+  tier: CourseTier;
   pricePaidPaise: string;
   accessStartsAt: string;
   accessEndsAt: string | null;
@@ -224,6 +236,7 @@ export interface OrderItem {
   id: string;
   orderId: string;
   courseId: string;
+  tier: CourseTier;
   unitPricePaise: string;
   quantity: number;
   totalPaise: string;

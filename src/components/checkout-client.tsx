@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
-import { Loader2, ShieldCheck, Tag } from 'lucide-react';
+import { CheckCircle2, Loader2, ShieldCheck, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +12,8 @@ import { CourseThumb } from '@/components/course-thumb';
 import { Price } from '@/components/price';
 import { clientApi, ClientApiError } from '@/lib/client-api';
 import { formatPaise } from '@/lib/money';
-import type { CheckoutResult } from '@/lib/api/types';
+import { cn } from '@/lib/utils';
+import type { CheckoutResult, CourseTier } from '@/lib/api/types';
 
 const RAZORPAY_SRC = 'https://checkout.razorpay.com/v1/checkout.js';
 
@@ -21,6 +22,9 @@ interface CheckoutCourse {
   title: string;
   pricePaise: string;
   mrpPaise: string | null;
+  /** Non-null only when this course offers a second, higher-priced "Complete" plan. */
+  premiumPricePaise: string | null;
+  premiumMrpPaise: string | null;
   thumbnailUrl: string | null;
 }
 interface CheckoutUser {
@@ -29,13 +33,28 @@ interface CheckoutUser {
   phone: string | null;
 }
 
-export function CheckoutClient({ course, user }: { course: CheckoutCourse; user: CheckoutUser }) {
+export function CheckoutClient({
+  course,
+  user,
+  upgradeOnly = false,
+}: {
+  course: CheckoutCourse;
+  user: CheckoutUser;
+  /** True when the student already holds a Standard enrollment and is here only to upgrade —
+   *  Standard isn't offered again (they'd be re-paying for what they already have). */
+  upgradeOnly?: boolean;
+}) {
   const router = useRouter();
   const scriptReady = useRef(false);
+  const hasPremium = course.premiumPricePaise != null;
+  const [tier, setTier] = useState<CourseTier>(upgradeOnly ? 'complete' : 'standard');
   const [referral, setReferral] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
+
+  const activePricePaise = tier === 'complete' ? course.premiumPricePaise! : course.pricePaise;
+  const activeMrpPaise = tier === 'complete' ? course.premiumMrpPaise : course.mrpPaise;
 
   async function pay() {
     setBusy(true);
@@ -49,6 +68,7 @@ export function CheckoutClient({ course, user }: { course: CheckoutCourse; user:
         courseId: course.id,
         courseTitle: course.title,
         referralCode: referral.trim() || undefined,
+        ...(hasPremium ? { tier } : {}),
       });
 
       const rzp = new window.Razorpay({
@@ -64,7 +84,7 @@ export function CheckoutClient({ course, user }: { course: CheckoutCourse; user:
           contact: user.phone ?? undefined,
         },
         notes: { orderId: checkout.orderId },
-        theme: { color: '#0a7f56' },
+        theme: { color: '#1D4ED8' },
         handler: () => {
           // Payment succeeded on the client; the webhook provisions access server-side.
           router.push(`/student/orders/${checkout.orderId}/provisioning`);
@@ -102,7 +122,7 @@ export function CheckoutClient({ course, user }: { course: CheckoutCourse; user:
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         {/* Summary */}
-        <div className="order-2 lg:order-1">
+        <div className="order-2 space-y-4 lg:order-1">
           <Card>
             <CardContent className="space-y-4 p-4">
               <h2 className="font-medium">Order summary</h2>
@@ -112,7 +132,7 @@ export function CheckoutClient({ course, user }: { course: CheckoutCourse; user:
                 </div>
                 <div className="min-w-0">
                   <p className="line-clamp-2 text-sm font-medium">{course.title}</p>
-                  <Price pricePaise={course.pricePaise} mrpPaise={course.mrpPaise} size="sm" className="mt-1" />
+                  <Price pricePaise={activePricePaise} mrpPaise={activeMrpPaise} size="sm" className="mt-1" />
                 </div>
               </div>
 
@@ -134,6 +154,32 @@ export function CheckoutClient({ course, user }: { course: CheckoutCourse; user:
               </div>
             </CardContent>
           </Card>
+
+          {hasPremium && (
+            <div>
+              <h2 className="mb-2.5 font-medium">{upgradeOnly ? 'Upgrade' : 'Choose your plan'}</h2>
+              <div className={cn('grid gap-3', !upgradeOnly && 'sm:grid-cols-2')}>
+                {!upgradeOnly && (
+                  <PlanOption
+                    active={tier === 'standard'}
+                    onSelect={() => setTier('standard')}
+                    title="Standard"
+                    blurb="The core curriculum."
+                    pricePaise={course.pricePaise}
+                    mrpPaise={course.mrpPaise}
+                  />
+                )}
+                <PlanOption
+                  active={tier === 'complete'}
+                  onSelect={() => setTier('complete')}
+                  title="Complete"
+                  blurb={upgradeOnly ? 'Unlocks every remaining advanced module.' : 'Standard, plus every advanced module.'}
+                  pricePaise={course.premiumPricePaise!}
+                  mrpPaise={course.premiumMrpPaise}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Pay box */}
@@ -142,7 +188,7 @@ export function CheckoutClient({ course, user }: { course: CheckoutCourse; user:
             <CardContent className="space-y-4 p-4">
               <div className="flex items-baseline justify-between">
                 <span className="text-sm text-muted-foreground">Total</span>
-                <span className="text-2xl font-semibold tabular-nums">{formatPaise(course.pricePaise)}</span>
+                <span className="text-2xl font-semibold tabular-nums">{formatPaise(activePricePaise)}</span>
               </div>
 
               <Button onClick={pay} disabled={busy} size="lg" className="w-full">
@@ -151,7 +197,7 @@ export function CheckoutClient({ course, user }: { course: CheckoutCourse; user:
                     <Loader2 className="size-4 animate-spin" /> Opening checkout…
                   </>
                 ) : (
-                  `Pay ${formatPaise(course.pricePaise)}`
+                  `Pay ${formatPaise(activePricePaise)}`
                 )}
               </Button>
 
@@ -170,5 +216,39 @@ export function CheckoutClient({ course, user }: { course: CheckoutCourse; user:
         </aside>
       </div>
     </>
+  );
+}
+
+function PlanOption({
+  active,
+  onSelect,
+  title,
+  blurb,
+  pricePaise,
+  mrpPaise,
+}: {
+  active: boolean;
+  onSelect: () => void;
+  title: string;
+  blurb: string;
+  pricePaise: string;
+  mrpPaise: string | null;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        'flex flex-col items-start gap-2 rounded-xl border p-4 text-left transition-colors',
+        active ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-border hover:border-primary/40',
+      )}
+    >
+      <div className="flex w-full items-center justify-between">
+        <span className="font-medium">{title}</span>
+        {active && <CheckCircle2 className="size-4 text-primary" />}
+      </div>
+      <p className="text-xs text-muted-foreground">{blurb}</p>
+      <Price pricePaise={pricePaise} mrpPaise={mrpPaise} size="sm" />
+    </button>
   );
 }

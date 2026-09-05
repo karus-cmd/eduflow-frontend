@@ -9,15 +9,15 @@ const initEngine: ParticlesPluginRegistrar = async (engine) => {
   await loadSlim(engine);
 };
 
-// Solid in the outer margins, fading to nothing through the middle band where the max-w-6xl
-// content column actually sits — a CSS mask rather than per-particle DOM collision, same
+// Solid only in the outer margins, fading to nothing well before the middle band where the
+// max-w-6xl content column sits — a CSS mask rather than per-particle DOM collision, same
 // reasoning as the z-index/background layering below: no canvas library can see where your
 // text is, but it doesn't need to if it's simply never drawn there in the first place.
-// Wide margins (25% solid, only the middle 24% actually hidden) — the previous narrower split
-// likely left too little room on anything short of a very wide window, which is the more likely
-// explanation for "still can't see it" surviving three different color changes in a row.
+// Deliberately conservative: solid only in the outer 15%, fully hidden across the middle 60% —
+// a screenshot showed a link line reaching the edge of a content card, so this trades a narrower
+// visible strip for a wide, unambiguous safety margin instead of a boundary tuned to the edge.
 const SIDE_MASK =
-  'linear-gradient(to right, black 0%, black 25%, transparent 38%, transparent 62%, black 75%, black 100%)';
+  'linear-gradient(to right, black 0%, black 15%, transparent 24%, transparent 76%, black 85%, black 100%)';
 
 /**
  * An ambient particle field confined to the page's side margins, scrolling with the page rather
@@ -40,10 +40,10 @@ export function ParticlesBackground() {
       detectRetina: true,
       particles: {
         number: { value: 50, density: { enable: true, width: 1440, height: 900 } },
-        color: { value: '#0a7f56' }, // the app's real emerald primary
+        color: { value: '#1D4ED8' }, // the app's real Chrome Machine accent
         opacity: { value: 1 },
         size: { value: 4 },
-        links: { enable: true, distance: 130, color: '#0a7f56', opacity: 0.55, width: 1.5 },
+        links: { enable: true, distance: 90, color: '#1D4ED8', opacity: 0.55, width: 1.5 },
         move: { enable: true, speed: 0.7, outModes: { default: 'out' } },
       },
     }),

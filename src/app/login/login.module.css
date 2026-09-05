@@ -5,15 +5,16 @@
    motion safe. */
 
 .wrap {
-  --emerald: #0a7f56;
-  --emerald-deep: #065f3f;
-  --coral: #ff5a36;
-  --ivory: #f4f0e7;
+  /* Chrome Machine palette (name kept for continuity with the rest of the file) */
+  --emerald: #1D4ED8;
+  --emerald-deep: #1E3A8A;
+  --coral: #EA580C;
+  --ivory: #EDEFF2;
   --paper: #ffffff;
-  --ink: #1f1c2b;
-  --ink-2: #565270;
-  --ink-3: #817d97;
-  --line: #e2dccd;
+  --ink: #15181C;
+  --ink-2: #6B7280;
+  --ink-3: #9CA3AF;
+  --line: #D6DBE1;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 
   position: relative;

@@ -5,16 +5,16 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================================
-   THE PREP DECK — STEIN-X's student learning + interview-prep world.
-   Electric azure carries the brand, persimmon is the energy pop, ink on warm
-   ivory. Bright high-key ground so dimensional cards read as real objects.
-   Rounded radius, themed browser surfaces.
+   CHROME MACHINE — STEIN-X's precision-engineering identity (light, default).
+   Steel-white ground, industrial blue accent, hard-edged metallic surfaces.
+   Colour + type only were reskinned here — radius, spacing, shadows and every
+   animation are untouched from the previous ivory/azure system.
    ============================================================================ */
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -59,42 +59,42 @@
 }
 
 :root {
-  --background: oklch(0.966 0.009 92); /* warm ivory */
-  --foreground: oklch(0.235 0.012 275); /* ink */
-  --card: oklch(0.995 0.003 92);
-  --card-foreground: oklch(0.235 0.012 275);
-  --popover: oklch(0.995 0.003 92);
-  --popover-foreground: oklch(0.235 0.012 275);
-  --primary: oklch(0.53 0.13 162); /* electric azure */
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.93 0.032 162);
-  --secondary-foreground: oklch(0.37 0.1 162);
-  --muted: oklch(0.95 0.008 92);
-  --muted-foreground: oklch(0.5 0.022 168); /* tinted, not gray */
-  --accent: oklch(0.93 0.032 162);
-  --accent-foreground: oklch(0.37 0.1 162);
-  --destructive: oklch(0.62 0.2 30);
-  --border: oklch(0.9 0.012 100);
-  --input: oklch(0.9 0.012 100);
-  --ring: oklch(0.53 0.13 162);
-  --chart-1: oklch(0.53 0.13 162);
-  --chart-2: oklch(0.68 0.19 32);
-  --chart-3: oklch(0.82 0.19 128);
-  --chart-4: oklch(0.78 0.16 82);
-  --chart-5: oklch(0.42 0.09 162);
+  --background: #EDEFF2; /* steel-white page ground */
+  --foreground: #15181C; /* ink */
+  --card: #FFFFFF; /* panel */
+  --card-foreground: #15181C;
+  --popover: #FFFFFF;
+  --popover-foreground: #15181C;
+  --primary: #1D4ED8; /* industrial blue accent */
+  --primary-foreground: #FFFFFF;
+  --secondary: rgba(29, 78, 216, 0.08); /* accentSoft */
+  --secondary-foreground: #1D4ED8;
+  --muted: #EDEFF2;
+  --muted-foreground: #6B7280;
+  --accent: rgba(29, 78, 216, 0.08);
+  --accent-foreground: #1D4ED8;
+  --destructive: #DC2626;
+  --border: #D6DBE1;
+  --input: #D6DBE1;
+  --ring: #1D4ED8;
+  --chart-1: #1D4ED8;
+  --chart-2: #EA580C;
+  --chart-3: #0D9488;
+  --chart-4: #D97706;
+  --chart-5: #475569;
   --radius: 0.85rem;
-  --azure: oklch(0.53 0.13 162);
-  --azure-deep: oklch(0.4 0.11 162);
-  --coral: oklch(0.68 0.19 32);
-  --lime: oklch(0.86 0.2 128);
-  --sidebar: oklch(0.995 0.003 92);
-  --sidebar-foreground: oklch(0.235 0.012 275);
-  --sidebar-primary: oklch(0.53 0.13 162);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.93 0.032 162);
-  --sidebar-accent-foreground: oklch(0.37 0.1 162);
-  --sidebar-border: oklch(0.9 0.012 100);
-  --sidebar-ring: oklch(0.53 0.13 162);
+  --azure: #1D4ED8;
+  --azure-deep: #1E3A8A;
+  --coral: #EA580C;
+  --lime: #0D9488;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #15181C;
+  --sidebar-primary: #1D4ED8;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: rgba(29, 78, 216, 0.08);
+  --sidebar-accent-foreground: #1D4ED8;
+  --sidebar-border: #D6DBE1;
+  --sidebar-ring: #1D4ED8;
 }
 
 .dark {
@@ -170,4 +170,65 @@
   ::-webkit-scrollbar-thumb:hover {
     background: color-mix(in oklch, var(--azure) 55%, var(--foreground));
   }
+}
+
+/* Promo bar light-sweep — a diagonal highlight band that crosses the bar, idles, then repeats.
+   Same visual language as the landing page's button shine-on-hover, just looping on its own. */
+@keyframes promo-sweep {
+  0%, 55% { transform: translateX(-130%); }
+  85%, 100% { transform: translateX(130%); }
+}
+.promo-sweep {
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.28) 50%, transparent 65%);
+  transform: translateX(-130%);
+  animation: promo-sweep 4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .promo-sweep {
+    animation: none;
+    display: none;
+  }
+}
+
+/* "My Learning" empty state — Orbit (0 enrollments). Three recommended-course chips circle an
+   empty core; each chip counter-rotates against the carrier ring so it stays upright. Prefixed
+   orbit-* rather than the design doc's bare `spin`/`rise`/etc. — Tailwind's own animate-spin
+   utility already claims the plain `spin` keyframe name, and keyframe names are global. */
+@keyframes orbit-rise {
+  0% { opacity: 0; transform: translateY(22px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes orbit-spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes orbit-counter-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
+}
+@keyframes orbit-pulse-ring {
+  0% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.55; }
+  100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+@keyframes orbit-sheen {
+  0% { transform: translateX(-120%) skewX(-18deg); }
+  60%, 100% { transform: translateX(320%) skewX(-18deg); }
+}
+.orbit-rise { animation: orbit-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.orbit-ring { animation: orbit-spin 26s linear infinite; }
+.orbit-chip-inner { animation: orbit-counter-spin 26s linear infinite; }
+.orbit-pulse { animation: orbit-pulse-ring 3.2s ease-out infinite; }
+.orbit-sheen { animation: orbit-sheen 3.4s ease-in-out infinite; }
+/* Hovering or keyboard-focusing any chip pauses the whole mechanism (ring + every chip's
+   counter-spin) so it can actually be read and clicked, not just chased. */
+.orbit-ring:has(.orbit-chip-inner:hover, .orbit-chip-inner:focus-visible),
+.orbit-ring:has(.orbit-chip-inner:hover, .orbit-chip-inner:focus-visible) .orbit-chip-inner {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .orbit-rise { animation: none; opacity: 1; transform: none; }
+  .orbit-ring, .orbit-chip-inner { animation: none; }
+  .orbit-ring { transform: translate(-50%, -50%); }
+  .orbit-pulse { animation: none; display: none; }
+  .orbit-sheen { animation: none; display: none; }
 }

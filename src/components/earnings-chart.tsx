@@ -18,7 +18,7 @@ export interface EarningsPoint {
   paise: number; // commission accrued that month
 }
 
-const SERIES = '#0a7f56'; // single brand hue (emerald) — earnings over time, not a status colour
+const SERIES = '#1D4ED8'; // single brand hue (Chrome Machine accent) — earnings over time, not a status colour
 
 /**
  * Commission-earned over time. One series → the card title names it (no legend). Recessive grid,

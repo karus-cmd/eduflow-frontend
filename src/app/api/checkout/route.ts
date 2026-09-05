@@ -1,17 +1,19 @@
 import { NextResponse } from 'next/server';
 import { backendCall } from '@/lib/bff';
-import type { CheckoutPayload, Order } from '@/lib/api/types';
+import type { CheckoutPayload, CourseTier, Order } from '@/lib/api/types';
 
 /**
- * One-shot checkout: create an order for a single course (with an optional manager referral code),
- * then open a Razorpay order for it. Returns the widget payload + course info. Money never provisions
- * here — the `payment.captured` webhook is the source of truth (invariant #3); this only starts checkout.
+ * One-shot checkout: create an order for a single course (with an optional manager referral code
+ * and tier selection), then open a Razorpay order for it. Returns the widget payload + course
+ * info. Money never provisions here — the `payment.captured` webhook is the source of truth
+ * (invariant #3); this only starts checkout.
  */
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const courseId: string | undefined = body?.courseId;
   const courseTitle: string = body?.courseTitle ?? 'Course';
   const referralCode: string | undefined = body?.referralCode?.trim() || undefined;
+  const tier: CourseTier | undefined = body?.tier === 'complete' ? 'complete' : undefined;
 
   if (!courseId) {
     return NextResponse.json(
@@ -23,7 +25,7 @@ export async function POST(req: Request) {
   // 1) Create the order (student self-serve). Referral code, if any, attributes the sale.
   const created = await backendCall<Order>('/orders', {
     method: 'POST',
-    body: { items: [{ courseId }], ...(referralCode ? { referralCode } : {}) },
+    body: { items: [{ courseId, ...(tier ? { tier } : {}) }], ...(referralCode ? { referralCode } : {}) },
   });
   if (!created.ok) return NextResponse.json(created.data, { status: created.status });
 

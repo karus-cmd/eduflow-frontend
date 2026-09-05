@@ -21,8 +21,11 @@ export default async function CheckoutPage(props: PageProps<'/student/checkout/[
     throw e;
   }
 
-  // Already enrolled → straight into the course. Free course → can't checkout (positive amount only).
-  if (course.enrolled) redirect(`/student/learn/${course.id}`);
+  // Already enrolled at the top tier this course offers → straight into the course. A Standard
+  // enrollment on a course with a Complete plan still lands here, to upgrade. Free course → can't
+  // checkout (positive amount only).
+  const canUpgrade = course.enrolledTier === 'standard' && course.premiumPricePaise != null;
+  if (course.enrolled && !canUpgrade) redirect(`/student/learn/${course.id}`);
   if (Number(course.pricePaise) <= 0) redirect(`/student/courses/${course.id}`);
 
   return (
@@ -40,9 +43,12 @@ export default async function CheckoutPage(props: PageProps<'/student/checkout/[
           title: course.title,
           pricePaise: course.pricePaise,
           mrpPaise: course.mrpPaise,
+          premiumPricePaise: course.premiumPricePaise,
+          premiumMrpPaise: course.premiumMrpPaise,
           thumbnailUrl: course.thumbnailUrl,
         }}
         user={{ fullName: me.fullName, email: me.email, phone: me.phone }}
+        upgradeOnly={canUpgrade}
       />
     </AppShell>
   );

@@ -9,7 +9,7 @@ export interface LeadsDayPoint {
   count: number; // leads created that day
 }
 
-const SERIES = '#0a7f56'; // same brand hue as EarningsChart — one series, no legend needed
+const SERIES = '#1D4ED8'; // same brand hue as EarningsChart — one series, no legend needed
 
 /**
  * Leads captured per day, for one calendar month. Mirrors `EarningsChart`'s shape (mount-check,

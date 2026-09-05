@@ -179,9 +179,22 @@ export function StudentHub(props: HubProps) {
         </div>
         <div className={styles.heat}>
           <div ref={heat.ref} className={styles.heatGrid} {...(heat.seen ? { 'data-in': '' } : {})}>
-            {heatmap.map((lvl, i) => (
-              <span key={i} className={`${styles.heatCell} ${styles[`h${lvl}`]}`} style={{ animationDelay: `${i * 5}ms` }} title={`${lvl === 0 ? 'no' : lvl} ${lvl === 1 ? 'session' : 'sessions'}`} />
-            ))}
+            {heatmap.map((lvl, i) => {
+              // Grid fills top-to-bottom then column-to-column (grid-auto-flow: column, 7 rows),
+              // so a cell's (row, col) is i % 7 / i / 7 — delaying by their sum makes the glow
+              // travel through the actual cells as a diagonal wave, not a separate overlay
+              // sweeping over them.
+              const row = i % 7;
+              const col = Math.floor(i / 7);
+              return (
+                <span
+                  key={i}
+                  className={`${styles.heatCell} ${styles[`h${lvl}`]}`}
+                  style={{ animationDelay: `${(row + col) * 14}ms` }}
+                  title={`${lvl === 0 ? 'no' : lvl} ${lvl === 1 ? 'session' : 'sessions'}`}
+                />
+              );
+            })}
           </div>
           <div className={styles.heatFoot}>
             <div className={styles.heatLegend}>

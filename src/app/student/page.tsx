@@ -1,14 +1,23 @@
-import Link from 'next/link';
-import { GraduationCap } from 'lucide-react';
 import { AppShell } from '@/components/app-shell';
-import { buttonVariants } from '@/components/ui/button';
 import { StudentHub, type HubCourse, type RingStat, type Badge } from '@/components/student/student-hub';
+import { LearningEmptyOrbit, type OrbitCourse } from '@/components/student/learning-empty-orbit';
 import { requireRole } from '@/lib/auth';
 import { serverApi } from '@/lib/server-api';
 import { STUDENT_NAV } from '@/lib/nav';
-import { cn } from '@/lib/utils';
 import { formatPct } from '@/lib/money';
-import type { ActivitySummary, StudentDashboard } from '@/lib/api/types';
+import type { ActivitySummary, Course, Paginated, StudentDashboard } from '@/lib/api/types';
+
+/** First letter of each of the first two "significant" words — "Data Structures & Algorithms"
+ *  → "DS", "Node.js Backend Essentials" → "NB". Same idea as the course card's single-letter
+ *  initial, just two letters for a wider chip badge. */
+function twoLetterInitials(title: string): string {
+  const words = title
+    .split(/\s+/)
+    .map((w) => w.replace(/[^A-Za-z0-9]/g, ''))
+    .filter((w) => w.length > 0 && !['and', 'the', 'of', 'a', 'an'].includes(w.toLowerCase()));
+  const letters = words.slice(0, 2).map((w) => w.charAt(0).toUpperCase());
+  return letters.join('') || title.trim().charAt(0).toUpperCase() || '?';
+}
 
 export const metadata = { title: 'My Learning · STEIN-X' };
 
@@ -31,16 +40,19 @@ export default async function MyLearningPage() {
   const first = me.fullName.split(' ')[0];
 
   if (dash.enrollments.length === 0) {
+    // Top 3 published courses stand in for "recommendations" — there's no personalization
+    // engine yet, so this is real catalogue data, not fabricated placeholder content.
+    const recs = await serverApi<Paginated<Course>>('/courses?limit=3');
+    const orbitCourses: OrbitCourse[] = recs.data.map((c) => ({
+      id: c.id,
+      slug: c.slug,
+      title: c.title,
+      initials: twoLetterInitials(c.title),
+      meta: `${c.totalLessons} ${c.totalLessons === 1 ? 'lesson' : 'lessons'}`,
+    }));
     return (
       <AppShell title="My Learning" user={me} nav={STUDENT_NAV} homeHref="/student">
-        <div className="rounded-2xl border border-dashed py-16 text-center shadow-[0_1px_2px_rgba(31,28,43,0.04)]">
-          <span className="mx-auto mb-3 grid size-12 place-items-center rounded-2xl bg-primary/12 text-primary">
-            <GraduationCap className="size-6" />
-          </span>
-          <p className="font-heading text-lg font-bold">Hey {first} — no courses yet.</p>
-          <p className="mt-1 text-sm text-muted-foreground">Pick a track and your streak starts today.</p>
-          <Link href="/student/browse" className={cn(buttonVariants(), 'mt-4')}>Browse courses</Link>
-        </div>
+        <LearningEmptyOrbit firstName={first} courses={orbitCourses} />
       </AppShell>
     );
   }
