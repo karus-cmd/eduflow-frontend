@@ -79,11 +79,15 @@
   text-transform: uppercase;
   padding: 4px 8px;
   border-radius: 7px;
-  color: #fff;
 }
-.fcTagE { background: var(--emerald); }
-.fcTagC { background: var(--coral); }
-.fcTagI { background: var(--ink); }
+/* Each tag carries its own foreground rather than a blanket white. `.fcTagI` used to be
+   `background: var(--ink)` with white text, which meant that in dark mode — where ink is
+   near-white — it rendered as a blank white pill with invisible text. Amber is light in BOTH
+   themes so it always takes dark ink; the neutral tag inverts off the theme pair, so it is
+   always maximum contrast whichever way round the theme is. */
+.fcTagE { background: var(--signal-fill); color: var(--on-signal); }
+.fcTagC { background: var(--warning); color: var(--on-signal); }
+.fcTagI { background: var(--foreground); color: var(--background); }
 .fcLine { font-family: var(--font-display), sans-serif; font-weight: 700; font-size: 14.5px; letter-spacing: -0.01em; line-height: 1.12; color: var(--ink); }
 .fcMeta { font-size: 11px; color: var(--ink-3); }
 
@@ -227,8 +231,11 @@
   font-size: 15.5px;
   font-weight: 650;
   letter-spacing: -0.01em;
-  color: #fff;
-  background: var(--emerald);
+  /* --signal is the text-safe deep amber (it has to clear 4.5:1 as type on paper); as a large
+     fill it reads muddy. Big surfaces use --signal-fill with dark ink on top, which is what the
+     landing's buttons do — same token pair, so the two pages now match in both themes. */
+  color: var(--on-signal);
+  background: var(--signal-fill);
   border: none;
   cursor: pointer;
   margin-top: 4px;
