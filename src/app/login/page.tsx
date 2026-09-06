@@ -25,7 +25,14 @@ declare global {
           }) => void;
           renderButton: (
             parent: HTMLElement,
-            options: { theme?: string; size?: string; text?: string; width?: number },
+            options: {
+              theme?: string;
+              size?: string;
+              text?: string;
+              width?: number;
+              shape?: string;
+              logo_alignment?: string;
+            },
           ) => void;
         };
       };
@@ -49,7 +56,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleError, setGoogleError] = useState('');
 
-  const signUpDivRef = useRef<HTMLDivElement>(null);
   const signInDivRef = useRef<HTMLDivElement>(null);
   const googleInitialized = useRef(false);
 
@@ -76,20 +82,21 @@ export default function LoginPage() {
       client_id: GOOGLE_CLIENT_ID,
       callback: handleGoogleCredential,
     });
-    if (signUpDivRef.current) {
-      window.google.accounts.id.renderButton(signUpDivRef.current, {
-        theme: 'outline',
-        size: 'large',
-        text: 'signup_with',
-        width: 240,
-      });
-    }
+    // ONE button. There were previously two — a `signup_with` and a `signin_with` — but Google
+    // replaces the label with a personalised pill ("Sign in as …") for anyone already logged into
+    // a Google account, so both rendered identically and read as a duplicate bug. Google sign-in
+    // provisions a new account server-side anyway, so sign-up and sign-in are the same action here.
     if (signInDivRef.current) {
+      const dark = document.documentElement.classList.contains('dark');
       window.google.accounts.id.renderButton(signInDivRef.current, {
-        theme: 'outline',
+        theme: dark ? 'filled_black' : 'outline',
         size: 'large',
-        text: 'signin_with',
-        width: 240,
+        text: 'continue_with',
+        shape: 'rectangular',
+        logo_alignment: 'center',
+        // GSI only accepts a fixed pixel width, so match the form field width to keep the
+        // button flush with the inputs below it rather than floating narrower than them.
+        width: Math.min(signInDivRef.current.offsetWidth || 360, 400),
       });
     }
   }
@@ -173,8 +180,7 @@ export default function LoginPage() {
               onLoad={onGoogleScriptLoad}
             />
             <div className={styles.google}>
-              <div ref={signUpDivRef} />
-              <div ref={signInDivRef} />
+              <div ref={signInDivRef} className={styles.googleBtn} />
               {googleError && <p className={styles.error}>{googleError}</p>}
             </div>
             <div className={styles.divider}>or continue with email</div>
