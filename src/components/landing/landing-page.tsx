@@ -6,6 +6,7 @@ import styles from './landing.module.css';
 import { Sticker } from '@/components/stickers/sticker';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { PricingPlans } from '@/components/pricing/pricing-plans';
+import type { LandingCatalog, TrackKey } from '@/lib/catalog';
 
 /**
  * STEIN-X landing — the Signal direction.
@@ -21,8 +22,15 @@ import { PricingPlans } from '@/components/pricing/pricing-plans';
  * and it converts as a founding-member reason to buy now.
  */
 
-export function LandingPage() {
+export function LandingPage({ catalog }: { catalog: LandingCatalog }) {
   const [stuck, setStuck] = useState(false);
+
+  // Editorial copy has no backend field, so it stays here and is merged onto the live figures by
+  // key. Every NUMBER below comes from the catalogue; nothing numeric is written in this file.
+  const tracks = TRACK_COPY.map((copy) => ({
+    ...copy,
+    figures: catalog.tracks.find((t) => t.key === copy.key),
+  }));
 
   useEffect(() => {
     const onScroll = () => setStuck(window.scrollY > 8);
@@ -90,21 +98,22 @@ export function LandingPage() {
 
               <div className={styles.heroMeta}>
                 <div className={styles.metaItem}>
-                  <span className={styles.metaNum}>165</span>
+                  <span className={styles.metaNum}>{catalog.totals.lessons}</span>
                   <span className={styles.metaLabel}>lessons written</span>
                 </div>
                 <div className={styles.metaItem}>
-                  <span className={styles.metaNum}>36</span>
+                  <span className={styles.metaNum}>{catalog.totals.sections}</span>
                   <span className={styles.metaLabel}>sections</span>
                 </div>
                 <div className={styles.metaItem}>
                   <span className={styles.metaNum}>
-                    365<span>d</span>
+                    {catalog.totals.accessDays}
+                    <span>d</span>
                   </span>
                   <span className={styles.metaLabel}>access</span>
                 </div>
                 <div className={styles.metaItem}>
-                  <span className={styles.metaNum}>2</span>
+                  <span className={styles.metaNum}>{catalog.totals.trackCount}</span>
                   <span className={styles.metaLabel}>tracks at launch</span>
                 </div>
               </div>
@@ -128,7 +137,7 @@ export function LandingPage() {
             </Reveal>
 
             <div className={styles.tracks}>
-              {TRACKS.map((t, i) => (
+              {tracks.map((t, i) => (
                 <Reveal key={t.code} style={{ ['--i' as string]: String(i) }}>
                   <article className={styles.track}>
                     <Sticker
@@ -159,14 +168,19 @@ export function LandingPage() {
 
                     <div className={styles.trackStats}>
                       <span className={styles.trackStat}>
-                        <b>{t.lessons}</b> lessons
+                        <b>{t.figures?.totalLessons ?? 0}</b> lessons
                       </span>
                       <span className={styles.trackStat}>
-                        <b>{t.sections}</b> sections
+                        <b>{t.figures?.sections ?? 0}</b> sections
                       </span>
-                      <span className={styles.trackStat}>
-                        from <span className={styles.trackPrice}>{t.from}</span>
-                      </span>
+                      {t.figures ? (
+                        <span className={styles.trackStat}>
+                          from{' '}
+                          <span className={styles.trackPrice}>
+                            ₹{t.figures.standard.price.toLocaleString('en-IN')}
+                          </span>
+                        </span>
+                      ) : null}
                     </div>
 
                     <div className={styles.trackFoot}>
@@ -237,7 +251,7 @@ export function LandingPage() {
                 </p>
               </Reveal>
             </div>
-            <PricingPlans />
+            <PricingPlans tracks={catalog.tracks} />
           </div>
         </section>
 
@@ -364,31 +378,42 @@ function Faq({ q, a, index }: { q: string; a: string; index: number }) {
 
 /* ---------------- content (all figures traceable to the seeded courses) ------ */
 
-const TRACKS = [
+/**
+ * Editorial copy only. Lesson counts, section counts and prices used to live here too and drifted
+ * from the database the moment anyone edited a course — they now come from the public catalogue
+ * and are merged onto this by `key`. Nothing numeric belongs in this array.
+ */
+const TRACK_COPY: {
+  key: TrackKey;
+  code: string;
+  name: string;
+  desc: string;
+  core: string[];
+  advanced: string[];
+  sticker: 'stack' | 'loss';
+  tone: 'signal' | 'mint';
+  drift: number;
+}[] = [
   {
+    key: 'patterns',
     code: 'PATTERNS',
     name: 'DSA for software-engineer roles',
     desc: 'The recurring shapes behind interview problems — arrays and two pointers through dynamic programming, then trees and graphs.',
-    lessons: 82,
-    sections: 18,
-    from: '₹4,999',
     core: ['Arrays', 'Binary search', 'Recursion', 'Sliding window', 'Stacks & queues', 'DP'],
     advanced: ['Trees', 'Tries', 'Graphs', 'Backtracking'],
-    sticker: 'stack' as const,
-    tone: 'signal' as const,
+    sticker: 'stack',
+    tone: 'signal',
     drift: 12,
   },
   {
+    key: 'gradient',
     code: 'GRADIENT',
     name: 'Machine learning for engineers',
     desc: 'From the maths you actually need to a model you can deploy — regression and trees first, then neural networks and shipping.',
-    lessons: 83,
-    sections: 18,
-    from: '₹5,999',
     core: ['Python & pandas', 'Regression', 'Classification', 'Trees & ensembles', 'Feature work'],
     advanced: ['Neural nets', 'PyTorch', 'NLP', 'MLOps', 'Capstones'],
-    sticker: 'loss' as const,
-    tone: 'mint' as const,
+    sticker: 'loss',
+    tone: 'mint',
     drift: -12,
   },
 ];

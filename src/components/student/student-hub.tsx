@@ -191,7 +191,9 @@ export function StudentHub(props: HubProps) {
                   key={i}
                   className={`${styles.heatCell} ${styles[`h${lvl}`]}`}
                   style={{ animationDelay: `${(row + col) * 14}ms` }}
-                  title={`${lvl === 0 ? 'no' : lvl} ${lvl === 1 ? 'session' : 'sessions'}`}
+                  /* `lvl` is an intensity bucket, not a session count — the backend records
+                     daily activity minutes, and nothing counts discrete sessions. */
+                  title={lvl === 0 ? 'no activity' : `${['', 'light', 'steady', 'strong', 'heavy'][lvl]} activity`}
                 />
               );
             })}
@@ -203,7 +205,9 @@ export function StudentHub(props: HubProps) {
               More
             </div>
             <div className={styles.heatSummary}>
-              <b>{heatmap.filter((v) => v > 0).length}</b> active days · best streak <b>{streak}</b>
+              {/* "best streak" implied a longest-ever record; the backend only tracks the
+                  current run, so that is what this says. */}
+              <b>{heatmap.filter((v) => v > 0).length}</b> active days · current streak <b>{streak}</b>
             </div>
           </div>
         </div>

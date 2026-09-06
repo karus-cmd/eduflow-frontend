@@ -391,25 +391,10 @@
   0% { opacity: 0; transform: translateY(22px); }
   100% { opacity: 1; transform: translateY(0); }
 }
-@keyframes orbit-spin {
-  0% { transform: translate(-50%, -50%) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) rotate(360deg); }
-}
-@keyframes orbit-counter-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(-360deg); }
-}
 .orbit-rise { animation: orbit-rise var(--dur-5) var(--ease-out) both; }
-.orbit-ring { animation: orbit-spin 26s linear infinite; }
-.orbit-chip-inner { animation: orbit-counter-spin 26s linear infinite; }
-/* Hovering or focusing any chip pauses the whole mechanism so it can be read
-   and clicked, not chased. */
-.orbit-ring:has(.orbit-chip-inner:hover, .orbit-chip-inner:focus-visible),
-.orbit-ring:has(.orbit-chip-inner:hover, .orbit-chip-inner:focus-visible) .orbit-chip-inner {
-  animation-play-state: paused;
-}
+/* The 26s carrier-ring rotation and its per-chip counter-spin were removed: a mechanism that
+   turns forever with no input is the idle motion this direction rules out, and it forced a
+   hover-to-pause hack just so the chips could be read. CHIP_SLOTS positions them statically. */
 @media (prefers-reduced-motion: reduce) {
   .orbit-rise { animation: none; opacity: 1; transform: none; }
-  .orbit-ring, .orbit-chip-inner { animation: none; }
-  .orbit-ring { transform: translate(-50%, -50%); }
 }

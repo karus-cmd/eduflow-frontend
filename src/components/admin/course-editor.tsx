@@ -102,6 +102,15 @@ function SettingsForm({ course }: { course: AdminCourseDetail }) {
   const [mrp, setMrp] = useState(course.mrpPaise ? String(Number(course.mrpPaise) / 100) : '');
   const [thumbnailUrl, setThumbnailUrl] = useState(course.thumbnailUrl ?? '');
   const [accessDays, setAccessDays] = useState(course.accessDays ? String(course.accessDays) : '');
+  // The Complete tier. Until now it could only be set by a seed script, so no two-tier course
+  // could be created through the UI at all.
+  const [hasComplete, setHasComplete] = useState(course.premiumPricePaise != null);
+  const [premiumPrice, setPremiumPrice] = useState(
+    course.premiumPricePaise ? String(Number(course.premiumPricePaise) / 100) : '',
+  );
+  const [premiumMrp, setPremiumMrp] = useState(
+    course.premiumMrpPaise ? String(Number(course.premiumMrpPaise) / 100) : '',
+  );
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
@@ -110,6 +119,25 @@ function SettingsForm({ course }: { course: AdminCourseDetail }) {
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
+    const standard = Number(price) || 0;
+    const complete = Number(premiumPrice) || 0;
+    if (hasComplete && complete <= 0) {
+      setError('Enter a Complete price, or turn the Complete plan off.');
+      return;
+    }
+    if (hasComplete && complete <= standard) {
+      setError(`The Complete price must be higher than the Standard price (₹${standard.toLocaleString('en-IN')}).`);
+      return;
+    }
+    if (hasComplete && premiumMrp && Number(premiumMrp) < complete) {
+      setError('The Complete MRP cannot be lower than the Complete price.');
+      return;
+    }
+    if (hasComplete && standard <= 0) {
+      setError('Set a Standard price above ₹0 — checkout skips free courses, so the Complete plan would be unreachable.');
+      return;
+    }
+
     setBusy(true);
     setSaved(false);
     setError('');
@@ -117,8 +145,12 @@ function SettingsForm({ course }: { course: AdminCourseDetail }) {
       await clientApi.patch(`/api/courses/${course.id}`, {
         title: title.trim(),
         description: description.trim() || undefined,
-        pricePaise: Math.round((Number(price) || 0) * 100),
+        pricePaise: Math.round(standard * 100),
         ...(mrp ? { mrpPaise: Math.round(Number(mrp) * 100) } : {}),
+        // Always sent, never omitted: null is what REMOVES the tier. The `...(x ? {} : {})`
+        // spread used above for mrp is precisely what would make un-checking the box a no-op.
+        premiumPricePaise: hasComplete ? Math.round(complete * 100) : null,
+        premiumMrpPaise: hasComplete && premiumMrp ? Math.round(Number(premiumMrp) * 100) : null,
         thumbnailUrl: thumbnailUrl.trim() || undefined,
         ...(accessDays ? { accessDays: Number(accessDays) } : {}),
       });
@@ -168,6 +200,55 @@ function SettingsForm({ course }: { course: AdminCourseDetail }) {
               <Input id="c-days" type="number" min={1} value={accessDays} onChange={(e) => setAccessDays(e.target.value)} placeholder="365" />
             </div>
           </div>
+          <div className="space-y-3 rounded-lg border p-3">
+            <div className="flex items-start gap-2.5">
+              <input
+                id="c-has-complete"
+                type="checkbox"
+                checked={hasComplete}
+                onChange={(e) => setHasComplete(e.target.checked)}
+                className="mt-0.5 size-4 accent-[var(--primary)]"
+              />
+              <div className="space-y-1">
+                <Label htmlFor="c-has-complete">Offer a Complete plan</Label>
+                <p className="text-xs text-muted-foreground">
+                  A second, higher-priced tier that also unlocks this course&rsquo;s Complete-tier
+                  sections. Leave off for a normal single-tier course.
+                </p>
+              </div>
+            </div>
+
+            {hasComplete ? (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="c-premium-price">Complete price (₹)</Label>
+                  <Input
+                    id="c-premium-price"
+                    type="number"
+                    min={0}
+                    value={premiumPrice}
+                    onChange={(e) => setPremiumPrice(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="c-premium-mrp">Complete MRP (₹, optional)</Label>
+                  <Input
+                    id="c-premium-mrp"
+                    type="number"
+                    min={0}
+                    value={premiumMrp}
+                    onChange={(e) => setPremiumMrp(e.target.value)}
+                  />
+                </div>
+              </div>
+            ) : course.premiumPricePaise != null ? (
+              <p className="text-xs text-[var(--warning)]">
+                Saving will remove this course&rsquo;s Complete plan. Students can no longer buy or
+                upgrade to it, and any Complete-tier sections become unreachable.
+              </p>
+            ) : null}
+          </div>
+
           <div className="space-y-1.5">
             <Label htmlFor="c-thumb">Thumbnail URL</Label>
             <Input id="c-thumb" value={thumbnailUrl} onChange={(e) => setThumbnailUrl(e.target.value)} placeholder="https://…" />

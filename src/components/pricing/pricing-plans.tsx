@@ -4,6 +4,7 @@ import { useId, useState } from 'react';
 import Link from 'next/link';
 import styles from './pricing-plans.module.css';
 import { Sticker } from '@/components/stickers/sticker';
+import type { TrackFigures, TrackKey } from '@/lib/catalog';
 
 /**
  * Plan comparison for the two launch tracks.
@@ -25,36 +26,11 @@ import { Sticker } from '@/components/stickers/sticker';
  *    struck-through figure is the course's real `mrpPaise`.
  */
 
-type TrackKey = 'patterns' | 'gradient';
-
-type Track = {
-  key: TrackKey;
-  code: string;
-  name: string;
-  /** Real seeded values. Swap for the public catalog endpoint once it exists. */
-  standard: { price: number; mrp: number; lessons: number };
-  complete: { price: number; mrp: number; lessons: number };
-  advanced: string;
+/** Per-track editorial copy — no API field carries these, so they stay here. */
+const TRACK_META: Record<TrackKey, { code: string; advanced: string }> = {
+  patterns: { code: 'PATTERNS', advanced: 'Trees, Tries, Graphs and Backtracking' },
+  gradient: { code: 'GRADIENT', advanced: 'Deep learning, NLP, MLOps and capstones' },
 };
-
-const TRACKS: Track[] = [
-  {
-    key: 'patterns',
-    code: 'PATTERNS',
-    name: 'DSA for software-engineer roles',
-    standard: { price: 4999, mrp: 6999, lessons: 60 },
-    complete: { price: 7999, mrp: 9999, lessons: 82 },
-    advanced: 'Trees, Tries, Graphs and Backtracking',
-  },
-  {
-    key: 'gradient',
-    code: 'GRADIENT',
-    name: 'Machine learning for engineers',
-    standard: { price: 5999, mrp: 7999, lessons: 48 },
-    complete: { price: 8999, mrp: 11999, lessons: 83 },
-    advanced: 'Deep learning, NLP, MLOps and capstones',
-  },
-];
 
 const inr = (n: number) => '₹' + n.toLocaleString('en-IN');
 
@@ -94,10 +70,17 @@ function Arrow() {
   );
 }
 
-export function PricingPlans() {
+export function PricingPlans({ tracks }: { tracks: TrackFigures[] }) {
   const [active, setActive] = useState<TrackKey>('patterns');
-  const track = TRACKS.find((t) => t.key === active) ?? TRACKS[0];
+  const track = tracks.find((t) => t.key === active) ?? tracks[0];
   const labelId = useId();
+
+  if (!track) return null;
+  const meta = TRACK_META[track.key];
+  const accessLine = `One payment · ${track.accessDays ?? 365} days of access`;
+  // null when an admin has cleared the second tier — the Mentored card is then omitted rather
+  // than rendering ₹0 or NaN for a plan nobody can buy.
+  const complete = track.complete;
 
   return (
     <div className={styles.wrap}>
@@ -106,7 +89,7 @@ export function PricingPlans() {
 
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <div className={styles.switch} role="tablist" aria-label="Choose a track">
-          {TRACKS.map((t) => (
+          {tracks.map((t) => (
             <button
               key={t.key}
               type="button"
@@ -117,7 +100,7 @@ export function PricingPlans() {
               {...(t.key === active ? { 'data-on': '' } : {})}
               onClick={() => setActive(t.key)}
             >
-              {t.code}
+              {TRACK_META[t.key].code}
             </button>
           ))}
         </div>
@@ -130,14 +113,16 @@ export function PricingPlans() {
           <p className={styles.pitch}>The core curriculum, start to finish, on your own clock.</p>
           <div className={styles.priceRow}>
             <span className={styles.price}>{inr(track.standard.price)}</span>
-            <span className={styles.mrp}>{inr(track.standard.mrp)}</span>
+            {track.standard.mrp ? (
+              <span className={styles.mrp}>{inr(track.standard.mrp)}</span>
+            ) : null}
           </div>
-          <div className={styles.per}>One payment · 365 days of access</div>
+          <div className={styles.per}>{accessLine}</div>
           <ul className={styles.feats}>
             <li className={styles.feat}>
               <Tick />
               <span>
-                <span className={styles.featStrong}>{track.standard.lessons} lessons</span> across the core track
+                <span className={styles.featStrong}>{track.standardLessons} lessons</span> across the core track
               </span>
             </li>
             <li className={styles.feat}>
@@ -159,6 +144,7 @@ export function PricingPlans() {
         </div>
 
         {/* ---- 2. Mentored → real `complete` tier + human services ---- */}
+        {complete ? (
         <div className={`${styles.plan} ${styles.featured}`}>
           <span className={styles.badge}>Most chosen</span>
           <div className={styles.name}>Mentored</div>
@@ -166,10 +152,10 @@ export function PricingPlans() {
             The full track plus a human in your corner — the part you can&rsquo;t self-study.
           </p>
           <div className={styles.priceRow}>
-            <span className={styles.price}>{inr(track.complete.price)}</span>
-            <span className={styles.mrp}>{inr(track.complete.mrp)}</span>
+            <span className={styles.price}>{inr(complete.price)}</span>
+            {complete.mrp ? <span className={styles.mrp}>{inr(complete.mrp)}</span> : null}
           </div>
-          <div className={styles.per}>One payment · 365 days of access</div>
+          <div className={styles.per}>{accessLine}</div>
           <ul className={styles.feats}>
             <li className={`${styles.feat} ${styles.inherit}`}>
               <Tick signal />
@@ -178,7 +164,7 @@ export function PricingPlans() {
             <li className={styles.feat}>
               <Tick signal />
               <span>
-                <span className={styles.featStrong}>All {track.complete.lessons} lessons</span> — unlocks {track.advanced}
+                <span className={styles.featStrong}>All {track.totalLessons} lessons</span> — unlocks {meta.advanced}
               </span>
             </li>
             <li className={styles.feat}>
@@ -202,6 +188,7 @@ export function PricingPlans() {
             Get mentored <Arrow />
           </Link>
         </div>
+        ) : null}
 
         {/* ---- 3. Placement → lead into the counselor CRM, never a fake checkout ---- */}
         <div className={styles.plan}>

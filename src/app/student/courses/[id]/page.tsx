@@ -93,10 +93,12 @@ export default async function CourseDetailPage(props: PageProps<'/student/course
                   <h2 className="mb-3 font-medium">What&rsquo;s included</h2>
                   <ul className="grid gap-2 text-sm sm:grid-cols-2">
                     <Included icon={<BookOpen className="size-4" />} text={`${course.totalLessons} lessons`} />
+                    {/* "of video" was a claim no course could back — not one lesson in the
+                        database has a video asset yet. The figure that survives is material. */}
                     {course.totalDurationSec > 0 && (
                       <Included
                         icon={<Clock className="size-4" />}
-                        text={`${formatDuration(course.totalDurationSec)} of video`}
+                        text={`${formatDuration(course.totalDurationSec)} of material`}
                       />
                     )}
                     {downloadable > 0 && (

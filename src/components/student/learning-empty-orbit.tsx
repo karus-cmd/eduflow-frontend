@@ -44,19 +44,15 @@ export function LearningEmptyOrbit({ firstName, courses }: { firstName: string; 
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-border/70"
             style={{ width: RING_SIZE, height: RING_SIZE }}
           />
-          {/* radar pulse */}
-          <div
-            className="orbit-pulse absolute left-1/2 top-1/2 rounded-full border border-primary/35"
-            style={{ width: 410, height: 410 }}
-          />
-          <div
-            className="orbit-pulse absolute left-1/2 top-1/2 rounded-full border border-primary/35"
-            style={{ width: 410, height: 410, animationDelay: '1.6s' }}
-          />
+          {/* The two radar-pulse rings and the ring's 26s rotation were removed together: the
+              pulse depended on a keyframe that supplied its own centring transform, so without it
+              the circles sat off-centre and static, and a ring that spins forever with no input is
+              exactly the idle motion this direction rules out. The chips are positioned by
+              CHIP_SLOTS, so the layout does not need the animation. */}
 
           {/* carrier ring + chips */}
           <div
-            className="orbit-ring absolute left-1/2 top-1/2"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
             style={{ width: RING_SIZE, height: RING_SIZE }}
           >
             {courses.map((c, i) => {
@@ -114,7 +110,8 @@ function OrbitCore({ firstName, count }: { firstName: string; count: number }) {
         href="/student/browse"
         className="relative mt-6 inline-flex overflow-hidden rounded-md bg-primary px-7 py-4 text-base font-bold text-primary-foreground shadow-[0_6px_18px_-4px_color-mix(in_oklch,var(--primary)_55%,transparent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
-        <span className="orbit-sheen pointer-events-none absolute inset-y-0 left-0 w-2/5 bg-gradient-to-r from-transparent via-white/55 to-transparent" />
+        {/* The sweeping sheen is gone: its keyframe carried the off-screen start position, so
+            without it the gradient sat as a permanent white smear across the button. */}
         <span className="relative">Browse courses</span>
       </Link>
     </div>
@@ -126,7 +123,7 @@ function OrbitChip({ course, className }: { course: OrbitCourse; className?: str
     <Link
       href={`/student/courses/${course.id}`}
       className={
-        'orbit-chip-inner group/chip flex items-center gap-3.5 whitespace-nowrap rounded-lg border border-border bg-card px-5 py-4 text-left shadow-[0_14px_34px_-24px_rgba(21,24,28,0.5)] transition-[border-color,transform] duration-150 hover:-translate-y-0.5 hover:border-primary/30 focus-visible:-translate-y-0.5 focus-visible:border-primary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ' +
+        'group/chip flex items-center gap-3.5 whitespace-nowrap rounded-lg border border-border bg-card px-5 py-4 text-left shadow-[0_14px_34px_-24px_color-mix(in_oklch,var(--foreground)_28%,transparent)] transition-[border-color,transform] duration-150 hover:-translate-y-0.5 hover:border-primary/30 focus-visible:-translate-y-0.5 focus-visible:border-primary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ' +
         (className ?? '')
       }
     >
