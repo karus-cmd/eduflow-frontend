@@ -1,4 +1,5 @@
 import { AppShell } from '@/components/app-shell';
+import { PageMark } from '@/components/stickers/page-mark';
 import { CatalogGrid } from '@/components/catalog-grid';
 import { SiteFooter } from '@/components/site-footer';
 import { requireRole } from '@/lib/auth';
@@ -21,7 +22,10 @@ export default async function BrowsePage() {
     <>
       <AppShell title="Browse" user={me} nav={STUDENT_NAV} homeHref="/student">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold tracking-tight">Browse courses</h1>
+          <h1 className="flex items-center gap-2.5 text-2xl font-semibold tracking-tight">
+            <PageMark name="compass" size={22} />
+            Browse courses
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {courses.meta.total} {courses.meta.total === 1 ? 'course' : 'courses'} available · pick up something new
           </p>

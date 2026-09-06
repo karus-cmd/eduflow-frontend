@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { ActivityHeartbeat } from '@/components/activity-heartbeat';
 import { LogoutButton } from '@/components/logout-button';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { ShellNav, type NavLink } from '@/components/shell-nav';
 
 export function AppShell({
@@ -35,7 +36,7 @@ export function AppShell({
           <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5 sm:px-6">
             <div className="flex items-baseline gap-3">
               <Link href={homeHref} className="flex items-center gap-2 font-heading text-lg font-extrabold tracking-tight">
-                <span className="grid size-6 -rotate-6 place-items-center rounded-lg bg-primary text-primary-foreground shadow-[0_2px_0_var(--azure-deep,#1E3A8A),0_5px_12px_-4px_color-mix(in_oklch,var(--primary)_55%,transparent)]">
+                <span className="grid size-6 -rotate-6 place-items-center rounded-lg bg-primary text-primary-foreground shadow-[0_2px_0_var(--azure-deep),0_5px_12px_-4px_color-mix(in_oklch,var(--primary)_55%,transparent)]">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 3v6M12 15v6M3 12h6M15 12h6" />
                   </svg>
@@ -57,6 +58,7 @@ export function AppShell({
               <span className="grid size-9 place-items-center rounded-full bg-primary/12 font-heading text-sm font-bold text-primary">
                 {initial}
               </span>
+              <ThemeToggle className="grid size-9 place-items-center rounded-full border border-border text-muted-foreground transition-colors duration-150 hover:border-primary hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" />
               <LogoutButton />
             </div>
           </div>

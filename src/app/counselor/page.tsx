@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { PageMark } from '@/components/stickers/page-mark';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AppShell } from '@/components/app-shell';
@@ -109,8 +110,9 @@ export default async function CounselorDashboardPage(props: PageProps<'/counselo
 
   return (
     <AppShell title="Counselor" user={me} nav={COUNSELOR_NAV} homeHref="/counselor">
-      <div className="mb-6">
-        <h1 className="font-heading text-3xl font-extrabold tracking-tight">Good to see you, {me.fullName.split(' ')[0]}.</h1>
+      <div className="relative mb-6 overflow-hidden">
+        <PageMark name="funnel" variant="watermark" className="-top-4 right-0" size={150} />
+        <h1 className="relative font-heading text-3xl font-extrabold tracking-tight">Good to see you, {me.fullName.split(' ')[0]}.</h1>
         <p className="mt-1 text-sm text-muted-foreground">Here is how your book is doing this month.</p>
       </div>
 

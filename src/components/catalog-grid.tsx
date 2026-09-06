@@ -18,8 +18,8 @@ const QUICK_FILTERS = [
 
 const ROW_STYLE: React.CSSProperties = { display: 'flex', overflowX: 'auto', paddingBottom: 8 };
 const ROW_ITEM_STYLE: React.CSSProperties = { flex: '0 0 300px' };
-const MOVE_MS = 700;
-const STAGGER_MS = 70;
+const MOVE_MS = 320;
+const STAGGER_MS = 40;
 
 /**
  * The catalog grid with an instant client-side title/description filter, plus a scroll-triggered
@@ -63,6 +63,11 @@ export function CatalogGrid({
 
     function reveal() {
       if (!root) return;
+      // Someone who asked the interface to hold still gets the grid, not the journey to it.
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        setRowMode(false);
+        return;
+      }
       const items = Array.from(root.children) as HTMLElement[];
       const before = items.map((el) => el.getBoundingClientRect());
 
@@ -86,7 +91,7 @@ export function CatalogGrid({
 
       items.forEach((el, i) => {
         requestAnimationFrame(() => {
-          el.style.transition = `transform ${MOVE_MS}ms cubic-bezier(0.16, 1, 0.3, 1) ${i * STAGGER_MS}ms`;
+          el.style.transition = `transform ${MOVE_MS}ms cubic-bezier(0.22, 1, 0.36, 1) ${i * STAGGER_MS}ms`;
           el.style.transform = '';
         });
       });

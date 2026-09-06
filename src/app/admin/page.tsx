@@ -1,4 +1,5 @@
 import { AppShell } from '@/components/app-shell';
+import { PageMark } from '@/components/stickers/page-mark';
 import { StatCard } from '@/components/stat-card';
 import { DashboardManagers } from '@/components/admin/dashboard-managers';
 import { requireRole } from '@/lib/auth';
@@ -18,8 +19,9 @@ export default async function AdminDashboardPage() {
 
   return (
     <AppShell title="Admin" user={me} nav={ADMIN_NAV} homeHref="/admin">
-      <div className="mb-6">
-        <h1 className="font-heading text-3xl font-extrabold tracking-tight">Overview</h1>
+      <div className="relative mb-6 overflow-hidden">
+        <PageMark name="gauge" variant="watermark" className="-top-4 right-0" size={140} />
+        <h1 className="relative font-heading text-3xl font-extrabold tracking-tight">Overview</h1>
         <p className="mt-1 text-sm text-muted-foreground">The whole institute at a glance.</p>
       </div>
 

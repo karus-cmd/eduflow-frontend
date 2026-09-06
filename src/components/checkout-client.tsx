@@ -3,7 +3,8 @@
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
-import { CheckCircle2, Loader2, ShieldCheck, Tag } from 'lucide-react';
+import { CheckCircle2, Loader2, Tag } from 'lucide-react';
+import { PageMark } from '@/components/stickers/page-mark';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -218,7 +219,7 @@ export function CheckoutClient({
               {info && <p className="text-sm text-muted-foreground">{info}</p>}
 
               <div className="flex items-start gap-2 rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground">
-                <ShieldCheck className="mt-0.5 size-4 shrink-0" />
+                <PageMark name="shield" size={17} className="mt-0.5 shrink-0" />
                 <span>
                   Secure payment via Razorpay.
                   {isTestMode ? (

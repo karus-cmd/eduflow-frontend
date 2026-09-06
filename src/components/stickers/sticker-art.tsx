@@ -39,7 +39,15 @@ export type StickerName =
   | 'terminal'
   | 'branch'
   | 'keycap'
-  | 'target';
+  | 'target'
+  | 'shield'
+  | 'compass'
+  | 'receipt'
+  | 'sprout'
+  | 'ledger'
+  | 'funnel'
+  | 'gauge'
+  | 'bookmark';
 
 export const STICKER_ART: Record<StickerName, ReactElement> = {
   // ---- PATTERNS / DSA vocabulary ----
@@ -209,6 +217,69 @@ export const STICKER_ART: Record<StickerName, ReactElement> = {
       <circle cx="16" cy="16" r="11" />
       <circle cx="16" cy="16" r="6" opacity="0.6" />
       <circle cx="16" cy="16" r="1.9" fill="currentColor" stroke="none" data-part="node" />
+    </g>
+  ),
+
+  // ---- trust: the checkout desk ----
+  shield: (
+    <g {...S}>
+      <path d="M16 4 26 8v7.5c0 6-4.1 10.6-10 12.5-5.9-1.9-10-6.5-10-12.5V8Z" />
+      <path d="m11.5 16 3.2 3.2 6-6.4" data-part="node" />
+    </g>
+  ),
+
+  // ---- orientation: the catalogue ----
+  compass: (
+    <g {...S}>
+      <circle cx="16" cy="16" r="11.5" />
+      <path d="m20.5 11.5-2.4 6.6-6.6 2.4 2.4-6.6z" data-part="node" />
+    </g>
+  ),
+
+  receipt: (
+    <g {...S}>
+      <path d="M7 4h18v24l-3-2-3 2-3-2-3 2-3-2-3 2z" />
+      <path d="M12 12h8M12 17h5" data-part="node" />
+    </g>
+  ),
+
+  // ---- something just beginning: an empty shelf, a first lesson ----
+  sprout: (
+    <g {...S}>
+      <path d="M16 27v-9" />
+      <path d="M16 18c0-4-3-6.5-7-6.5 0 4 3 6.5 7 6.5Z" data-part="node" />
+      <path d="M16 18c0-3.4 2.6-5.6 6-5.6 0 3.4-2.6 5.6-6 5.6Z" opacity="0.6" />
+    </g>
+  ),
+
+  // ---- the money side: a ruled book of entries ----
+  ledger: (
+    <g {...S}>
+      <rect x="6" y="4" width="20" height="24" rx="2.5" />
+      <path d="M11 4v24" opacity="0.55" />
+      <path d="M15 11h7M15 16h7M15 21h4" data-part="node" />
+    </g>
+  ),
+
+  funnel: (
+    <g {...S}>
+      <path d="M4.5 6h23l-8.8 10.4V26l-5.4-3v-6.6z" />
+      <path d="M11 11h10" opacity="0.5" data-part="node" />
+    </g>
+  ),
+
+  gauge: (
+    <g {...S}>
+      <path d="M5 22a11 11 0 1 1 22 0" />
+      <path d="M16 22 22 13" data-part="needle" />
+      <circle cx="16" cy="22" r="1.8" fill="currentColor" stroke="none" />
+    </g>
+  ),
+
+  bookmark: (
+    <g {...S}>
+      <path d="M9 4h14v24l-7-5-7 5z" />
+      <path d="M13 11h6" opacity="0.6" data-part="node" />
     </g>
   ),
 };

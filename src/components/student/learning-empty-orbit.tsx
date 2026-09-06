@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { PageMark } from '@/components/stickers/page-mark';
 import { ArrowRight } from 'lucide-react';
 
 export interface OrbitCourse {
@@ -10,10 +11,8 @@ export interface OrbitCourse {
 }
 
 const RING_SIZE = 600;
-// ~120° apart on the ring — outer wrapper only ever sets a STATIC position; the actual
-// counter-rotation lives on the inner link (see globals.css .orbit-chip-inner). Splitting them
-// is required: put both on one element and the ring's own rotation composes with it, so the
-// chip's translate keeps sliding instead of holding its orbital position.
+// ~120° apart on the ring. These are static positions: the ring used to rotate and each chip
+// counter-rotated to stay upright, but that idle motion was removed, so the slots alone place them.
 const CHIP_SLOTS = [
   { top: -36, left: '50%', transform: 'translateX(-50%)' },
   { bottom: 46, left: -72 },
@@ -21,7 +20,7 @@ const CHIP_SLOTS = [
 ] as const;
 
 /**
- * "My Learning" empty state (0 enrollments) — three recommended courses slowly orbit an empty
+ * "My Learning" empty state (0 enrollments) — up to three recommended courses sit around an empty
  * core instead of a dashed placeholder box. Real course data, real links; if fewer than 3
  * recommendations exist, only that many chips render (never padded with placeholders).
  */
@@ -31,8 +30,7 @@ export function LearningEmptyOrbit({ firstName, courses }: { firstName: string; 
   return (
     <div>
       {/* Orbit stage — hidden below ~900px in favor of a plain stacked list (an 800px orbit has
-          no room to breathe on a phone, and a rotating ring you can't hover to pause is just
-          noise). */}
+          no room to breathe on a phone). */}
       <div className="hidden justify-center py-8 min-[900px]:flex">
         <div className="relative" style={{ width: RING_SIZE + 260, height: 700 }}>
           {/* static decorative rings */}
@@ -96,6 +94,7 @@ function OrbitCore({ firstName, count }: { firstName: string; count: number }) {
       <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">
         0 tracks active
       </div>
+      <PageMark name="sprout" variant="badge" tone="mint" size={20} className="mx-auto mt-2" />
       <h1 className="mt-4 font-heading text-[44px] font-bold leading-[1.05] tracking-[-0.035em]">
         Pick your
         <br />

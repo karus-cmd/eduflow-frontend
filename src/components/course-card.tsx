@@ -10,7 +10,9 @@ import { Price } from '@/components/price';
 import { formatDuration } from '@/lib/format';
 import type { Course } from '@/lib/api/types';
 
-const MAX_TILT_DEG = 9;
+// 9deg with a white glare was a trading-card effect tuned for light cards; it blew out on the
+// dark theme and ignored prefers-reduced-motion. A 3deg lean reads as depth without the gimmick.
+const MAX_TILT_DEG = 3;
 
 /** A catalog tile linking to the course detail page. Tilts toward the cursor with a light glare
  *  that tracks it — a trading-card feel — via direct style writes on refs (no React re-renders
@@ -34,15 +36,18 @@ export function CourseCard({
   function onMouseMove(e: React.MouseEvent<HTMLDivElement>) {
     const el = wrapRef.current;
     if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const rect = el.getBoundingClientRect();
     const px = (e.clientX - rect.left) / rect.width;
     const py = (e.clientY - rect.top) / rect.height;
     const rotateY = (px - 0.5) * MAX_TILT_DEG;
     const rotateX = (0.5 - py) * MAX_TILT_DEG;
-    el.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+    el.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-3px)`;
     const glare = glareRef.current;
     if (glare) {
-      glare.style.background = `radial-gradient(circle at ${px * 100}% ${py * 100}%, rgba(255,255,255,0.5), transparent 55%)`;
+      // Derived from the foreground token so it lifts on light cards and on dark ones alike,
+      // instead of smearing white over a dark surface.
+      glare.style.background = `radial-gradient(circle at ${px * 100}% ${py * 100}%, color-mix(in oklch, var(--foreground) 12%, transparent), transparent 58%)`;
       glare.style.opacity = '1';
     }
   }
