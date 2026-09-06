@@ -23,7 +23,7 @@ export interface HubProps {
   nextClass: { id: string; courseId: string; title: string; scheduledAt: string; joinUrl: string | null } | null;
 }
 
-const TONE: Record<RingStat['tone'], string> = { emerald: 'var(--primary)', coral: 'var(--coral)', gold: 'oklch(0.72 0.14 82)' };
+const TONE: Record<RingStat['tone'], string> = { emerald: 'var(--primary)', coral: 'var(--coral)', gold: 'var(--signal)' };
 
 /** Draws an in-view flag on first intersection (fires once). */
 function useInView<T extends HTMLElement>() {
@@ -82,7 +82,7 @@ export function StudentHub(props: HubProps) {
             <span className={styles.flame} aria-hidden>
               <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
                 <path d="M12 2.5c3.4 4.2 5.5 6.6 5.5 10a5.5 5.5 0 0 1-11 0c0-1.7.6-2.9 1.6-4C9 10 10 8.6 12 2.5Z" fill="var(--coral)" />
-                <path d="M12 9c1.7 2 2.7 3.2 2.7 5a2.7 2.7 0 0 1-5.4 0c0-1 .5-1.8 1.1-2.5.8.7 1.6-.5 1.6-2.5Z" fill="oklch(0.82 0.15 78)" />
+                <path d="M12 9c1.7 2 2.7 3.2 2.7 5a2.7 2.7 0 0 1-5.4 0c0-1 .5-1.8 1.1-2.5.8.7 1.6-.5 1.6-2.5Z" fill="var(--warning)" />
               </svg>
             </span>
             <div>

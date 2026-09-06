@@ -91,11 +91,12 @@ export function CheckoutClient({
           contact: user.phone ?? undefined,
         },
         notes: { orderId: checkout.orderId },
-        // Match the Razorpay modal to the live theme instead of the pre-Signal blue.
+        // Match the Razorpay modal to whatever the live theme is, read at open time, so it
+        // follows the palette instead of pinning a colour that drifts when tokens change.
         theme: {
           color:
             getComputedStyle(document.documentElement).getPropertyValue('--signal-fill').trim() ||
-            '#F2A93B',
+            '#2563EB',
         },
         handler: () => {
           // Payment succeeded on the client; the webhook provisions access server-side.

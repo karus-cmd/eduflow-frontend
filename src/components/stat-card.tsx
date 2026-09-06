@@ -5,13 +5,13 @@ type Accent = 'azure' | 'coral' | 'lime' | 'ink';
 const TINT: Record<Accent, string> = {
   azure: 'text-primary bg-primary/12',
   coral: 'text-coral bg-coral/12',
-  lime: 'text-[oklch(0.5_0.14_128)] bg-lime/25',
+  lime: 'text-[var(--success)] bg-[var(--success-soft)]',
   ink: 'text-foreground bg-foreground/8',
 };
 const STROKE: Record<Accent, string> = {
   azure: 'var(--azure)',
   coral: 'var(--coral)',
-  lime: 'oklch(0.5 0.14 128)',
+  lime: 'var(--success)',
   ink: 'var(--foreground)',
 };
 
@@ -53,7 +53,7 @@ export function StatCard({
           {trend ? (
             <span
               className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs font-semibold tabular-nums ${
-                trend.dir === 'up' ? 'bg-lime/25 text-[oklch(0.45_0.14_150)]' : 'bg-destructive/12 text-destructive'
+                trend.dir === 'up' ? 'bg-[var(--success-soft)] text-[var(--success)]' : 'bg-destructive/12 text-destructive'
               }`}
             >
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">

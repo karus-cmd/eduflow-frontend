@@ -205,7 +205,7 @@ export function StreakCelebration({ userId, streak }: { userId: string; streak: 
           <span className={flameClass}>
             <svg width="96" height="96" viewBox="0 0 24 24" fill="none">
               <path className={styles.celFlameOuter} d="M12 2.5c3.4 4.2 5.5 6.6 5.5 10a5.5 5.5 0 0 1-11 0c0-1.7.6-2.9 1.6-4C9 10 10 8.6 12 2.5Z" fill="var(--coral)" />
-              <path className={styles.celFlameInner} d="M12 9c1.7 2 2.7 3.2 2.7 5a2.7 2.7 0 0 1-5.4 0c0-1 .5-1.8 1.1-2.5.8.7 1.6-.5 1.6-2.5Z" fill="oklch(0.82 0.15 78)" />
+              <path className={styles.celFlameInner} d="M12 9c1.7 2 2.7 3.2 2.7 5a2.7 2.7 0 0 1-5.4 0c0-1 .5-1.8 1.1-2.5.8.7 1.6-.5 1.6-2.5Z" fill="var(--warning)" />
             </svg>
           </span>
           <div className={styles.celEmbers} ref={embersRef} />

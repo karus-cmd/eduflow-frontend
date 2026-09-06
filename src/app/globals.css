@@ -8,15 +8,17 @@
    SIGNAL — STEIN-X's design system.
 
    The idea: STEIN-X is an instrument for mastery. It turns a scattered syllabus
-   into signal. So the room is warm graphite you focus against, ONE bold voice
-   (achievement amber) reserved for the single thing that matters on a screen,
-   and mint for progress you actually earned.
+   into signal. So the room is cool graphite you focus against, ONE bold voice
+   (a confident azure) reserved for the single thing that matters on a screen,
+   and mint for progress you actually earned. The neutrals are biased toward the
+   accent rather than left grey, so the blue sits in the room instead of on it.
 
    Dark is the base case — students study at night, on a phone — but light is
    built as its equal, not an inversion. Both palettes are authored in full.
 
-   Semantic colour is kept SEPARATE from the brand accent on purpose: amber is
-   identity, never "warning". Errors are red, warnings coral, success mint.
+   Semantic colour is kept SEPARATE from the brand accent on purpose: the azure is
+   identity, never "information". Errors are red, warnings coral, success mint —
+   so nothing semantic ever competes with the brand for meaning.
 
    Motion lives in tokens too (--dur-*, --ease-*). Everything is micro: the
    largest routine transition is 320ms and the largest routine movement is 3px.
@@ -76,42 +78,46 @@
 }
 
 /* ----------------------------------------------------------------------------
-   LIGHT — daylight mode. A clean warm-neutral ground, deliberately not cream.
-   The accent deepens to burnt gold so it clears 4.5:1 as text and as a border.
+   LIGHT — daylight mode. A clean cool-neutral ground, deliberately not stark white.
+   The accent deepens so it clears 4.5:1 as text and as a border on paper.
    ---------------------------------------------------------------------------- */
 :root {
-  --background: #F4F3EF;
-  --foreground: #1A1712;
+  --background: #F2F4F7;
+  --foreground: #12161C;
   --card: #FFFFFF;
-  --card-foreground: #1A1712;
+  --card-foreground: #12161C;
   --popover: #FFFFFF;
-  --popover-foreground: #1A1712;
+  --popover-foreground: #12161C;
 
-  --primary: #B26A08;
-  --primary-foreground: #FFF9F0;
-  --secondary: #EAE7DF;
-  --secondary-foreground: #3A342B;
+  --primary: #1B5FBF;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E6EAF0;
+  --secondary-foreground: #333B47;
 
   /* muted MUST differ from background — they were identical before, which made
      every muted surface invisible on the page ground. */
-  --muted: #E8E5DC;
-  --muted-foreground: #5C554A;
+  --muted: #E6EAF0;
+  --muted-foreground: #525C6A;
 
-  --accent: #F3E4C9;
-  --accent-foreground: #7A4A06;
+  --accent: #DCE7FA;
+  --accent-foreground: #1B5FBF;
 
-  --border: rgba(28, 22, 12, 0.12);
-  --input: rgba(28, 22, 12, 0.18);
-  --ring: #B26A08;
+  --border: rgba(16, 22, 32, 0.12);
+  --input: rgba(16, 22, 32, 0.18);
+  --ring: #1B5FBF;
 
-  /* Brand voice */
-  --signal: #B26A08;
-  --signal-fill: #E8971C;
-  --signal-soft: rgba(226, 151, 28, 0.14);
-  --on-signal: #1A1305;
+  /* Brand voice. --signal must clear 4.5:1 as TEXT on the page ground, so it is the
+     deeper blue; --signal-fill is the brighter one used for large surfaces, which
+     carry --on-signal on top. Blue is darker than amber at equal saturation, so on
+     light a fill takes WHITE text rather than the dark ink the amber system used. */
+  --signal: #1B5FBF;
+  --signal-hi: #14488F;
+  --signal-fill: #2563EB;
+  --signal-soft: rgba(37, 99, 235, 0.13);
+  --on-signal: #FFFFFF;
   --mint: #0C9670;
-  --ink-faint: #8A8375;
-  --panel-2: #FBFAF6;
+  --ink-faint: #7B8694;
+  --panel-2: #F8FAFC;
 
   /* Semantic — separate from the brand accent on purpose */
   --success: #0C9670;
@@ -120,15 +126,15 @@
   --warning-soft: rgba(194, 65, 12, 0.13);
   --destructive: #C4292E;
 
-  --chart-1: #B26A08;
+  --chart-1: #1B5FBF;
   --chart-2: #0C9670;
   --chart-3: #C2410C;
-  --chart-4: #8A6A3B;
-  --chart-5: #6B6459;
+  --chart-4: #4A6E99;
+  --chart-5: #626B78;
 
-  /* Legacy aliases */
-  --azure: #B26A08;
-  --azure-deep: #7A4A06;
+  /* Legacy aliases — --azure finally points at an actual azure. */
+  --azure: #1B5FBF;
+  --azure-deep: #14488F;
   --coral: #C2410C;
   --lime: #0C9670;
 
@@ -152,43 +158,47 @@
   --lift-1: 1px;
   --lift-2: 3px;
 
-  --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 14px 32px -26px rgba(60, 45, 20, 0.42);
+  --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 14px 32px -26px rgba(18, 32, 56, 0.42);
 }
 
 /* ----------------------------------------------------------------------------
-   DARK — the base case. Warm graphite, never blue-black; amber reads hot on it.
-   Authored as its own set, not an inversion of light.
+   DARK — the base case. Cool graphite, deep enough that the azure reads bright
+   against it. Authored as its own set, not an inversion of light.
    ---------------------------------------------------------------------------- */
 .dark {
-  --background: #141210;
-  --foreground: #F3EEE3;
-  --card: #1C1915;
-  --card-foreground: #F3EEE3;
-  --popover: #1C1915;
-  --popover-foreground: #F3EEE3;
+  --background: #101317;
+  --foreground: #E9EDF3;
+  --card: #171B21;
+  --card-foreground: #E9EDF3;
+  --popover: #171B21;
+  --popover-foreground: #E9EDF3;
 
-  --primary: #F2A93B;
-  --primary-foreground: #1A1305;
-  --secondary: #262119;
-  --secondary-foreground: #E6DECF;
+  --primary: #58A6FF;
+  --primary-foreground: #08101C;
+  --secondary: #1D222A;
+  --secondary-foreground: #D6DDE7;
 
-  --muted: #24201A;
-  --muted-foreground: #B7AE9D;
+  --muted: #1D222A;
+  --muted-foreground: #A3ADBB;
 
-  --accent: #2E271C;
-  --accent-foreground: #FFC062;
+  --accent: #202836;
+  --accent-foreground: #8CC2FF;
 
-  --border: rgba(240, 230, 210, 0.11);
-  --input: rgba(240, 230, 210, 0.17);
-  --ring: #F2A93B;
+  --border: rgba(225, 235, 245, 0.11);
+  --input: rgba(225, 235, 245, 0.17);
+  --ring: #58A6FF;
 
-  --signal: #F2A93B;
-  --signal-fill: #F2A93B;
-  --signal-soft: rgba(242, 169, 59, 0.16);
-  --on-signal: #1A1305;
+  /* On this ground the bright azure both reads as text and works as a fill, so
+     signal and signal-fill are one value and the fill carries deep navy on top —
+     the same bright-surface / dark-ink pairing the amber system used. */
+  --signal: #58A6FF;
+  --signal-hi: #8CC2FF;
+  --signal-fill: #58A6FF;
+  --signal-soft: rgba(88, 166, 255, 0.16);
+  --on-signal: #08101C;
   --mint: #35D6A4;
-  --ink-faint: #7C7565;
-  --panel-2: #24201A;
+  --ink-faint: #6B7684;
+  --panel-2: #1D222A;
 
   --success: #35D6A4;
   --success-soft: rgba(53, 214, 164, 0.15);
@@ -196,18 +206,18 @@
   --warning-soft: rgba(245, 96, 61, 0.15);
   --destructive: #E5484D;
 
-  --chart-1: #F2A93B;
+  --chart-1: #58A6FF;
   --chart-2: #35D6A4;
   --chart-3: #F5603D;
-  --chart-4: #D6B98C;
-  --chart-5: #8A8175;
+  --chart-4: #8FB3D9;
+  --chart-5: #7C8794;
 
-  --azure: #F2A93B;
-  --azure-deep: #FFC062;
+  --azure: #58A6FF;
+  --azure-deep: #8CC2FF;
   --coral: #F5603D;
   --lime: #35D6A4;
 
-  --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 16px 38px -26px rgba(0, 0, 0, 0.7);
+  --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 16px 38px -26px rgba(0, 0, 0, 0.72);
 }
 
 @layer base {

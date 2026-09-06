@@ -228,8 +228,8 @@
 }
 .celBlobA, .celBlobB, .celBlobC { position: absolute; border-radius: 46% 54% 60% 40% / 60% 55% 45% 40%; filter: blur(7px); }
 .celBlobA { width: 58px; height: 86px; bottom: 26px; background: radial-gradient(circle at 50% 70%, color-mix(in oklch, var(--coral) 85%, transparent), transparent 72%); animation: celFlow1 1.9s ease-in-out infinite; }
-.celBlobB { width: 40px; height: 62px; bottom: 30px; background: radial-gradient(circle at 50% 70%, oklch(0.82 0.15 78 / 90%), transparent 70%); animation: celFlow2 2.4s ease-in-out infinite; }
-.celBlobC { width: 22px; height: 34px; bottom: 36px; background: radial-gradient(circle at 50% 70%, oklch(0.9 0.13 90 / 95%), transparent 68%); filter: blur(4px); animation: celFlow3 1.5s ease-in-out infinite; }
+.celBlobB { width: 40px; height: 62px; bottom: 30px; background: radial-gradient(circle at 50% 70%, color-mix(in oklch, var(--warning) 90%, transparent), transparent 70%); animation: celFlow2 2.4s ease-in-out infinite; }
+.celBlobC { width: 22px; height: 34px; bottom: 36px; background: radial-gradient(circle at 50% 70%, color-mix(in oklch, var(--warning) 62%, white), transparent 68%); filter: blur(4px); animation: celFlow3 1.5s ease-in-out infinite; }
 @keyframes celFlow1 { 0%,100% { transform: translateX(0) skewX(0deg) scaleY(1); } 25% { transform: translateX(-4px) skewX(-4deg) scaleY(1.08); } 50% { transform: translateX(2px) skewX(3deg) scaleY(0.94); } 75% { transform: translateX(-2px) skewX(-2deg) scaleY(1.05); } }
 @keyframes celFlow2 { 0%,100% { transform: translateX(0) skewX(0deg) scaleY(1); } 30% { transform: translateX(3px) skewX(5deg) scaleY(0.92); } 60% { transform: translateX(-3px) skewX(-4deg) scaleY(1.1); } }
 @keyframes celFlow3 { 0%,100% { transform: translateX(0) scaleY(1); } 40% { transform: translateX(2px) scaleY(1.15); } 70% { transform: translateX(-2px) scaleY(0.9); } }
@@ -302,7 +302,7 @@
 .celEmbers { position: absolute; inset: 0; pointer-events: none; }
 .celEmber {
   position: absolute; left: 50%; top: 58%; width: 6px; height: 6px; border-radius: 50%;
-  background: linear-gradient(oklch(0.82 0.15 78), var(--coral)); opacity: 0; z-index: 3; pointer-events: none;
+  background: linear-gradient(var(--warning), var(--destructive)); opacity: 0; z-index: 3; pointer-events: none;
   box-shadow: 0 0 6px color-mix(in oklch, var(--coral) 70%, transparent);
   animation: celEmberFly var(--dur, 900ms) var(--s-ease) forwards;
 }
