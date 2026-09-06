@@ -12,7 +12,6 @@ export default async function ProfilePage() {
   return (
     <AppShell title="Profile" user={me} nav={STUDENT_NAV} homeHref="/student">
       <div className="relative">
-        <PageMark name="keycap" variant="watermark" tone="ink" className="-top-6 right-0" />
         <h1 className="relative mb-6 text-2xl font-semibold tracking-tight">Profile &amp; settings</h1>
       </div>
       <ProfileClient

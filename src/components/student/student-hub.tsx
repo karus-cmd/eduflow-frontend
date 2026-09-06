@@ -7,6 +7,8 @@ import { formatDateTime } from '@/lib/format';
 import { StreakCelebration } from './streak-celebration';
 import { TrackSpine } from './track-spine';
 import { PageMark } from '@/components/stickers/page-mark';
+import { ScrollMorph } from '@/components/stickers/scroll-morph';
+import { SPROUT_TO_TREE } from '@/components/stickers/morph-shapes';
 import styles from './student.module.css';
 
 export interface HubCourse { id: string; title: string; slug: string; thumbnailUrl: string | null; pct: number; completed: boolean; totalLessons: number; }
@@ -56,6 +58,10 @@ export function StudentHub(props: HubProps) {
   const { userId, firstName, streak, dayDots, stats, resume, courses, heatmap, achievements, nextClass } = props;
   const [greeting, setGreeting] = useState('Welcome back');
   const [resumeFill, setResumeFill] = useState(0);
+  // Average completion across the student's courses — what the sprout/tree mark is drawn from.
+  const avgPct = courses.length
+    ? Math.round(courses.reduce((n, c) => n + c.pct, 0) / courses.length)
+    : 0;
   const heat = useInView<HTMLDivElement>();
   const badges = useInView<HTMLDivElement>();
 
@@ -160,6 +166,18 @@ export function StudentHub(props: HubProps) {
             Your study rhythm
           </span>
           <span className={styles.secNote}>recent activity</span>
+          {/* Driven by the student's REAL average progress, not by scroll — this page is shorter
+              than the viewport, so nothing here ever scrolls. Tying it to data also says what
+              scroll never could: the sprout IS how far through the track they are, and it
+              finishes becoming a tree when the course does. */}
+          <ScrollMorph
+            mark={SPROUT_TO_TREE}
+            size={34}
+            tone="mint"
+            opacity={0.65}
+            progress={avgPct / 100}
+            label={`${avgPct}% of your tracks complete`}
+          />
         </div>
         <div className={styles.heat}>
           <div ref={heat.ref} className={styles.heatGrid} {...(heat.seen ? { 'data-in': '' } : {})}>

@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { COMPASS_TO_TARGET } from '@/components/stickers/morph-shapes';
+import { ScrollMorph } from '@/components/stickers/scroll-morph';
 import { flushSync } from 'react-dom';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -142,6 +144,17 @@ export function CatalogGrid({
             </button>
           );
         })}
+        {/* Compass → target, driven by the FILTER rather than by scroll: this page is shorter
+            than the viewport, so nothing here ever scrolls. Orienting resolves into choosing at
+            the exact moment the student narrows the catalogue. */}
+        <ScrollMorph
+          mark={COMPASS_TO_TARGET}
+          size={22}
+          opacity={0.75}
+          progress={q.trim() ? 1 : 0}
+          className="ml-1 self-center"
+          label={q.trim() ? 'Filtered' : 'Browsing everything'}
+        />
       </div>
 
       <div

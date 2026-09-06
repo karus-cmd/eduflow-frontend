@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { ScrollMorph } from '@/components/stickers/scroll-morph';
+import { KEYCAP_TO_SHIELD } from '@/components/stickers/morph-shapes';
 import { useRouter } from 'next/navigation';
 import { KeyRound, Loader2, Mail, Phone, ShieldCheck, User } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -103,10 +105,10 @@ function ProfileTab({ user }: { user: ProfileUser }) {
 
           <div className="flex items-center gap-3">
             <Button type="submit" disabled={!dirty || busy}>
-              {busy ? <Loader2 className="size-4 animate-spin" /> : null}
+              {busy ? <Loader2 className="motion-reduce:animate-none size-4 animate-spin" /> : null}
               Save changes
             </Button>
-            {saved && !dirty && <span className="text-sm text-emerald-600 dark:text-emerald-500">Saved.</span>}
+            {saved && !dirty && <span className="text-sm text-[var(--success)]">Saved.</span>}
             {error && <span className="text-sm text-destructive">{error}</span>}
           </div>
         </form>
@@ -177,7 +179,7 @@ function SecurityTab({ email }: { email: string | null }) {
       </CardHeader>
       <CardContent className="space-y-6">
         {done ? (
-          <div className="rounded-lg bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-400">
+          <div className="rounded-lg bg-[var(--success-soft)] px-3 py-2 text-sm text-[var(--success)]">
             Password changed. You’ll need to sign in again on your other devices.
           </div>
         ) : (
@@ -198,7 +200,7 @@ function SecurityTab({ email }: { email: string | null }) {
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
             <Button type="submit" disabled={busy}>
-              {busy ? <Loader2 className="size-4 animate-spin" /> : <KeyRound className="size-4" />}
+              {busy ? <Loader2 className="motion-reduce:animate-none size-4 animate-spin" /> : <KeyRound className="size-4" />}
               Change password
             </Button>
           </form>
@@ -215,7 +217,7 @@ function SecurityTab({ email }: { email: string | null }) {
           ) : (
             <div className="flex items-center gap-3">
               <Button variant="outline" size="sm" onClick={sendReset} disabled={resetBusy || !email}>
-                {resetBusy ? <Loader2 className="size-4 animate-spin" /> : null}
+                {resetBusy ? <Loader2 className="motion-reduce:animate-none size-4 animate-spin" /> : null}
                 Email me a reset link
               </Button>
               {!email && <span className="text-xs text-muted-foreground">No email on file.</span>}

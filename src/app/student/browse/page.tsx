@@ -1,4 +1,6 @@
 import { AppShell } from '@/components/app-shell';
+import { COMPASS_TO_TARGET } from '@/components/stickers/morph-shapes';
+import { ScrollMorph } from '@/components/stickers/scroll-morph';
 import { AmbientField } from '@/components/stickers/ambient-field';
 import { PageMark } from '@/components/stickers/page-mark';
 import { CatalogGrid } from '@/components/catalog-grid';
@@ -25,7 +27,7 @@ export default async function BrowsePage() {
         <AmbientField
           intensity={0.14}
           marks={[
-            { name: 'compass', top: '2%', right: '4%', size: 46, drift: 10 },
+            { name: 'keycap', top: '2%', right: '4%', size: 42, tone: 'ink', drift: 10 },
             { name: 'tree', top: '30%', left: '-1%', size: 40, tone: 'ink', drift: 16 },
             { name: 'loss', top: '58%', right: '2%', size: 38, tone: 'mint', drift: -12 },
             { name: 'bookmark', top: '82%', left: '6%', size: 32, tone: 'ink', drift: 20 },
