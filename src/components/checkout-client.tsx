@@ -52,6 +52,11 @@ export function CheckoutClient({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
+  // Razorpay's publishable key is prefixed `rzp_test_` on test credentials, so the test-mode
+  // warning is derived from it rather than hardcoded — it disappears on its own the moment live
+  // keys are configured, instead of relying on someone remembering to delete it at launch.
+  const [gatewayKeyId, setGatewayKeyId] = useState<string | null>(null);
+  const isTestMode = gatewayKeyId?.startsWith('rzp_test_') ?? false;
 
   const activePricePaise = tier === 'complete' ? course.premiumPricePaise! : course.pricePaise;
   const activeMrpPaise = tier === 'complete' ? course.premiumMrpPaise : course.mrpPaise;
@@ -71,6 +76,8 @@ export function CheckoutClient({
         ...(hasPremium ? { tier } : {}),
       });
 
+      setGatewayKeyId(checkout.keyId);
+
       const rzp = new window.Razorpay({
         key: checkout.keyId,
         amount: Number(checkout.amountPaise),
@@ -84,7 +91,12 @@ export function CheckoutClient({
           contact: user.phone ?? undefined,
         },
         notes: { orderId: checkout.orderId },
-        theme: { color: '#1D4ED8' },
+        // Match the Razorpay modal to the live theme instead of the pre-Signal blue.
+        theme: {
+          color:
+            getComputedStyle(document.documentElement).getPropertyValue('--signal-fill').trim() ||
+            '#F2A93B',
+        },
         handler: () => {
           // Payment succeeded on the client; the webhook provisions access server-side.
           router.push(`/student/orders/${checkout.orderId}/provisioning`);
@@ -207,8 +219,14 @@ export function CheckoutClient({
               <div className="flex items-start gap-2 rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground">
                 <ShieldCheck className="mt-0.5 size-4 shrink-0" />
                 <span>
-                  Secure payment via Razorpay. This build uses <strong>TEST mode</strong> — use a Razorpay
-                  test card (e.g. 4111 1111 1111 1111, any future expiry/CVV). No real money moves.
+                  Secure payment via Razorpay.
+                  {isTestMode ? (
+                    <>
+                      {' '}
+                      This build is in <strong>TEST mode</strong> — use a Razorpay test card
+                      (e.g. 4111 1111 1111 1111, any future expiry/CVV). No real money moves.
+                    </>
+                  ) : null}
                 </span>
               </div>
             </CardContent>
