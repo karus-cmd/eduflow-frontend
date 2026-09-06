@@ -4,9 +4,9 @@ import { roleHome } from '@/lib/config';
 import { LandingPage } from '@/components/landing/landing-page';
 
 export const metadata = {
-  title: 'STEIN-X — learn it, drill it, ace it',
+  title: 'STEIN-X — learn the patterns, get the offer',
   description:
-    'STEIN-X turns courses, live classes, and thousands of practice questions into one habit that gets you exam and interview ready. Pick a track and start today.',
+    'Two structured tracks for software-engineering roles: DSA patterns and machine learning. One ordered path per track, with mentor support and timed mock interviews on the paid plans.',
 };
 
 /** Root: signed-in users go to their dashboard; everyone else meets the landing page.

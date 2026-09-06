@@ -1,0 +1,275 @@
+/* SIGNAL — plan comparison.
+   Strictly token-driven so it themes with the rest of the app; no literal colours.
+   Every transition here is micro: <=320ms, <=3px of travel. */
+
+.wrap {
+  position: relative;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---- track switch ---- */
+.switch {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+}
+.switchBtn {
+  font: inherit;
+  font-family: var(--font-mono-face), ui-monospace, monospace;
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  padding: 9px 18px;
+  cursor: pointer;
+  transition:
+    color var(--dur-2) var(--ease-out),
+    background-color var(--dur-2) var(--ease-out);
+}
+.switchBtn:hover {
+  color: var(--foreground);
+}
+.switchBtn[data-on] {
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+}
+.switchBtn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* ---- grid ---- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 30px;
+  align-items: start;
+}
+
+.plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 26px 24px 24px;
+  transition:
+    transform var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-3) var(--ease-out);
+}
+.plan:hover {
+  transform: translateY(calc(var(--lift-2) * -1));
+  border-color: color-mix(in srgb, var(--signal) 45%, var(--border));
+}
+
+/* The middle plan is where the margin lives, so it gets the only filled border,
+   a slight lift at rest, and the badge. Everything else stays quiet. */
+.featured {
+  border-color: var(--signal);
+  box-shadow: 0 0 0 1px var(--signal), 0 18px 40px -30px var(--signal);
+  transform: translateY(-6px);
+}
+.featured:hover {
+  transform: translateY(-9px);
+}
+
+.badge {
+  position: absolute;
+  top: -11px;
+  left: 24px;
+  font-family: var(--font-mono-face), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--on-signal);
+  background: var(--signal-fill);
+  border-radius: 999px;
+  padding: 4px 11px;
+}
+
+.name {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.pitch {
+  color: var(--muted-foreground);
+  font-size: 13.5px;
+  margin-top: 6px;
+  min-height: 38px;
+  line-height: 1.45;
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin-top: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+/* Display face, not mono: a grouped price like ₹4,999 puts the comma in a full
+   monospace cell and blows a visible gap through the middle of the number.
+   Mono stays for figures that line up in columns, where its width is the point. */
+.price {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+.mrp {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink-faint);
+  text-decoration: line-through;
+}
+.applyPrice {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+}
+.per {
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin-top: 7px;
+}
+
+.feats {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  flex: 1;
+}
+.feat {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+/* The inherited-from-below row: says "everything in X" without repeating 6 rows.
+   Spotify's trick — each tier is a strict superset, so comparison stays cheap. */
+.inherit {
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+.tick {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  color: var(--success);
+}
+.tickSignal {
+  color: var(--signal);
+}
+.featStrong {
+  font-weight: 600;
+}
+
+.cta {
+  margin-top: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  font: inherit;
+  font-weight: 600;
+  font-size: 14.5px;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--foreground);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform var(--dur-1) var(--ease-out),
+    background-color var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out),
+    color var(--dur-2) var(--ease-out);
+}
+.cta:hover {
+  border-color: var(--signal);
+  color: var(--signal);
+}
+.cta:active {
+  transform: translateY(var(--lift-1));
+}
+.cta:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.ctaPrimary {
+  background: var(--signal-fill);
+  border-color: var(--signal-fill);
+  color: var(--on-signal);
+}
+.ctaPrimary:hover {
+  background: var(--signal);
+  border-color: var(--signal);
+  color: var(--on-signal);
+}
+.ctaArrow {
+  transition: transform var(--dur-2) var(--ease-spring);
+}
+.cta:hover .ctaArrow {
+  transform: translateX(2px);
+}
+
+.note {
+  margin-top: 22px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .featured,
+  .featured:hover {
+    transform: none;
+  }
+  .plan:hover {
+    transform: none;
+  }
+  .pitch {
+    min-height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plan,
+  .cta,
+  .ctaArrow,
+  .switchBtn {
+    transition: none;
+  }
+  .plan:hover,
+  .featured,
+  .featured:hover,
+  .cta:active {
+    transform: none;
+  }
+}

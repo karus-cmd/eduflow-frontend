@@ -82,6 +82,10 @@ export function StreakCelebration({ userId, streak }: { userId: string; streak: 
   }
 
   function playChime() {
+    // The stylesheet already disables every visual under prefers-reduced-motion; sound is part
+    // of the same involuntary burst, so it honours the same preference rather than firing at
+    // someone who asked the interface to hold still.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     try {
       const AudioCtxCtor = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const ctx = new AudioCtxCtor();

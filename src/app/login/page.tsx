@@ -131,16 +131,16 @@ export default function LoginPage() {
         </div>
         <div className={`${styles.floatCard} ${styles.fc2}`}>
           <div className={styles.fcBody}>
-            <span className={`${styles.fcTag} ${styles.fcTagC}`}>NEET</span>
-            <span className={styles.fcLine}>Cell biology</span>
-            <span className={styles.fcMeta}>9 min</span>
+            <span className={`${styles.fcTag} ${styles.fcTagC}`}>ML</span>
+            <span className={styles.fcLine}>Gradient descent</span>
+            <span className={styles.fcMeta}>GRADIENT · §5</span>
           </div>
         </div>
         <div className={`${styles.floatCard} ${styles.fc3}`}>
           <div className={styles.fcBody}>
-            <span className={`${styles.fcTag} ${styles.fcTagI}`}>Aptitude</span>
-            <span className={styles.fcLine}>Big-O basics</span>
-            <span className={styles.fcMeta}>quick set</span>
+            <span className={`${styles.fcTag} ${styles.fcTagI}`}>DSA</span>
+            <span className={styles.fcLine}>Sliding window</span>
+            <span className={styles.fcMeta}>PATTERNS · §10</span>
           </div>
         </div>
         <span className={styles.sparkle}>✦</span>

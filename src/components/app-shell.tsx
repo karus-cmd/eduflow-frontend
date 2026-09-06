@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { ActivityHeartbeat } from '@/components/activity-heartbeat';
 import { LogoutButton } from '@/components/logout-button';
-import { ParticlesBackground } from '@/components/particles-background';
 import { ShellNav, type NavLink } from '@/components/shell-nav';
 
 export function AppShell({
@@ -11,7 +10,6 @@ export function AppShell({
   user,
   nav,
   homeHref = '/',
-  backgroundLayer = <ParticlesBackground />,
   children,
 }: {
   title: string;
@@ -20,21 +18,11 @@ export function AppShell({
   nav?: NavLink[];
   /** Where the "STEIN-X" wordmark links to (defaults to root, which bounces to the role home). */
   homeHref?: string;
-  /**
-   * A decorative layer (the ambient particle field, by default) rendered between this shell's own
-   * opaque background and its real header/main content — every role's every page gets it for
-   * free. Without this slot there's nowhere safe to put one: this wrapper's own `bg-background`
-   * already paints across virtually the whole page, so anything mounted outside AppShell sits
-   * fully behind it with no gap to show through — the actual bug the first attempt at this ran
-   * into. Pass `backgroundLayer={null}` to opt a specific page out.
-   */
-  backgroundLayer?: ReactNode;
   children: ReactNode;
 }) {
   const initial = user.fullName.trim().charAt(0).toUpperCase() || '?';
   return (
     <div className="relative min-h-screen bg-background [background-image:radial-gradient(color-mix(in_oklch,var(--foreground)_5%,transparent)_1px,transparent_1px)] [background-size:26px_26px]">
-      {backgroundLayer}
       <div className="relative z-10">
         <ActivityHeartbeat />
         <a

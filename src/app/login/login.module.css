@@ -5,17 +5,20 @@
    motion safe. */
 
 .wrap {
-  /* Chrome Machine palette (name kept for continuity with the rest of the file) */
-  --emerald: #1D4ED8;
-  --emerald-deep: #1E3A8A;
-  --coral: #EA580C;
-  --ivory: #EDEFF2;
-  --paper: #ffffff;
-  --ink: #15181C;
-  --ink-2: #6B7280;
-  --ink-3: #9CA3AF;
-  --line: #D6DBE1;
-  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  /* These local names are kept because the rest of this file references them, but they are now
+     ALIASES onto the global Signal tokens rather than a private palette. Previously this block
+     hardcoded its own hex values — including an `--emerald` that actually held blue — so the
+     sign-in screen could never follow the theme and stayed light forever. */
+  --emerald: var(--signal);
+  --emerald-deep: var(--signal-hi, var(--signal));
+  --coral: var(--warning);
+  --ivory: var(--background);
+  --paper: var(--card);
+  --ink: var(--foreground);
+  --ink-2: var(--muted-foreground);
+  --ink-3: var(--ink-faint);
+  --line: var(--border);
+  --ease: var(--ease-out);
 
   position: relative;
   min-height: 100vh;
@@ -23,7 +26,7 @@
   place-items: center;
   padding: 24px;
   background-color: var(--ivory);
-  background-image: radial-gradient(rgba(31, 28, 43, 0.05) 1.2px, transparent 1.2px);
+  background-image: radial-gradient(color-mix(in srgb, var(--foreground) 7%, transparent) 1.2px, transparent 1.2px);
   background-size: 26px 26px;
   color: var(--ink);
   font-family: var(--font-geist-sans), system-ui, sans-serif;

@@ -1,11 +1,29 @@
 'use client';
 
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import styles from './landing.module.css';
+import { Sticker } from '@/components/stickers/sticker';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { PricingPlans } from '@/components/pricing/pricing-plans';
+
+/**
+ * STEIN-X landing — the Signal direction.
+ *
+ * Every number on this page is real and traceable to the seeded courses (82 and
+ * 83 lessons, 18 sections each, 365 days of access, two enforced tiers). The
+ * page deliberately does NOT claim video lessons, live classes, a question bank,
+ * timed in-app mocks or spaced repetition, because none of those exist yet — the
+ * old copy advertised roughly twenty subjects against a single real course.
+ *
+ * The one gap that matters to a buyer, video, is stated outright in `candid`
+ * rather than buried: saying it first is worth more than the sale it might cost,
+ * and it converts as a founding-member reason to buy now.
+ */
 
 export function LandingPage() {
   const [stuck, setStuck] = useState(false);
+
   useEffect(() => {
     const onScroll = () => setStuck(window.scrollY > 8);
     onScroll();
@@ -17,317 +35,480 @@ export function LandingPage() {
     <div className={styles.page}>
       <nav className={styles.nav} {...(stuck ? { 'data-stuck': '' } : {})}>
         <div className={styles.navInner}>
-          <span className={styles.wordmark}>
-            <span className={styles.mark}><IconSpark /></span> STEIN-X
-          </span>
+          <Link href="/" className={styles.wordmark}>
+            <span className={styles.mark} aria-hidden="true">
+              <IconSpark />
+            </span>
+            STEIN-X
+          </Link>
           <div className={styles.navLinks}>
             <a className={styles.navLink} href="#tracks">Tracks</a>
-            <a className={styles.navLink} href="#how">How it works</a>
-            <a className={styles.navLink} href="#learn">Learn anywhere</a>
+            <a className={styles.navLink} href="#included">What you get</a>
+            <a className={styles.navLink} href="#pricing">Pricing</a>
+            <a className={styles.navLink} href="#faq">FAQ</a>
           </div>
-          <Link href="/login" className={`${styles.btn} ${styles.btnSm}`}>Sign in</Link>
+          <div className={styles.navRight}>
+            <ThemeToggle className={styles.iconBtn} />
+            <Link href="/login" className={`${styles.btn} ${styles.btnGhost} ${styles.btnSm}`}>
+              Sign in
+            </Link>
+          </div>
         </div>
       </nav>
 
       <main>
-        {/* ---- Hero ---- */}
+        {/* ---------------- hero ---------------- */}
         <section className={styles.shell}>
           <div className={styles.hero}>
-            <div>
-              <span className={styles.pill}>
-                <span className={styles.pillDot}><IconBolt /></span>
-                For every exam and interview
+            <Sticker name="tree" size={38} drift={14} spin={-5} tone="signal" opacity={0.3} style={{ top: 30, right: '4%' }} />
+            <Sticker name="neuron" size={34} drift={-11} spin={4} tone="mint" opacity={0.28} style={{ top: 210, right: '17%' }} />
+            <Sticker name="complexity" size={30} drift={9} tone="ink" opacity={0.3} style={{ top: 340, right: '2%' }} />
+            <Sticker name="brackets" size={26} drift={-8} tone="ink" opacity={0.22} style={{ top: 120, left: '-2%' }} />
+
+            <Reveal>
+              <span className={styles.eyebrow}>
+                <span className={styles.eyebrowDot} aria-hidden="true" />
+                Two tracks · built for engineering roles
               </span>
               <h1 className={styles.headline}>
-                Learn it. Drill it.
+                Stop grinding random problems.
                 <br />
-                <span className={styles.hlCoral}>Ace it.</span>
+                <span className={styles.hl}>Learn the patterns.</span>
               </h1>
               <p className={styles.lede}>
-                STEIN-X turns courses, live classes, and thousands of practice questions into one habit that
-                gets you exam and interview ready. Pick a track and start today.
+                STEIN-X is one structured path per track — ordered so each idea lands on the one before
+                it, with a mentor and real mock rounds when self-study stops being enough.
               </p>
               <div className={styles.heroActions}>
-                <Link href="/login" className={styles.btn}>
-                  Start learning free <IconArrow />
-                </Link>
-                <a href="#tracks" className={`${styles.btn} ${styles.btnGhost}`}>
-                  Explore tracks
+                <a href="#tracks" className={styles.btn}>
+                  See the tracks <IconArrow />
+                </a>
+                <a href="#pricing" className={`${styles.btn} ${styles.btnGhost}`}>
+                  View pricing
                 </a>
               </div>
-              <div className={styles.heroNote}>
-                <span className={styles.noteSpark}>✦</span>
-                Big brain energy, zero cram, pure flow.
-              </div>
-            </div>
 
-            <Deck />
-          </div>
-        </section>
-
-        {/* ---- Tracks ---- */}
-        <section id="tracks" className={`${styles.shell} ${styles.section}`}>
-          <Reveal className={styles.sectionHead}>
-            <h2 className={styles.h2}>
-              Pick a track. <span className={styles.hl}>Go deep.</span>
-            </h2>
-            <p className={styles.sub}>
-              Structured paths for the exams and interviews that matter, each a full course with lessons,
-              practice sets, and timed mocks.
-            </p>
-          </Reveal>
-          <div className={styles.tracks}>
-            {TRACKS.map((t) => (
-              <TiltCard key={t.name} className={styles.track} tint={t.tint}>
-                <span className={styles.trackIcon} style={{ background: t.tint }}>{t.icon}</span>
-                <span className={styles.trackName}>{t.name}</span>
-                <span className={styles.trackDesc}>{t.desc}</span>
-                <span className={styles.trackFoot}>
-                  <span className={styles.lessons}>{t.lessons}</span>
-                  <span className={styles.trackGo} style={{ color: t.tint }}>Start <IconArrow /></span>
-                </span>
-              </TiltCard>
-            ))}
-          </div>
-        </section>
-
-        {/* ---- The loop ---- */}
-        <section id="how" className={`${styles.shell} ${styles.section}`} style={{ paddingTop: 0 }}>
-          <Reveal className={styles.sectionHead}>
-            <h2 className={styles.h2}>The loop that makes it stick.</h2>
-            <p className={styles.sub}>
-              Every track runs the same four beats. Repeat it and the hard things start to feel easy.
-            </p>
-          </Reveal>
-          <Reveal className={styles.loop}>
-            {LOOP.map((s, i) => (
-              <div key={s.name} className={styles.step}>
-                <span className={styles.stepNo}>0{i + 1}</span>
-                <div className={styles.stepName}>{s.name}</div>
-                <div className={styles.stepText}>{s.text}</div>
-              </div>
-            ))}
-          </Reveal>
-        </section>
-
-        {/* ---- Learn anywhere (screen showcase) ---- */}
-        <section id="learn" className={`${styles.shell} ${styles.section}`} style={{ paddingTop: 0 }}>
-          <div className={styles.showcase}>
-            <Reveal>
-              <h2 className={styles.h2}>
-                Class in your <span className={styles.hl}>pocket.</span>
-              </h2>
-              <div className={styles.featList}>
-                {FEATURES.map((f) => (
-                  <div key={f.title} className={styles.feat}>
-                    <span className={styles.featIcon}>{f.icon}</span>
-                    <div>
-                      <div className={styles.featT}>{f.title}</div>
-                      <div className={styles.featD}>{f.desc}</div>
-                    </div>
-                  </div>
-                ))}
+              <div className={styles.heroMeta}>
+                <div className={styles.metaItem}>
+                  <span className={styles.metaNum}>165</span>
+                  <span className={styles.metaLabel}>lessons written</span>
+                </div>
+                <div className={styles.metaItem}>
+                  <span className={styles.metaNum}>36</span>
+                  <span className={styles.metaLabel}>sections</span>
+                </div>
+                <div className={styles.metaItem}>
+                  <span className={styles.metaNum}>
+                    365<span>d</span>
+                  </span>
+                  <span className={styles.metaLabel}>access</span>
+                </div>
+                <div className={styles.metaItem}>
+                  <span className={styles.metaNum}>2</span>
+                  <span className={styles.metaLabel}>tracks at launch</span>
+                </div>
               </div>
             </Reveal>
-            <ScreenMock />
           </div>
         </section>
 
-        {/* ---- Close ---- */}
-        <section className={styles.shell}>
-          <div className={styles.close}>
-            <h2 className={styles.closeTitle}>Ready to get sharp?</h2>
-            <p className={styles.closeSub}>
-              Your first track is free. Start a lesson tonight and drill the rest tomorrow.
-            </p>
-            <div className={styles.closeActions}>
-              <Link href="/login" className={`${styles.btn} ${styles.btnOnAzure}`}>
-                Start learning free <IconArrow />
-              </Link>
+        {/* ---------------- tracks ---------------- */}
+        <section id="tracks" className={styles.shell}>
+          <div className={styles.section}>
+            <Reveal className={styles.sectionHead}>
+              <span className={styles.eyebrow}>
+                <span className={styles.eyebrowDot} aria-hidden="true" />
+                The tracks
+              </span>
+              <h2 className={styles.h2}>Two tracks. Both end in an interview.</h2>
+              <p className={styles.sub}>
+                Each one is a single ordered path, split into a core tier and an advanced tier. The
+                advanced modules are genuinely locked until you own them — not a marketing line.
+              </p>
+            </Reveal>
+
+            <div className={styles.tracks}>
+              {TRACKS.map((t, i) => (
+                <Reveal key={t.code} style={{ ['--i' as string]: String(i) }}>
+                  <article className={styles.track}>
+                    <Sticker
+                      name={t.sticker}
+                      size={30}
+                      drift={t.drift}
+                      spin={3}
+                      tone={t.tone}
+                      opacity={0.26}
+                      style={{ top: 20, right: 20 }}
+                    />
+                    <span className={styles.trackCode}>{t.code}</span>
+                    <h3 className={styles.trackName}>{t.name}</h3>
+                    <p className={styles.trackDesc}>{t.desc}</p>
+
+                    <ul className={styles.trackList}>
+                      {t.core.map((c) => (
+                        <li key={c} className={styles.chip}>
+                          {c}
+                        </li>
+                      ))}
+                      {t.advanced.map((c) => (
+                        <li key={c} className={`${styles.chip} ${styles.chipLocked}`}>
+                          {c}
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className={styles.trackStats}>
+                      <span className={styles.trackStat}>
+                        <b>{t.lessons}</b> lessons
+                      </span>
+                      <span className={styles.trackStat}>
+                        <b>{t.sections}</b> sections
+                      </span>
+                      <span className={styles.trackStat}>
+                        from <span className={styles.trackPrice}>{t.from}</span>
+                      </span>
+                    </div>
+
+                    <div className={styles.trackFoot}>
+                      <a href="#pricing" className={`${styles.btn} ${styles.btnGhost} ${styles.btnSm}`}>
+                        See plans <IconArrow />
+                      </a>
+                    </div>
+                  </article>
+                </Reveal>
+              ))}
             </div>
           </div>
+        </section>
+
+        {/* ---------------- what you actually get ---------------- */}
+        <section id="included" className={styles.shell}>
+          <div className={styles.section}>
+            <Sticker name="stopwatch" size={30} drift={12} tone="signal" opacity={0.22} style={{ top: 44, right: '3%' }} />
+            <Reveal className={styles.sectionHead}>
+              <span className={styles.eyebrow}>
+                <span className={styles.eyebrowDot} aria-hidden="true" />
+                What you actually get
+              </span>
+              <h2 className={styles.h2}>No filler. Just the things that move an offer closer.</h2>
+              <p className={styles.sub}>
+                We would rather list four real things than twenty imaginary ones.
+              </p>
+            </Reveal>
+
+            <div className={styles.gets}>
+              {GETS.map((g, i) => (
+                <Reveal key={g.title} style={{ ['--i' as string]: String(i) }}>
+                  <div className={styles.get}>
+                    <span className={styles.getIcon}>{g.icon}</span>
+                    <h3 className={styles.getTitle}>{g.title}</h3>
+                    <p className={styles.getText}>{g.text}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+
+            <Reveal>
+              <div className={styles.candid}>
+                <span className={styles.candidTag}>Straight up</span>
+                <p>
+                  Every lesson is written and ordered today. <b>Video is still in production.</b> We
+                  would rather say that than let you find out after paying — so anyone who joins now
+                  gets every video free as it lands, at the price they paid today.
+                </p>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ---------------- pricing ---------------- */}
+        <section id="pricing">
+          <div className={styles.section}>
+            <div className={styles.shell}>
+              <Reveal className={styles.sectionHead}>
+                <span className={styles.eyebrow}>
+                  <span className={styles.eyebrowDot} aria-hidden="true" />
+                  Pricing
+                </span>
+                <h2 className={styles.h2}>Pick how much help you want.</h2>
+                <p className={styles.sub}>
+                  The curriculum is the same path in every plan. What changes is how far it goes, and
+                  whether there is a person on the other end of it.
+                </p>
+              </Reveal>
+            </div>
+            <PricingPlans />
+          </div>
+        </section>
+
+        {/* ---------------- faq ---------------- */}
+        <section id="faq" className={styles.shell}>
+          <div className={styles.section}>
+            <Reveal className={styles.sectionHead}>
+              <span className={styles.eyebrow}>
+                <span className={styles.eyebrowDot} aria-hidden="true" />
+                Questions
+              </span>
+              <h2 className={styles.h2}>The things people actually ask.</h2>
+            </Reveal>
+            <div className={styles.faq}>
+              {FAQ.map((f, i) => (
+                <Faq key={f.q} q={f.q} a={f.a} index={i} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ---------------- close ---------------- */}
+        <section className={styles.shell}>
+          <Reveal>
+            <div className={styles.close}>
+              <Sticker name="spark" size={26} drift={10} tone="signal" opacity={0.3} style={{ top: 26, left: '8%' }} />
+              <Sticker name="flame" size={24} drift={-9} tone="warning" opacity={0.24} style={{ bottom: 26, right: '9%' }} />
+              <h2 className={styles.closeTitle}>Start the first section tonight.</h2>
+              <p className={styles.closeSub}>
+                Pick a track, work the path in order, and let someone check your thinking before the
+                interview does.
+              </p>
+              <div className={styles.closeActions}>
+                <a href="#pricing" className={styles.btn}>
+                  Choose your plan <IconArrow />
+                </a>
+              </div>
+            </div>
+          </Reveal>
         </section>
       </main>
 
       <footer className={styles.footer}>
-        <span className={styles.wordmark} style={{ fontSize: 17 }}>
-          <span className={styles.mark} style={{ width: 22, height: 22 }}><IconSpark /></span> STEIN-X
+        <span className={styles.wordmark} style={{ fontSize: 15 }}>
+          <span className={styles.mark} style={{ width: 21, height: 21 }} aria-hidden="true">
+            <IconSpark />
+          </span>
+          STEIN-X
         </span>
-        <span>Courses · Live classes · Practice · Mock interviews</span>
+        <span>DSA patterns · Machine learning · Mentorship · Mock interviews</span>
       </footer>
     </div>
   );
 }
 
-/* ---------------- The 3D deck (hero artifact + signature motion) ------------ */
+/* ---------------- reveal ---------------- */
 
-// circular fan: each card is only rotated (around a pivot below); hovering slides it up out of the pack
-const CARDS = [
-  { tag: 'System Design', tagClass: 'cardTagInk', q: 'Design a URL shortener.', meta: '9 min · case study', r: -24, d: 60 },
-  { tag: 'Aptitude', tagClass: 'cardTagCoral', q: 'Big-O of binary search?', meta: 'timed drill', r: -8, d: 140 },
-  { tag: 'Physics', tagClass: 'cardTagAzure', q: "Newton's third law, in one line.", meta: 'NEET · JEE', r: 8, d: 220 },
-  { tag: 'DSA', tagClass: 'cardTagCoral', q: 'Reverse a linked list in O(1) space.', meta: 'pattern drill', r: 24, d: 300 },
-];
-
-function Deck() {
-  return (
-    <div className={styles.deckStage}>
-      <div className={`${styles.chip} ${styles.chipStreak}`} style={{ top: '1%', left: '-1%' }}>
-        <IconFlame /> 7-day streak
-      </div>
-      <div className={`${styles.chip} ${styles.chipRank}`} style={{ bottom: '3%', right: '-3%' }}>
-        <IconTrend /> Top 5% this week
-      </div>
-
-      <div className={styles.deck}>
-        {CARDS.map((c) => (
-          <div
-            key={c.tag}
-            className={styles.slotWrap}
-            style={{ ['--r' as string]: `${c.r}deg`, ['--delay' as string]: `${c.d}ms` } as CSSProperties}
-          >
-            <div className={styles.slot}>
-              <div className={styles.deckCard}>
-                <span className={`${styles.cardTag} ${styles[c.tagClass]}`}>{c.tag}</span>
-                <span className={styles.cardQ}>{c.q}</span>
-                <span className={styles.cardMeta}>
-                  <span>{c.meta}</span>
-                  <b>Drill</b>
-                </span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ---------------- Tilt card (tracks) ---------------- */
-
-function TiltCard({ className, tint, children }: { className?: string; tint: string; children: ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  function onMove(e: ReactPointerEvent<HTMLDivElement>) {
-    const el = ref.current;
-    if (!el) return;
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-    const r = el.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width - 0.5;
-    const py = (e.clientY - r.top) / r.height - 0.5;
-    el.style.transform = `translateY(-6px) rotateY(${(px * 12).toFixed(2)}deg) rotateX(${(-py * 12).toFixed(2)}deg)`;
-  }
-  function onLeave() {
-    if (ref.current) ref.current.style.transform = '';
-  }
-  return (
-    <div
-      ref={ref}
-      className={className}
-      style={{ ['--_tint' as string]: tint } as CSSProperties}
-      onPointerMove={onMove}
-      onPointerLeave={onLeave}
-    >
-      {children}
-    </div>
-  );
-}
-
-/* ---------------- Screen mock (3D) ---------------- */
-
-function ScreenMock() {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-    const onMove = (e: PointerEvent) => {
-      const r = el.getBoundingClientRect();
-      const px = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
-      const py = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
-      el.style.transform = `rotateY(${(-12 + px * 5).toFixed(2)}deg) rotateX(${(6 - py * 4).toFixed(2)}deg)`;
-    };
-    window.addEventListener('pointermove', onMove, { passive: true });
-    return () => window.removeEventListener('pointermove', onMove);
-  }, []);
-  return (
-    <div ref={ref} className={styles.screen}>
-      <div className={styles.screenInner}>
-        <div className={styles.screenBar}><span className={styles.dot} /><span className={styles.dot} /><span className={styles.dot} /></div>
-        <div className={styles.player}>
-          <span className={styles.playBtn}><IconPlay /></span>
-          <span className={styles.playerBar}><span /></span>
-        </div>
-        <div className={styles.showList}>
-          {LESSONS.map((l, i) => (
-            <div key={l} className={styles.showRow}>
-              <span className={`${styles.check} ${i > 1 ? styles.checkOff : ''}`}>{i <= 1 ? <IconCheck /> : null}</span>
-              {l}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ---------------- Reveal ---------------- */
-
-function Reveal({ className, children }: { className?: string; children: ReactNode }) {
+function Reveal({
+  children,
+  className,
+  style,
+}: {
+  children: ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const [seen, setSeen] = useState(false);
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setSeen(true); io.disconnect(); } }, { rootMargin: '0px 0px -80px 0px' });
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setSeen(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: '0px 0px -70px 0px' },
+    );
     io.observe(el);
     return () => io.disconnect();
   }, []);
+
   return (
-    <div ref={ref} className={`${styles.reveal} ${className ?? ''}`} {...(seen ? { 'data-in': '' } : {})}>
+    <div ref={ref} data-reveal="" {...(seen ? { 'data-in': '' } : {})} className={className} style={style}>
       {children}
     </div>
   );
 }
 
-/* ---------------- content ---------------- */
+/* ---------------- faq item ---------------- */
+
+function Faq({ q, a, index }: { q: string; a: string; index: number }) {
+  const [open, setOpen] = useState(index === 0);
+  return (
+    <div className={styles.faqItem}>
+      <button
+        type="button"
+        className={styles.faqQ}
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        {q}
+        <svg
+          className={styles.faqSign}
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          aria-hidden="true"
+        >
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </button>
+      {open ? <p className={styles.faqA}>{a}</p> : null}
+    </div>
+  );
+}
+
+/* ---------------- content (all figures traceable to the seeded courses) ------ */
 
 const TRACKS = [
-  { name: 'Coding Interviews', tint: '#1D4ED8', lessons: '480 lessons', desc: 'Data structures, patterns, and timed mock rounds until they feel automatic.', icon: <IconCode /> },
-  { name: 'System Design', tint: '#EA580C', lessons: '12 case studies', desc: 'Scale, trade-offs, and the diagrams interviewers actually want to see.', icon: <IconGraph /> },
-  { name: 'Aptitude & Reasoning', tint: '#15181C', lessons: '900 questions', desc: 'Quant, logical reasoning, and speed drills for placement tests.', icon: <IconPuzzle /> },
-  { name: 'NEET / JEE', tint: '#0D9488', lessons: 'Physics · Chem · Bio', desc: 'Concept-first lessons and full-length mocks mapped to the syllabus.', icon: <IconAtom /> },
-  { name: 'Core CS', tint: '#D97706', lessons: 'OS · DBMS · Networks', desc: 'The fundamentals every technical round circles back to.', icon: <IconChip /> },
-  { name: 'Communication & HR', tint: '#EA580C', lessons: '40 scenarios', desc: 'Behavioural answers and mock HR rounds that stop feeling scripted.', icon: <IconChat /> },
+  {
+    code: 'PATTERNS',
+    name: 'DSA for software-engineer roles',
+    desc: 'The recurring shapes behind interview problems — arrays and two pointers through dynamic programming, then trees and graphs.',
+    lessons: 82,
+    sections: 18,
+    from: '₹4,999',
+    core: ['Arrays', 'Binary search', 'Recursion', 'Sliding window', 'Stacks & queues', 'DP'],
+    advanced: ['Trees', 'Tries', 'Graphs', 'Backtracking'],
+    sticker: 'stack' as const,
+    tone: 'signal' as const,
+    drift: 12,
+  },
+  {
+    code: 'GRADIENT',
+    name: 'Machine learning for engineers',
+    desc: 'From the maths you actually need to a model you can deploy — regression and trees first, then neural networks and shipping.',
+    lessons: 83,
+    sections: 18,
+    from: '₹5,999',
+    core: ['Python & pandas', 'Regression', 'Classification', 'Trees & ensembles', 'Feature work'],
+    advanced: ['Neural nets', 'PyTorch', 'NLP', 'MLOps', 'Capstones'],
+    sticker: 'loss' as const,
+    tone: 'mint' as const,
+    drift: -12,
+  },
 ];
 
-const LOOP = [
-  { name: 'Learn', text: 'A short lesson lays the concept down clean, with worked examples.' },
-  { name: 'Practice', text: 'Drill graded questions until the pattern is second nature.' },
-  { name: 'Mock', text: 'Sit a timed round under real pressure and see where you stand.' },
-  { name: 'Master', text: 'Spaced review brings the shaky topics back before you forget.' },
+const GETS = [
+  {
+    title: 'One ordered path',
+    text: 'Not a library to get lost in. Each section assumes the one before it, so you always know what comes next.',
+    icon: <IconPath />,
+  },
+  {
+    title: 'A mentor, on the paid plans',
+    text: 'The part self-study cannot give you: someone who reads your approach and tells you what an interviewer would think.',
+    icon: <IconChat />,
+  },
+  {
+    title: 'Timed mock rounds',
+    text: 'Real practice interviews with written feedback, run by people who take these rounds for a living.',
+    icon: <IconStopwatch />,
+  },
+  {
+    title: 'Advanced modules that unlock',
+    text: 'Trees, graphs, deep learning and MLOps sit behind the Complete tier — and the lock is enforced by the server, not the page.',
+    icon: <IconLock />,
+  },
+  {
+    title: 'Progress that persists',
+    text: 'Resume exactly where you stopped, with completion tracked per lesson and a streak that notices when you show up.',
+    icon: <IconTrend />,
+  },
+  {
+    title: '365 days of access',
+    text: 'One payment. A full year on the track, long enough for a placement season and the one after it.',
+    icon: <IconCalendar />,
+  },
 ];
 
-const FEATURES = [
-  { title: 'Stream every lesson', desc: 'Adaptive HD video that resumes exactly where you left off, on any device.', icon: <IconPlay /> },
-  { title: 'Live classes', desc: 'Join scheduled sessions, ask questions, and catch the replay after.', icon: <IconBroadcast /> },
-  { title: 'Track your mastery', desc: 'Streaks, progress, and the weak spots to hit next, all in one view.', icon: <IconTrend /> },
+const FAQ = [
+  {
+    q: 'Are there video lessons?',
+    a: 'Not yet — and we would rather tell you here than after you pay. Every lesson is written, ordered and available today; video is being produced now. If you buy at launch, you get every video free as it lands, at the price you paid.',
+  },
+  {
+    q: 'What is the difference between Self-Paced and Mentored?',
+    a: 'Two things. Mentored unlocks the advanced sections — Trees, Tries, Graphs and Backtracking on PATTERNS; deep learning, NLP, MLOps and the capstones on GRADIENT. And it adds the human part: a month of mentor support, two timed mock interviews with written feedback, and a resume and LinkedIn review.',
+  },
+  {
+    q: 'Why is Placement by application?',
+    a: 'Because it is delivered by people, not software. Mock rounds with working engineers and job-application support take real mentor hours, so we only take as many people as we can genuinely support. You apply, we talk, and we tell you honestly whether it is worth it for you.',
+  },
+  {
+    q: 'Can I start on Self-Paced and upgrade later?',
+    a: 'Yes. Buying the Complete tier at any point unlocks the advanced sections on your existing enrollment and keeps all your progress.',
+  },
+  {
+    q: 'How long do I keep access?',
+    a: '365 days from purchase, on one payment. There is no subscription and no renewal charge.',
+  },
+  {
+    q: 'Is this for beginners?',
+    a: 'PATTERNS assumes you can already write code in one language and starts from the fundamentals of data structures. GRADIENT starts from the maths and Python you need, so you do not need prior ML — but you do need to be comfortable programming.',
+  },
 ];
 
-const LESSONS = ['Arrays & two pointers', 'Hashing patterns', 'Binary search on answer', 'Sliding window'];
+/* ---------------- icons ---------------- */
 
-/* ---------------- icons (single stroke) ---------------- */
-function IconArrow() { return <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>; }
-function IconSpark() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v6M12 15v6M3 12h6M15 12h6" /></svg>; }
-function IconBolt() { return <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M13 2 4 14h6l-1 8 9-12h-6z" /></svg>; }
-function IconFlame() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3c3 4 5 6 5 9a5 5 0 0 1-10 0c0-1.5.7-2.6 1.5-3.5C9 10 10 8.5 12 3Z" /></svg>; }
-function IconTrend() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15l5-5 4 4 7-8M15 3h6v6" /></svg>; }
-function IconPlay() { return <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z" /></svg>; }
-function IconCheck() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m4 12 5 5L20 6" /></svg>; }
-function IconBroadcast() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="2.5" /><path d="M6.5 6.5a8 8 0 0 0 0 11M17.5 6.5a8 8 0 0 1 0 11M4 4a12 12 0 0 0 0 16M20 4a12 12 0 0 1 0 16" /></svg>; }
-function IconCode() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13 5l-2 14" /></svg>; }
-function IconGraph() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="18" r="2.4" /><circle cx="12" cy="7" r="2.4" /><circle cx="19" cy="16" r="2.4" /><path d="m7.7 16.2 2.6-6.8M13.9 8.5 17 14" /></svg>; }
-function IconPuzzle() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M10 4a2 2 0 1 1 4 0v2h2a2 2 0 0 1 2 2v2a2 2 0 1 1 0 4v2a2 2 0 0 1-2 2h-2a2 2 0 1 0-4 0H8a2 2 0 0 1-2-2v-2a2 2 0 1 1 0-4V8a2 2 0 0 1 2-2h2z" /></svg>; }
-function IconAtom() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1.6" /><ellipse cx="12" cy="12" rx="10" ry="4.5" /><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)" /><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)" /></svg>; }
-function IconChip() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="7" y="7" width="10" height="10" rx="1.5" /><path d="M10 4v3M14 4v3M10 17v3M14 17v3M4 10h3M4 14h3M17 10h3M17 14h3" /></svg>; }
-function IconChat() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l1-4.5A8 8 0 1 1 21 12Z" /></svg>; }
+function IconArrow() {
+  return (
+    <svg className={styles.arrow} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+function IconSpark() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 3v6M12 15v6M3 12h6M15 12h6" />
+    </svg>
+  );
+}
+function IconPath() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="6" cy="5.5" r="2.5" /><circle cx="18" cy="12" r="2.5" /><circle cx="6" cy="18.5" r="2.5" />
+      <path d="M8.5 5.5h4a3 3 0 0 1 3 3v.5M15.5 14.5v.5a3 3 0 0 1-3 3h-4" />
+    </svg>
+  );
+}
+function IconChat() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l1-4.5A8 8 0 1 1 21 12Z" />
+    </svg>
+  );
+}
+function IconStopwatch() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M10 2.5h4M12 2.5v2.4" /><circle cx="12" cy="13.5" r="7.5" /><path d="M12 13.5V9.8" />
+    </svg>
+  );
+}
+function IconLock() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="4.5" y="10.5" width="15" height="10" rx="2.2" /><path d="M8.2 10.5V7.8a3.8 3.8 0 0 1 7.6 0v2.7" />
+    </svg>
+  );
+}
+function IconTrend() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 15l5-5 4 4 7-8M15 3h6v6" />
+    </svg>
+  );
+}
+function IconCalendar() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3.5" y="5" width="17" height="15.5" rx="2.2" /><path d="M3.5 10h17M8 3.2v3.4M16 3.2v3.4" />
+    </svg>
+  );
+}

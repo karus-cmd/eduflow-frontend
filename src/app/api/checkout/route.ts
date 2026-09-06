@@ -13,11 +13,21 @@ export async function POST(req: Request) {
   const courseId: string | undefined = body?.courseId;
   const courseTitle: string = body?.courseTitle ?? 'Course';
   const referralCode: string | undefined = body?.referralCode?.trim() || undefined;
-  const tier: CourseTier | undefined = body?.tier === 'complete' ? 'complete' : undefined;
+  // Strict: an unknown tier must fail loudly, never silently fall back to the Standard price.
+  const rawTier: unknown = body?.tier;
+  const tier: CourseTier | undefined =
+    rawTier === 'standard' || rawTier === 'complete' ? rawTier : undefined;
 
   if (!courseId) {
     return NextResponse.json(
       { error: { code: 'validation', message: 'courseId is required' } },
+      { status: 400 },
+    );
+  }
+
+  if (rawTier !== undefined && tier === undefined) {
+    return NextResponse.json(
+      { error: { code: 'validation', message: "tier must be 'standard' or 'complete'" } },
       { status: 400 },
     );
   }

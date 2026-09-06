@@ -12,10 +12,8 @@ import type { Course } from '@/lib/api/types';
 // never a fake facet with nothing behind it.
 const QUICK_FILTERS = [
   { label: 'All', term: '' },
-  { label: 'Web Development', term: 'web' },
-  { label: 'Data Science', term: 'data' },
-  { label: 'Exam Prep', term: 'neet' },
-  { label: 'DSA & Aptitude', term: 'dsa' },
+  { label: 'DSA', term: 'dsa' },
+  { label: 'Machine Learning', term: 'machine' },
 ];
 
 const ROW_STYLE: React.CSSProperties = { display: 'flex', overflowX: 'auto', paddingBottom: 8 };
