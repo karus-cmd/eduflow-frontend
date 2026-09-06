@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ScrollMorph } from '@/components/stickers/scroll-morph';
 import { KEYCAP_TO_SHIELD } from '@/components/stickers/morph-shapes';
+import { MicroSwap } from '@/components/stickers/micro-field';
 import { useRouter } from 'next/navigation';
 import { KeyRound, Loader2, Mail, Phone, ShieldCheck, User } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -23,12 +24,26 @@ interface ProfileUser {
 }
 
 export function ProfileClient({ user }: { user: ProfileUser }) {
+  const [tab, setTab] = useState('profile');
+
   return (
-    <Tabs defaultValue="profile" className="max-w-2xl">
-      <TabsList>
-        <TabsTrigger value="profile">Profile</TabsTrigger>
-        <TabsTrigger value="security">Security</TabsTrigger>
-      </TabsList>
+    <Tabs value={tab} onValueChange={setTab} className="max-w-2xl">
+      <div className="flex items-center gap-3">
+        <TabsList>
+          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="security">Security</TabsTrigger>
+        </TabsList>
+        {/* A true path morph, not a cross-dissolve: the keycap and the shield are one outline
+            with the same command skeleton, so the shape physically travels between them. Driven
+            by the tab because this page has no scroll range to drive anything with. */}
+        <ScrollMorph
+          mark={KEYCAP_TO_SHIELD}
+          size={22}
+          opacity={0.7}
+          progress={tab === 'security' ? 1 : 0}
+          label={tab === 'security' ? 'Securing your account' : 'Your details'}
+        />
+      </div>
 
       <TabsContent value="profile">
         <ProfileTab user={user} />
@@ -82,6 +97,16 @@ function ProfileTab({ user }: { user: ProfileUser }) {
               {user.role}
             </Badge>
           </div>
+          {/* Miniature, and it means something: a fingerprint is an identity merely READ, a
+              star badge is one that has been accepted. It resolves only for a live account. */}
+          <MicroSwap
+            from="fingerprint"
+            to="badgeStar"
+            on={user.status === 'active'}
+            size={20}
+            tone={user.status === 'active' ? 'mint' : 'ink'}
+            className="ml-auto opacity-70"
+          />
         </div>
 
         <form onSubmit={save} className="space-y-4">

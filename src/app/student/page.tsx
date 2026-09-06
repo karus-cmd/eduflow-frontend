@@ -1,4 +1,5 @@
 import { AppShell } from '@/components/app-shell';
+import { OrreryField } from '@/components/stickers/micro-scenes';
 import { StudentHub, type HubCourse, type Badge } from '@/components/student/student-hub';
 import { LearningEmptyOrbit, type OrbitCourse } from '@/components/student/learning-empty-orbit';
 import { requireRole } from '@/lib/auth';
@@ -55,6 +56,7 @@ export default async function MyLearningPage() {
     }));
     return (
       <AppShell title="My Learning" user={me} nav={STUDENT_NAV} homeHref="/student">
+        <OrreryField />
         <LearningEmptyOrbit firstName={first} courses={orbitCourses} />
       </AppShell>
     );
@@ -77,7 +79,6 @@ export default async function MyLearningPage() {
   // real study rhythm + streak, from the activity heartbeat
   const heatmap = activity.heatmap.map((d) => heatLevel(d.activeSeconds));
   const streak = activity.streak;
-  const dayDots = activity.heatmap.slice(-7).map((d) => d.activeSeconds > 0);
   const daysThisWeek = activity.thisWeekDaysActive;
   const avgProgress = Math.round(courses.reduce((n, c) => n + c.pct, 0) / courses.length);
   const hours = Math.round((activity.studyTimeThisWeekSec / 3600) * 10) / 10;
@@ -102,11 +103,11 @@ export default async function MyLearningPage() {
 
   return (
     <AppShell title="My Learning" user={me} nav={STUDENT_NAV} homeHref="/student">
+      <OrreryField />
       <StudentHub
         userId={me.id}
         firstName={first}
         streak={streak}
-        dayDots={dayDots}
         stats={stats}
         resume={resume}
         courses={courses}

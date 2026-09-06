@@ -9,6 +9,7 @@ import { TrackSpine } from './track-spine';
 import { PageMark } from '@/components/stickers/page-mark';
 import { ScrollMorph } from '@/components/stickers/scroll-morph';
 import { SPROUT_TO_TREE } from '@/components/stickers/morph-shapes';
+import { MicroSwap } from '@/components/stickers/micro-field';
 import styles from './student.module.css';
 
 export interface HubCourse { id: string; title: string; slug: string; thumbnailUrl: string | null; pct: number; completed: boolean; totalLessons: number; }
@@ -18,7 +19,6 @@ export interface HubProps {
   userId: string;
   firstName: string;
   streak: number;
-  dayDots: boolean[];
   stats: HubStat[];
   resume: HubCourse | null;
   courses: HubCourse[];
@@ -39,38 +39,27 @@ function useInView<T extends HTMLElement>() {
     io.observe(el);
     return () => io.disconnect();
   }, []);
-  return { ref, seen };
-}
-
-function Ring({ pct, size, stroke, sw }: { pct: number; size: number; stroke: string; sw: number }) {
-  const [drawn, setDrawn] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setDrawn(true), 120); return () => clearTimeout(t); }, []);
-  const r = (size - sw) / 2;
-  const c = 2 * Math.PI * r;
-  const off = drawn ? c * (1 - Math.min(pct, 100) / 100) : c;
-  return (
-    <circle cx={size / 2} cy={size / 2} r={r} className={styles.ringProg} stroke={stroke} strokeWidth={sw}
-      strokeDasharray={c} strokeDashoffset={off} fill="none" strokeLinecap="round" />
-  );
+  // Returned as a tuple, not { ref, seen }: react-hooks/refs treats any `.ref` read during
+  // render as accessing a ref value, so the object form tripped the rule at every call site.
+  return [ref, seen] as const;
 }
 
 export function StudentHub(props: HubProps) {
-  const { userId, firstName, streak, dayDots, stats, resume, courses, heatmap, achievements, nextClass } = props;
+  const { userId, firstName, streak, stats, resume, courses, heatmap, achievements, nextClass } = props;
   const [greeting, setGreeting] = useState('Welcome back');
-  const [resumeFill, setResumeFill] = useState(0);
   // Average completion across the student's courses — what the sprout/tree mark is drawn from.
   const avgPct = courses.length
     ? Math.round(courses.reduce((n, c) => n + c.pct, 0) / courses.length)
     : 0;
-  const heat = useInView<HTMLDivElement>();
-  const badges = useInView<HTMLDivElement>();
+  const [heatRef, heatSeen] = useInView<HTMLDivElement>();
+  const [badgesRef, badgesSeen] = useInView<HTMLDivElement>();
 
+  // Time of day can only be read on the client, so the server renders the neutral
+  // "Welcome back" and this replaces it on mount. Runs once; it has no other input.
   useEffect(() => {
     const h = new Date().getHours();
     setGreeting(h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening');
-    const t = setTimeout(() => setResumeFill(resume ? resume.pct : 0), 200);
-    return () => clearTimeout(t);
-  }, [resume]);
+  }, []);
 
   return (
     <div className={styles.page}>
@@ -133,6 +122,15 @@ export function StudentHub(props: HubProps) {
             <PageMark name="bookmark" size={15} className="mr-2" />
             Your courses
           </span>
+          {/* Sand becomes a column chart. Hours put in are invisible; the record of them is not. */}
+          <MicroSwap
+            from="hourglass"
+            to="barsMini"
+            on={avgPct > 0}
+            size={18}
+            tone={avgPct > 0 ? 'signal' : 'ink'}
+            className="mr-auto shrink-0 self-center opacity-60"
+          />
           <Link href="/student/browse" className={styles.secNote}>Browse more →</Link>
         </div>
         <div className={styles.courseGrid}>
@@ -180,7 +178,7 @@ export function StudentHub(props: HubProps) {
           />
         </div>
         <div className={styles.heat}>
-          <div ref={heat.ref} className={styles.heatGrid} {...(heat.seen ? { 'data-in': '' } : {})}>
+          <div ref={heatRef} className={styles.heatGrid} {...(heatSeen ? { 'data-in': '' } : {})}>
             {heatmap.map((lvl, i) => {
               // Grid fills top-to-bottom then column-to-column (grid-auto-flow: column, 7 rows),
               // so a cell's (row, col) is i % 7 / i / 7 — delaying by their sum makes the glow
@@ -220,9 +218,18 @@ export function StudentHub(props: HubProps) {
             <PageMark name="target" size={15} tone="warning" className="mr-2" />
             Achievements
           </span>
+          {/* One body circling alone resolves into a named figure the moment a badge lands. */}
+          <MicroSwap
+            from="orbit"
+            to="constellation"
+            on={achievements.some((a) => a.unlocked)}
+            size={18}
+            tone={achievements.some((a) => a.unlocked) ? 'mint' : 'ink'}
+            className="mr-auto shrink-0 self-center opacity-60"
+          />
           <span className={styles.secNote}>{achievements.filter((a) => a.unlocked).length}/{achievements.length} unlocked</span>
         </div>
-        <div ref={badges.ref} className={styles.badges} {...(badges.seen ? { 'data-in': '' } : {})}>
+        <div ref={badgesRef} className={styles.badges} {...(badgesSeen ? { 'data-in': '' } : {})}>
           {achievements.map((a, i) => (
             <div key={a.key} className={`${styles.badge} ${a.unlocked ? styles.badgeOn : styles.badgeLocked}`} style={{ animationDelay: `${i * 70}ms` }}>
               <span className={styles.badgeIcon}>{BADGE_ICON[a.key] ?? <IconStar />}</span>
@@ -245,7 +252,6 @@ function CourseRingProg({ pct }: { pct: number }) {
 }
 
 /* ---- icons ---- */
-function IconArrow() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>; }
 function IconCheck() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="m4 12 5 5L20 6" /></svg>; }
 function IconLive() { return <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="2.5" /><path d="M6.5 6.5a8 8 0 0 0 0 11M17.5 6.5a8 8 0 0 1 0 11" /></svg>; }
 function IconStar() { return <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="m12 3 2.6 5.6 6 .6-4.5 4 1.3 6L12 16.9 6.6 19.2l1.3-6-4.5-4 6-.6z" /></svg>; }

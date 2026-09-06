@@ -4,7 +4,7 @@ import { AmbientField } from '@/components/stickers/ambient-field';
 import { notFound } from 'next/navigation';
 import { BookOpen, Clock, Download, CalendarClock, PlayCircle, CheckCircle2 } from 'lucide-react';
 import { AppShell } from '@/components/app-shell';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { buttonVariants } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CourseThumb } from '@/components/course-thumb';

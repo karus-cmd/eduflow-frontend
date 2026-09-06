@@ -657,3 +657,82 @@
     transform: none;
   }
 }
+
+/* ============================================================================
+   MICRO FIELD — the miniature instrument layer (see components/stickers/micro-art.tsx).
+
+   The glyph AmbientField deliberately has no motion of its own: it sits behind long-form
+   reading and only shifts with the scroll. That rule cannot hold on the three student
+   surfaces, because they measure a scroll range of ZERO — the content fits the viewport, so
+   a scroll-driven backdrop there is simply a still image. What makes the sign-in scene feel
+   alive is that its marks keep their own time.
+
+   So this layer drifts on its own, under three hard limits that keep it ambient rather than
+   animated: amplitude in single-digit pixels, periods of 9-34 seconds (far slower than the
+   eye tracks as motion), and never opacity-from-zero, so a paused or throttled tab still
+   shows the full composition.
+
+   Three characters, one per page, so no two surfaces move alike:
+     mf-orbit  My Learning  a closed elliptical loop with a slow roll. Mechanism turning.
+     mf-bob    Browse       a breath. Specimens pinned to a board, lifting and settling.
+     mf-tick   Profile      stillness, then a snap. An instrument needle taking a reading.
+   ============================================================================ */
+.mf-item {
+  position: absolute;
+  will-change: transform;
+  animation-duration: var(--mf-dur, 24s);
+  animation-delay: var(--mf-delay, 0s);
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+
+@keyframes mf-orbit {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
+  25%  { transform: translate3d(var(--mf-amp, 5px), calc(var(--mf-amp, 5px) * -0.55), 0) rotate(var(--mf-rot, 2deg)); }
+  50%  { transform: translate3d(0, calc(var(--mf-amp, 5px) * -1), 0) rotate(0deg); }
+  75%  { transform: translate3d(calc(var(--mf-amp, 5px) * -1), calc(var(--mf-amp, 5px) * -0.55), 0) rotate(calc(var(--mf-rot, 2deg) * -1)); }
+  100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+}
+.mf-orbit {
+  animation-name: mf-orbit;
+  animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
+}
+
+@keyframes mf-bob {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(calc(var(--mf-amp, 4px) * 0.35), calc(var(--mf-amp, 4px) * -1), 0); }
+}
+.mf-bob {
+  animation-name: mf-bob;
+  animation-timing-function: var(--ease-inout);
+}
+
+/* steps(1, end) is the whole point here: the mark holds dead still for half its period, then
+   arrives at the next position in a single frame. Sliding would make it another floaty blob. */
+@keyframes mf-tick {
+  0%, 46%  { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%, 96% { transform: translate3d(0, calc(var(--mf-amp, 3px) * -1), 0) rotate(var(--mf-rot, 3deg)); }
+  100%     { transform: translate3d(0, 0, 0) rotate(0deg); }
+}
+.mf-tick {
+  animation-name: mf-tick;
+  animation-timing-function: steps(1, end);
+}
+
+/* The swap: two stacked compositions cross-dissolving with a counter-rotation.
+   These marks are multi-element groups, not single paths, so numeric path morphing (which
+   morph-shapes.ts does for the big shapes) is not available to them. At 20px a dissolve with
+   opposed rotation reads as one object turning into another, which is the effect asked for. */
+.mf-swap { position: relative; display: block; width: 100%; height: 100%; }
+.mf-swap > svg {
+  position: absolute;
+  inset: 0;
+  transition:
+    opacity var(--dur-4) var(--ease-inout),
+    transform var(--dur-4) var(--ease-spring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mf-item { animation: none !important; transform: none !important; }
+  .mf-swap > svg { transition: none; }
+}

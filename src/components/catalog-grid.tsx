@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { COMPASS_TO_TARGET } from '@/components/stickers/morph-shapes';
 import { ScrollMorph } from '@/components/stickers/scroll-morph';
+import { MicroSwap } from '@/components/stickers/micro-field';
 import { flushSync } from 'react-dom';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -124,6 +125,17 @@ export function CatalogGrid({
           className="h-9 pl-8"
           aria-label="Search courses"
         />
+        {/* Nano detail, and a real one: the lens becomes a luggage tag the instant the
+            catalogue is narrowed. Looking turns into labelling. */}
+        <span className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2">
+          <MicroSwap
+            from="magnifier"
+            to="tagPin"
+            on={!!q.trim()}
+            size={16}
+            tone={q.trim() ? 'signal' : 'ink'}
+          />
+        </span>
       </div>
 
       <div className="flex flex-wrap gap-2">
