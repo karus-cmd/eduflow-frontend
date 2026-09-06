@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { subjectMarks } from '@/components/stickers/subject-marks';
+import { AmbientField } from '@/components/stickers/ambient-field';
 import { notFound } from 'next/navigation';
 import { BookOpen, Clock, Download, CalendarClock, PlayCircle, CheckCircle2 } from 'lucide-react';
 import { AppShell } from '@/components/app-shell';
@@ -14,6 +16,18 @@ import { STUDENT_NAV } from '@/lib/nav';
 import { formatDuration } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import type { CourseDetail } from '@/lib/api/types';
+
+// The tab title fell back to the root marketing title on this route, so every course page
+// claimed to be the landing page. Resolved per course.
+export async function generateMetadata(props: PageProps<'/student/courses/[id]'>) {
+  const { id } = await props.params;
+  try {
+    const c = await serverApi<CourseDetail>(`/courses/${id}`);
+    return { title: `${c.title} · STEIN-X` };
+  } catch {
+    return { title: 'Course · STEIN-X' };
+  }
+}
 
 export default async function CourseDetailPage(props: PageProps<'/student/courses/[id]'>) {
   const { id } = await props.params;
@@ -41,6 +55,10 @@ export default async function CourseDetailPage(props: PageProps<'/student/course
 
   return (
     <AppShell title="Course" user={me} nav={STUDENT_NAV} homeHref="/student">
+      {/* Backdrop drawn from THIS course subject, so a DSA page and an ML page do not share a
+          wallpaper. Quieter than the catalogue: this page is read, not browsed. */}
+      <AmbientField intensity={0.11} marks={subjectMarks(course.title)} />
+
       <Link
         href="/student/browse"
         className="mb-4 inline-block text-sm text-muted-foreground hover:text-foreground"
@@ -139,7 +157,7 @@ export default async function CourseDetailPage(props: PageProps<'/student/course
 
               {course.enrolled ? (
                 <>
-                  <div className="flex items-center gap-2 rounded-lg bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-400">
+                  <div className="flex items-center gap-2 rounded-lg bg-[var(--success-soft)] px-3 py-2 text-sm text-[var(--success)]">
                     <CheckCircle2 className="size-4" />
                     You&rsquo;re enrolled{course.enrolledTier === 'complete' ? ' — Complete plan' : ''}
                   </div>

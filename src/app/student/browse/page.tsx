@@ -1,4 +1,5 @@
 import { AppShell } from '@/components/app-shell';
+import { AmbientField } from '@/components/stickers/ambient-field';
 import { PageMark } from '@/components/stickers/page-mark';
 import { CatalogGrid } from '@/components/catalog-grid';
 import { SiteFooter } from '@/components/site-footer';
@@ -21,6 +22,15 @@ export default async function BrowsePage() {
   return (
     <>
       <AppShell title="Browse" user={me} nav={STUDENT_NAV} homeHref="/student">
+        <AmbientField
+          intensity={0.14}
+          marks={[
+            { name: 'compass', top: '2%', right: '4%', size: 46, drift: 10 },
+            { name: 'tree', top: '30%', left: '-1%', size: 40, tone: 'ink', drift: 16 },
+            { name: 'loss', top: '58%', right: '2%', size: 38, tone: 'mint', drift: -12 },
+            { name: 'bookmark', top: '82%', left: '6%', size: 32, tone: 'ink', drift: 20 },
+          ]}
+        />
         <div className="mb-6">
           <h1 className="flex items-center gap-2.5 text-2xl font-semibold tracking-tight">
             <PageMark name="compass" size={22} />

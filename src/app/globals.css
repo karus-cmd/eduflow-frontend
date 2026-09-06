@@ -593,3 +593,67 @@
     box-shadow: none;
   }
 }
+
+/* ============================================================================
+   READING PANEL — the player's slot when a lesson has no video.
+   Ruled lines that lay themselves in once, then hold. `fill-mode: both` so the
+   finished page is the resting state even if the animation never plays.
+   ============================================================================ */
+/* Slides only — it does NOT fade from zero. With animation-fill-mode: both, a fade-from-0 keeps
+   the element invisible for the whole of its delay, so on a throttled tab the panel sat blank.
+   Sliding keeps every line legible from the first frame; the motion is the enhancement. */
+@keyframes reading-line-in {
+  from { transform: translateX(-7px); }
+  to   { transform: none; }
+}
+.reading-panel {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(120% 90% at 15% 0%, var(--signal-soft), transparent 62%),
+    var(--panel-2);
+  display: grid;
+  place-items: center;
+  padding: 6%;
+  overflow: hidden;
+}
+.reading-sheet {
+  width: min(100%, 520px);
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.reading-kicker {
+  font-family: var(--font-mono-face), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--signal);
+  margin-bottom: 4px;
+  animation: reading-line-in var(--dur-3) var(--ease-out) both;
+}
+.reading-line {
+  height: 8px;
+  border-radius: 4px;
+  background: color-mix(in oklch, var(--foreground) 13%, transparent);
+  animation: reading-line-in var(--dur-3) var(--ease-out) both;
+}
+/* The first line of each paragraph reads as a heading, so the block has structure
+   rather than looking like a loading skeleton. */
+.reading-line:nth-of-type(2) {
+  height: 11px;
+  background: color-mix(in oklch, var(--foreground) 24%, transparent);
+}
+.reading-gap { height: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reading-kicker,
+  .reading-line {
+    animation: none;
+    animation-delay: 0ms !important;
+    opacity: 1;
+    transform: none;
+  }
+}

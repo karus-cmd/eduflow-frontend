@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { ReadingPanel } from '@/components/student/reading-panel';
 import {
   CheckCircle2,
   ChevronLeft,
@@ -159,12 +160,7 @@ export function CoursePlayer({
                 startPositionSec={lastPositions[currentLesson.id] ?? 0}
               />
             ) : (
-              <div className="flex aspect-video w-full items-center justify-center rounded-xl border bg-muted/40 text-center text-sm text-muted-foreground">
-                <div>
-                  <FileText className="mx-auto mb-2 size-8" />
-                  This is a reading lesson — no video.
-                </div>
-              </div>
+              <ReadingPanel title={currentLesson.title} />
             )}
 
             <div className="mt-5 flex flex-wrap items-start justify-between gap-3">

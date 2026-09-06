@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/app-shell';
 import { CoursePlayer } from '@/components/course-player';
+import { AmbientField } from '@/components/stickers/ambient-field';
+import { subjectMarks } from '@/components/stickers/subject-marks';
 import { requireRole } from '@/lib/auth';
 import { ApiError, serverApi } from '@/lib/server-api';
 import { STUDENT_NAV } from '@/lib/nav';
@@ -44,6 +46,11 @@ export default async function LearnPage(props: PageProps<'/student/learn/[course
 
   return (
     <AppShell title="Learning" user={me} nav={STUDENT_NAV} homeHref="/student">
+      {/* The quietest backdrop in the product (0.07). This is the surface a student actually
+          reads on, so the marks sit far enough back to be felt rather than seen, and they only
+          shift with the scroll — nothing here moves on its own. */}
+      <AmbientField intensity={0.07} marks={subjectMarks(course.title)} />
+
       <CoursePlayer
         courseId={course.id}
         courseTitle={course.title}
