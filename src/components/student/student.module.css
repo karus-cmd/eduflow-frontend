@@ -335,3 +335,46 @@
   .celFlame svg, .celFlameGrow svg, .celFlameAlive svg,
   .celGlow, .celGlowBurst, .celGlowAmbient, .celEmber, .celTimerFillRun { animation: none; opacity: 1; transform: none; }
 }
+
+/* ---- readout strip (replaced the three donut rings) ---------------------------
+   Four plain figures. A donut at 0% is a circle with nothing in it; a number at 0
+   is honest and takes a quarter of the space. Each cell lifts its own hairline on
+   hover so the row responds without anything moving. */
+.statStrip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 26px;
+}
+.statCell {
+  background: var(--card);
+  padding: 16px 18px;
+  transition: background-color var(--dur-2) var(--ease-out);
+}
+.statCell:hover { background: var(--panel-2); }
+.statVal {
+  font-family: var(--font-mono-face), ui-monospace, monospace;
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+.statLbl {
+  font-family: var(--font-mono-face), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: 5px;
+}
+@media (max-width: 640px) {
+  .statStrip { grid-template-columns: repeat(2, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .statCell { transition: none; }
+}

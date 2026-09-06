@@ -5,17 +5,19 @@ import Link from 'next/link';
 import { CourseThumb } from '@/components/course-thumb';
 import { formatDateTime } from '@/lib/format';
 import { StreakCelebration } from './streak-celebration';
+import { TrackSpine } from './track-spine';
+import { PageMark } from '@/components/stickers/page-mark';
 import styles from './student.module.css';
 
-export interface HubCourse { id: string; title: string; slug: string; thumbnailUrl: string | null; pct: number; completed: boolean; }
-export interface RingStat { label: string; val: string; pct: number; tone: 'emerald' | 'coral' | 'gold'; }
+export interface HubCourse { id: string; title: string; slug: string; thumbnailUrl: string | null; pct: number; completed: boolean; totalLessons: number; }
+export interface HubStat { label: string; val: string; }
 export interface Badge { key: string; name: string; desc: string; unlocked: boolean; }
 export interface HubProps {
   userId: string;
   firstName: string;
   streak: number;
   dayDots: boolean[];
-  rings: RingStat[];
+  stats: HubStat[];
   resume: HubCourse | null;
   courses: HubCourse[];
   heatmap: number[];
@@ -23,7 +25,6 @@ export interface HubProps {
   nextClass: { id: string; courseId: string; title: string; scheduledAt: string; joinUrl: string | null } | null;
 }
 
-const TONE: Record<RingStat['tone'], string> = { emerald: 'var(--primary)', coral: 'var(--coral)', gold: 'var(--signal)' };
 
 /** Draws an in-view flag on first intersection (fires once). */
 function useInView<T extends HTMLElement>() {
@@ -52,7 +53,7 @@ function Ring({ pct, size, stroke, sw }: { pct: number; size: number; stroke: st
 }
 
 export function StudentHub(props: HubProps) {
-  const { userId, firstName, streak, dayDots, rings, resume, courses, heatmap, achievements, nextClass } = props;
+  const { userId, firstName, streak, dayDots, stats, resume, courses, heatmap, achievements, nextClass } = props;
   const [greeting, setGreeting] = useState('Welcome back');
   const [resumeFill, setResumeFill] = useState(0);
   const heat = useInView<HTMLDivElement>();
@@ -70,64 +71,41 @@ export function StudentHub(props: HubProps) {
       <StreakCelebration userId={userId} streak={streak} />
       <div className={styles.wash} aria-hidden />
       <div className={styles.inner}>
-        {/* Hero: greeting + streak */}
-        <div className={styles.hero}>
-          <div className={styles.greet}>
-            <div className={styles.eyebrow}>{greeting},</div>
-            <h1 className={styles.hi}>
-              <span className={styles.hiName}>{firstName}</span> — let&rsquo;s keep it rolling.
-            </h1>
-          </div>
-          <div className={styles.streak}>
-            <span className={styles.flame} aria-hidden>
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2.5c3.4 4.2 5.5 6.6 5.5 10a5.5 5.5 0 0 1-11 0c0-1.7.6-2.9 1.6-4C9 10 10 8.6 12 2.5Z" fill="var(--coral)" />
-                <path d="M12 9c1.7 2 2.7 3.2 2.7 5a2.7 2.7 0 0 1-5.4 0c0-1 .5-1.8 1.1-2.5.8.7 1.6-.5 1.6-2.5Z" fill="var(--warning)" />
-              </svg>
-            </span>
-            <div>
-              <div className={styles.streakNum}>{streak} days</div>
-              <div className={styles.streakLbl}>study streak</div>
-            </div>
-            <div className={styles.dayDots} aria-hidden>
-              {dayDots.map((on, i) => (
-                <span key={i} className={`${styles.dot} ${on ? styles.dotOn : ''}`} style={{ animationDelay: `${200 + i * 55}ms` }} />
-              ))}
+        {/* Hero — the track itself, one tick per real lesson. Replaces the greeting, the streak
+            box and three donut rings; see track-spine.tsx for why. */}
+        {resume && resume.totalLessons > 0 ? (
+          <TrackSpine
+            courseId={resume.id}
+            title={resume.title}
+            eyebrow={courses.length > 1 ? `Continuing · 1 of ${courses.length} tracks` : 'Continuing'}
+            totalLessons={resume.totalLessons}
+            pct={resume.pct}
+            streak={streak}
+          />
+        ) : (
+          <div className={styles.hero}>
+            <div className={styles.greet}>
+              <div className={styles.eyebrow}>{greeting},</div>
+              <h1 className={styles.hi}>
+                <span className={styles.hiName}>{firstName}</span> — let&rsquo;s keep it rolling.
+              </h1>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Momentum rings */}
-        <div className={styles.rings}>
-          {rings.map((r) => (
-            <div key={r.label} className={styles.ringTile}>
-              <svg className={styles.ringSvg} viewBox="0 0 64 64">
-                <circle cx="32" cy="32" r="28.5" className={styles.ringTrack} />
-                <Ring pct={r.pct} size={64} stroke={TONE[r.tone]} sw={7} />
-                <text x="32" y="32" dominantBaseline="central" textAnchor="middle" className={styles.ringCenter}>{Math.round(r.pct)}%</text>
-              </svg>
-              <div>
-                <div className={styles.ringVal}>{r.val}</div>
-                <div className={styles.ringLbl}>{r.label}</div>
-              </div>
+        {/* A plain readout strip where three donuts used to be. At zero it reads as zero,
+            instead of as three empty circles pretending to be a chart. */}
+        <div className={styles.statStrip}>
+          {stats.map((s) => (
+            <div key={s.label} className={styles.statCell}>
+              <div className={styles.statVal}>{s.val}</div>
+              <div className={styles.statLbl}>{s.label}</div>
             </div>
           ))}
         </div>
 
-        {/* Jump back in */}
-        {resume && (
-          <div className={styles.resume}>
-            <span className={styles.resumePlay} aria-hidden><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg></span>
-            <div className={styles.resumeBody}>
-              <div className={styles.resumeKicker}>Jump back in</div>
-              <div className={styles.resumeTitle}>{resume.title}</div>
-              <div className={styles.resumeBar}><span className={styles.resumeFill} style={{ width: `${resumeFill}%` }} /></div>
-            </div>
-            <Link href={`/student/learn/${resume.id}`} className={styles.resumeBtn}>
-              Continue <IconArrow />
-            </Link>
-          </div>
-        )}
+        {/* The "Jump back in" band that used to sit here is gone: it repeated the hero's
+            course and its Continue button verbatim. The spine is the jump-back-in. */}
 
         {/* Next class */}
         {nextClass && (
@@ -145,7 +123,10 @@ export function StudentHub(props: HubProps) {
 
         {/* Courses with progress rings */}
         <div className={styles.sec}>
-          <span className={styles.secTitle}>Your courses</span>
+          <span className={styles.secTitle}>
+            <PageMark name="bookmark" size={15} className="mr-2" />
+            Your courses
+          </span>
           <Link href="/student/browse" className={styles.secNote}>Browse more →</Link>
         </div>
         <div className={styles.courseGrid}>
@@ -174,7 +155,10 @@ export function StudentHub(props: HubProps) {
 
         {/* Study activity heatmap */}
         <div className={styles.sec}>
-          <span className={styles.secTitle}>Your study rhythm</span>
+          <span className={styles.secTitle}>
+            <PageMark name="gauge" size={15} tone="mint" className="mr-2" />
+            Your study rhythm
+          </span>
           <span className={styles.secNote}>recent activity</span>
         </div>
         <div className={styles.heat}>
@@ -214,7 +198,10 @@ export function StudentHub(props: HubProps) {
 
         {/* Achievements */}
         <div className={styles.sec}>
-          <span className={styles.secTitle}>Achievements</span>
+          <span className={styles.secTitle}>
+            <PageMark name="target" size={15} tone="warning" className="mr-2" />
+            Achievements
+          </span>
           <span className={styles.secNote}>{achievements.filter((a) => a.unlocked).length}/{achievements.length} unlocked</span>
         </div>
         <div ref={badges.ref} className={styles.badges} {...(badges.seen ? { 'data-in': '' } : {})}>

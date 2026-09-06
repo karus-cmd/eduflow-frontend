@@ -408,3 +408,188 @@
 @media (prefers-reduced-motion: reduce) {
   .orbit-rise { animation: none; opacity: 1; transform: none; }
 }
+
+/* ============================================================================
+   THE SPINE — the "My Learning" hero.
+   A track laid down tick by tick, one mark per real lesson. Global (not a CSS
+   Module) because the tick stagger is driven by inline transition-delay.
+
+   Its motion is deliberately unlike the rest of the app: everywhere else things
+   lift, press or fade. Here they RISE ALONG A LINE, left to right, so the track
+   reads as being laid rather than revealed. It plays once, on arrival.
+   ============================================================================ */
+.spine {
+  position: relative;
+  padding: 30px 0 34px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 30px;
+}
+.spine-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.spine-eyebrow {
+  font-family: var(--font-mono-face), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+.spine-streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono-face), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--warning);
+  border: 1px solid color-mix(in oklch, var(--warning) 32%, transparent);
+  background: var(--warning-soft);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+.spine-title {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(28px, 4.2vw, 46px);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  margin: 12px 0 26px;
+  text-wrap: balance;
+  max-width: 20ch;
+}
+
+/* ---- the track ---- */
+.spine-track {
+  position: relative;
+  padding-bottom: 14px;
+}
+.spine-ticks {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 34px;
+}
+@keyframes spine-rise {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+@keyframes spine-marker-drop {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.spine-tick {
+  flex: 1 1 0;
+  min-width: 2px;
+  border-radius: 2px;
+  background: var(--border);
+  height: 40%;
+  transform-origin: bottom;
+  /* `both` holds the end state, so a tab that never got to run the animation still shows a
+     complete track rather than a blank strip. */
+  animation: spine-rise var(--dur-3) var(--ease-spring) both;
+}
+/* Behind you: taller and in the brand voice, so the boundary is legible at a glance. */
+.spine-tick.is-done {
+  background: var(--signal);
+  height: 100%;
+}
+.spine-marker {
+  position: absolute;
+  bottom: 0;
+  color: var(--signal);
+  animation: spine-marker-drop var(--dur-3) var(--ease-spring) both;
+}
+
+/* ---- the readout ---- */
+.spine-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 22px;
+  flex-wrap: wrap;
+}
+.spine-count {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+.spine-count-n {
+  font-family: var(--font-mono-face), ui-monospace, monospace;
+  font-weight: 600;
+  font-size: clamp(38px, 5.5vw, 56px);
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+.spine-count-of {
+  font-family: var(--font-mono-face), ui-monospace, monospace;
+  font-size: 18px;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+.spine-count-l {
+  font-family: var(--font-mono-face), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-left: 4px;
+}
+.spine-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  background: var(--signal-fill);
+  color: var(--on-signal);
+  text-decoration: none;
+  transition:
+    transform var(--dur-1) var(--ease-out),
+    box-shadow var(--dur-3) var(--ease-out);
+}
+.spine-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px -16px var(--signal);
+}
+.spine-cta:active {
+  transform: translateY(0);
+}
+.spine-cta:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.spine-cta svg {
+  transition: transform var(--dur-2) var(--ease-spring);
+}
+.spine-cta:hover svg {
+  transform: translateX(2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spine-cta,
+  .spine-cta svg {
+    transition: none;
+  }
+  /* No delay, no rise — the finished track, immediately. */
+  .spine-tick,
+  .spine-marker {
+    animation: none;
+    animation-delay: 0ms !important;
+  }
+  .spine-marker {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+  .spine-cta:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
