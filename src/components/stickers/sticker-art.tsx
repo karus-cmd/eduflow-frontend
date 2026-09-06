@@ -35,7 +35,11 @@ export type StickerName =
   | 'stopwatch'
   | 'spark'
   | 'ticket'
-  | 'flame';
+  | 'flame'
+  | 'terminal'
+  | 'branch'
+  | 'keycap'
+  | 'target';
 
 export const STICKER_ART: Record<StickerName, ReactElement> = {
   // ---- PATTERNS / DSA vocabulary ----
@@ -168,6 +172,43 @@ export const STICKER_ART: Record<StickerName, ReactElement> = {
     <g {...S}>
       <path d="M16 4c4 5.4 6.6 8 6.6 12a6.6 6.6 0 0 1-13.2 0c0-2 .9-3.5 2-4.7C13 13.4 14.4 11.4 16 4Z" />
       <path d="M16 26a3.2 3.2 0 0 1-3.2-3.2c0-1.6 1.2-2.6 3.2-5.3 2 2.7 3.2 3.7 3.2 5.3A3.2 3.2 0 0 1 16 26Z" data-part="node" opacity="0.75" />
+    </g>
+  ),
+
+  // ---- the desk these tracks are actually studied at ----
+
+  // A prompt waiting for input. The caret is its own part so it can blink once on entry.
+  terminal: (
+    <g {...S}>
+      <rect x="3" y="6" width="26" height="20" rx="3" />
+      <path d="M8.5 13.5 12 17l-3.5 3.5" />
+      <path d="M15.5 20.5h7" data-part="node" />
+    </g>
+  ),
+
+  // A branch taken and merged back — the shape of every good attempt.
+  branch: (
+    <g {...S}>
+      <circle cx="9" cy="7" r="2.6" />
+      <circle cx="9" cy="25" r="2.6" />
+      <circle cx="23" cy="16" r="2.6" data-part="node" />
+      <path d="M9 9.6v12.8" />
+      <path d="M9 16h5.5a5.5 5.5 0 0 0 5.5-5.5V9.9" transform="rotate(180 14.5 12.9)" />
+    </g>
+  ),
+
+  keycap: (
+    <g {...S}>
+      <rect x="4" y="7" width="24" height="18" rx="3.5" />
+      <rect x="7.5" y="10.5" width="17" height="11" rx="2" opacity="0.55" data-part="node" />
+    </g>
+  ),
+
+  target: (
+    <g {...S}>
+      <circle cx="16" cy="16" r="11" />
+      <circle cx="16" cy="16" r="6" opacity="0.6" />
+      <circle cx="16" cy="16" r="1.9" fill="currentColor" stroke="none" data-part="node" />
     </g>
   ),
 };
