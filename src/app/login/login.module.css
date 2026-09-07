@@ -1,14 +1,18 @@
 /* The Prep Deck — sign-in, in the landing's world. Ambient floating flashcards + an emerald aura
    behind a materialising card. Micro-transitions are deliberately each a different material:
-   blur-clear (card), breathe (aura), 3 distinct idle drifts (floaters), pop (mark), draw-in line
-   (inputs), shine+press (button), lift (chips), arrow-slide (back). Operate mode: fast + reduced-
-   motion safe. */
+   blur-clear (card), breathe (aura), distinct idle drifts (floaters + stickers), pop (mark),
+   draw-in line (inputs), shine+press (button), lift (chips), arrow-slide (back). Operate mode:
+   fast + reduced-motion safe. */
 
 .wrap {
-  /* Chrome Machine palette (name kept for continuity with the rest of the file) */
+  /* Chrome Machine palette (name kept for continuity with the rest of the file). --mint is a
+     second accent — distinct from --emerald/--coral — used only to vary the sticker marks so the
+     scene doesn't read as two colours repeated seven times; it mirrors the --lime chart token
+     used elsewhere in the app. */
   --emerald: #1D4ED8;
   --emerald-deep: #1E3A8A;
   --coral: #EA580C;
+  --mint: #0D9488;
   --ivory: #EDEFF2;
   --paper: #ffffff;
   --ink: #15181C;
@@ -76,25 +80,108 @@
   text-transform: uppercase;
   padding: 4px 8px;
   border-radius: 7px;
-  color: #fff;
 }
-.fcTagE { background: var(--emerald); }
-.fcTagC { background: var(--coral); }
-.fcTagI { background: var(--ink); }
+/* Each tag carries its own foreground rather than a blanket white, so a future dark surface for
+   the neutral tag can't accidentally end up light-on-light. */
+.fcTagE { background: var(--emerald); color: #fff; }
+.fcTagC { background: var(--coral); color: #fff; }
+.fcTagI { background: var(--ink); color: var(--paper); }
 .fcLine { font-family: var(--font-display), sans-serif; font-weight: 700; font-size: 14.5px; letter-spacing: -0.01em; line-height: 1.12; color: var(--ink); }
 .fcMeta { font-size: 11px; color: var(--ink-3); }
 
-.fc1 { top: 13%; left: 9%; animation-delay: 120ms; }
-.fc2 { bottom: 12%; right: 10%; animation-delay: 260ms; }
-.fc3 { top: 18%; right: 13%; animation-delay: 400ms; }
-/* each floater drifts differently from the others */
+/* ---------------------------------------------------------------------------
+   THE SCENE — eight chapter cards and seven marks.
+
+   Each card gets its own drift keyframe AND its own duration. The durations are
+   deliberately non-multiples of one another (5.5 / 6 / 6.4 / 7.1 / 7.5 / 8.3 /
+   9.2 / 11s) so the set never falls into step — the moment two floaters sync,
+   the eye reads a pattern and the depth illusion collapses.
+
+   Amplitudes stay between 8 and 16px. This is ambience, not choreography: the
+   scene should register at the edge of vision and never pull focus from the
+   form. (The rest of the app forbids idle motion; this backdrop is the one
+   deliberate exception, and it is behind pointer-events: none.)
+   --------------------------------------------------------------------------- */
+.fc1 { top: 12%; left: 7%;  animation-delay: 120ms; }
+.fc2 { bottom: 11%; right: 9%; animation-delay: 260ms; }
+.fc3 { top: 16%; right: 11%; animation-delay: 400ms; }
+.fc4 { bottom: 26%; left: 4%; animation-delay: 540ms; }
+.fc5 { top: 44%; left: 12%; animation-delay: 680ms; }
+.fc6 { top: 40%; right: 6%; animation-delay: 820ms; }
+.fc7 { bottom: 9%; left: 20%; animation-delay: 960ms; }
+.fc8 { top: 6%; right: 30%; animation-delay: 1100ms; }
+
 .fc1 .fcBody { animation: driftBob 6s ease-in-out infinite; }
 .fc2 .fcBody { animation: driftSway 7.5s ease-in-out infinite; }
 .fc3 .fcBody { animation: driftDiag 5.5s ease-in-out infinite; }
+/* Hangs from its top edge and swings, like a tag on a string. */
+.fc4 .fcBody { animation: driftPendulum 8.3s ease-in-out infinite; transform-origin: 22% 0%; }
+/* Drifts toward the viewer rather than across — depth instead of direction. */
+.fc5 .fcBody { animation: driftBreathe 9.2s ease-in-out infinite; }
+/* A long, slow pass with a counter-rotation, so it reads as travelling not wobbling. */
+.fc6 .fcBody { animation: driftGlide 11s ease-in-out infinite; }
+.fc7 .fcBody { animation: driftDiag 6.4s ease-in-out infinite reverse; }
+.fc8 .fcBody { animation: driftPendulum 7.1s ease-in-out infinite reverse; transform-origin: 70% 0%; }
+
 @keyframes driftBob { 0%, 100% { transform: rotate(-9deg) translateY(0); } 50% { transform: rotate(-9deg) translateY(-15px); } }
 @keyframes driftSway { 0%, 100% { transform: rotate(8deg) translateX(0); } 50% { transform: rotate(11deg) translateX(-12px); } }
 @keyframes driftDiag { 0%, 100% { transform: rotate(6deg) translate(0, 0); } 50% { transform: rotate(3.5deg) translate(9px, -11px); } }
-@media (max-width: 760px) { .fc3 { display: none; } .fc1 { left: -6%; top: 8%; } .fc2 { right: -6%; bottom: 8%; } }
+@keyframes driftPendulum {
+  0%, 100% { transform: rotate(-6.5deg); }
+  50%      { transform: rotate(4.5deg); }
+}
+@keyframes driftBreathe {
+  0%, 100% { transform: rotate(-4deg) scale(0.975) translateY(4px); }
+  50%      { transform: rotate(-2.5deg) scale(1.025) translateY(-6px); }
+}
+@keyframes driftGlide {
+  0%, 100% { transform: rotate(7deg) translate(0, 0); }
+  50%      { transform: rotate(4deg) translate(-16px, 6px); }
+}
+
+/* ---- line-art marks ---- */
+.sticker {
+  position: absolute;
+  display: block;
+  color: var(--emerald);
+  opacity: 0;
+  animation: fcFade 700ms var(--ease) forwards;
+  will-change: transform;
+}
+.sticker svg { display: block; }
+/* Placed in the gaps BETWEEN the cards, never over them — the eight card zones and the centred
+   form leave six pockets of clear ground, and each mark takes one. */
+.st1 { top: 27%; left: 28%; width: 36px; height: 36px; animation-delay: 300ms; }
+.st2 { top: 64%; right: 25%; width: 34px; height: 34px; color: var(--mint); animation-delay: 460ms; }
+.st3 { top: 82%; left: 40%; width: 30px; height: 30px; color: var(--ink-3); animation-delay: 620ms; }
+.st4 { top: 9%; left: 46%; width: 28px; height: 28px; color: var(--mint); animation-delay: 780ms; }
+.st5 { top: 73%; left: 66%; width: 32px; height: 32px; color: var(--ink-3); animation-delay: 900ms; }
+.st6 { top: 30%; right: 22%; width: 28px; height: 28px; animation-delay: 1040ms; }
+.st7 { top: 60%; left: 31%; width: 26px; height: 26px; color: var(--ink-3); animation-delay: 1180ms; }
+
+/* Marks drift too, on their own cycles, so the layer behind the cards is never static. */
+.st1 svg { animation: driftBob 7.7s ease-in-out infinite; }
+.st2 svg { animation: driftGlide 9.8s ease-in-out infinite; }
+.st3 svg { animation: driftBreathe 6.9s ease-in-out infinite; }
+.st4 svg { animation: driftDiag 8.6s ease-in-out infinite; }
+.st5 svg { animation: driftSway 10.4s ease-in-out infinite; }
+.st6 svg { animation: driftBob 6.2s ease-in-out infinite reverse; }
+.st7 svg { animation: driftPendulum 8.9s ease-in-out infinite; transform-origin: 50% 0%; }
+
+/* Thin the scene as it narrows, keeping the cards clear of the form. Below 760px only the two
+   original corner cards and two marks survive. */
+@media (max-width: 1180px) {
+  .fc5, .fc8, .st4, .st6, .st7 { display: none; }
+  .fc6 { top: 46%; right: 2%; }
+}
+@media (max-width: 900px) {
+  .fc3, .fc6, .fc7, .st1, .st2 { display: none; }
+}
+@media (max-width: 760px) {
+  .fc4, .st3, .st5 { display: none; }
+  .fc1 { left: -6%; top: 8%; }
+  .fc2 { right: -6%; bottom: 8%; }
+}
 
 .sparkle {
   position: absolute;
@@ -159,8 +246,21 @@
 .sub { margin-top: 5px; font-size: 14px; color: var(--ink-2); }
 
 /* ---- Google Identity Services (only rendered once a client ID is configured) ------------- */
-.google { margin-top: 22px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.divider { display: flex; align-items: center; gap: 10px; margin-top: 18px; font-size: 12px; color: var(--ink-3); }
+.google { margin-top: 22px; display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+/* Full-bleed so the Google button lines up with the email/password fields instead of
+   floating narrower than them. GSI renders a fixed-width iframe inside, which we centre. */
+.googleBtn { width: 100%; display: flex; justify-content: center; min-height: 40px; }
+.googleBtn > div { margin: 0 auto; }
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
 .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 
 .form { margin-top: 22px; display: flex; flex-direction: column; gap: 15px; }
@@ -235,8 +335,16 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card, .mark, .floatCard { animation: none; opacity: 1; }
+  .card, .mark, .floatCard, .sticker { animation: none; opacity: 1; }
   .card { transform: none; filter: none; }
-  .aura, .sparkle, .fcBody, .fc1 .fcBody, .fc2 .fcBody, .fc3 .fcBody { animation: none; }
+  /* Every drift stops — the scene holds its arrangement rather than freezing mid-swing. Listed
+     explicitly per card/mark because each `.fcN .fcBody` / `.stN svg` rule is more specific than
+     a bare `.fcBody`/`.sticker svg` reset and would otherwise keep animating. */
+  .aura, .sparkle, .fcBody, .sticker svg,
+  .fc1 .fcBody, .fc2 .fcBody, .fc3 .fcBody, .fc4 .fcBody,
+  .fc5 .fcBody, .fc6 .fcBody, .fc7 .fcBody, .fc8 .fcBody,
+  .st1 svg, .st2 svg, .st3 svg, .st4 svg, .st5 svg, .st6 svg, .st7 svg {
+    animation: none;
+  }
   .btn::after { display: none; }
 }

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Script from 'next/script';
 import styles from './login.module.css';
+import { STICKER_ART } from '@/components/stickers/sticker-art';
 
 // Empty until a real Google Cloud OAuth Client ID is provisioned — see .env.example. The Google
 // buttons below simply don't render while this is unset (graceful degradation, not a crash).
@@ -25,13 +26,49 @@ declare global {
           }) => void;
           renderButton: (
             parent: HTMLElement,
-            options: { theme?: string; size?: string; text?: string; width?: number },
+            options: {
+              theme?: string;
+              size?: string;
+              text?: string;
+              width?: number;
+              shape?: string;
+              logo_alignment?: string;
+            },
           ) => void;
         };
       };
     };
   }
 }
+
+/**
+ * The ambient scene. Titles and section numbers are taken from the real seeded curricula, so the
+ * page shows a genuine glimpse of the courses rather than invented filler.
+ *
+ * `pos` also selects the drift: each position class binds a different keyframe at a different
+ * duration, so with eight cards on screen no two ever move in step.
+ */
+const FLOATERS = [
+  { pos: 'fc1', tag: 'fcTagE', badge: 'DSA', title: 'Two pointers', meta: 'PATTERNS · §3' },
+  { pos: 'fc2', tag: 'fcTagC', badge: 'ML', title: 'Gradient descent', meta: 'GRADIENT · §5' },
+  { pos: 'fc3', tag: 'fcTagI', badge: 'DSA', title: 'Sliding window', meta: 'PATTERNS · §10' },
+  { pos: 'fc4', tag: 'fcTagE', badge: 'ML', title: 'Backpropagation', meta: 'GRADIENT · §12' },
+  { pos: 'fc5', tag: 'fcTagI', badge: 'DSA', title: 'Binary search on answer', meta: 'PATTERNS · §5' },
+  { pos: 'fc6', tag: 'fcTagC', badge: 'ML', title: 'Attention', meta: 'GRADIENT · §15' },
+  { pos: 'fc7', tag: 'fcTagI', badge: 'DSA', title: 'Backtracking', meta: 'PATTERNS · §18' },
+  { pos: 'fc8', tag: 'fcTagE', badge: 'ML', title: 'Random forests', meta: 'GRADIENT · §8' },
+] as const;
+
+/** Line-art marks from each subject's own vocabulary — transparent by construction, no cutout. */
+const STICKERS = [
+  { pos: 'st1', name: 'tree' },
+  { pos: 'st2', name: 'neuron' },
+  { pos: 'st3', name: 'terminal' },
+  { pos: 'st4', name: 'loss' },
+  { pos: 'st5', name: 'branch' },
+  { pos: 'st6', name: 'target' },
+  { pos: 'st7', name: 'brackets' },
+] as const;
 
 function homeFor(role: string) {
   if (role === 'admin' || role === 'finance') return '/admin';
@@ -49,7 +86,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleError, setGoogleError] = useState('');
 
-  const signUpDivRef = useRef<HTMLDivElement>(null);
   const signInDivRef = useRef<HTMLDivElement>(null);
   const googleInitialized = useRef(false);
 
@@ -76,20 +112,21 @@ export default function LoginPage() {
       client_id: GOOGLE_CLIENT_ID,
       callback: handleGoogleCredential,
     });
-    if (signUpDivRef.current) {
-      window.google.accounts.id.renderButton(signUpDivRef.current, {
-        theme: 'outline',
-        size: 'large',
-        text: 'signup_with',
-        width: 240,
-      });
-    }
+    // ONE button. There were previously two — a `signup_with` and a `signin_with` — but Google
+    // replaces the label with a personalised pill ("Sign in as …") for anyone already logged into
+    // a Google account, so both rendered identically and read as a duplicate bug. Google sign-in
+    // provisions a new account server-side anyway, so sign-up and sign-in are the same action here.
     if (signInDivRef.current) {
+      const dark = document.documentElement.classList.contains('dark');
       window.google.accounts.id.renderButton(signInDivRef.current, {
-        theme: 'outline',
+        theme: dark ? 'filled_black' : 'outline',
         size: 'large',
-        text: 'signin_with',
-        width: 240,
+        text: 'continue_with',
+        shape: 'rectangular',
+        logo_alignment: 'center',
+        // GSI only accepts a fixed pixel width, so match the form field width to keep the
+        // button flush with the inputs below it rather than floating narrower than them.
+        width: Math.min(signInDivRef.current.offsetWidth || 360, 400),
       });
     }
   }
@@ -122,27 +159,28 @@ export default function LoginPage() {
     <div className={styles.wrap}>
       <div className={styles.scene} aria-hidden>
         <div className={styles.aura} />
-        <div className={`${styles.floatCard} ${styles.fc1}`}>
-          <div className={styles.fcBody}>
-            <span className={`${styles.fcTag} ${styles.fcTagE}`}>DSA</span>
-            <span className={styles.fcLine}>Two pointers</span>
-            <span className={styles.fcMeta}>timed drill</span>
+
+        {/* Every card below is a REAL chapter from the seeded curricula, with its true section
+            number — the scene doubles as a peek at what is actually inside. Each carries its own
+            drift on a deliberately non-matching duration so the set never falls into step. */}
+        {FLOATERS.map((f) => (
+          <div key={f.title} className={`${styles.floatCard} ${styles[f.pos]}`}>
+            <div className={styles.fcBody}>
+              <span className={`${styles.fcTag} ${styles[f.tag]}`}>{f.badge}</span>
+              <span className={styles.fcLine}>{f.title}</span>
+              <span className={styles.fcMeta}>{f.meta}</span>
+            </div>
           </div>
-        </div>
-        <div className={`${styles.floatCard} ${styles.fc2}`}>
-          <div className={styles.fcBody}>
-            <span className={`${styles.fcTag} ${styles.fcTagC}`}>NEET</span>
-            <span className={styles.fcLine}>Cell biology</span>
-            <span className={styles.fcMeta}>9 min</span>
-          </div>
-        </div>
-        <div className={`${styles.floatCard} ${styles.fc3}`}>
-          <div className={styles.fcBody}>
-            <span className={`${styles.fcTag} ${styles.fcTagI}`}>Aptitude</span>
-            <span className={styles.fcLine}>Big-O basics</span>
-            <span className={styles.fcMeta}>quick set</span>
-          </div>
-        </div>
+        ))}
+
+        {STICKERS.map((s) => (
+          <span key={s.pos} className={`${styles.sticker} ${styles[s.pos]}`}>
+            <svg viewBox="0 0 32 32" width="100%" height="100%" role="presentation" focusable="false">
+              {STICKER_ART[s.name]}
+            </svg>
+          </span>
+        ))}
+
         <span className={styles.sparkle}>✦</span>
       </div>
 
@@ -173,8 +211,7 @@ export default function LoginPage() {
               onLoad={onGoogleScriptLoad}
             />
             <div className={styles.google}>
-              <div ref={signUpDivRef} />
-              <div ref={signInDivRef} />
+              <div ref={signInDivRef} className={styles.googleBtn} />
               {googleError && <p className={styles.error}>{googleError}</p>}
             </div>
             <div className={styles.divider}>or continue with email</div>
