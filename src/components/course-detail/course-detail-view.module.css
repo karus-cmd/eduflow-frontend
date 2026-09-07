@@ -1,0 +1,333 @@
+/* Course detail — warm-paper editorial treatment (design handoff), distinct from the app's
+   Chrome Machine (steel-white/industrial-blue) theme everywhere else. Hardcoded per the
+   plan-cards.module.css convention: this is a deliberate one-off, not a site-wide palette change.
+   Bounded to AppShell's existing max-w-6xl content column — no full-bleed/negative-margin
+   breakout, to avoid horizontal-scroll bugs inside a shell layout this component doesn't own. */
+
+.shell {
+  background: #f4f2ee;
+  border-radius: 22px;
+  padding: 28px 28px 40px;
+}
+
+/* ---- Hero ---- */
+
+.hero {
+  padding-bottom: 24px;
+  border-bottom: 1px solid #ddd8ce;
+}
+
+.kicker {
+  margin: 0 0 10px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #6d6a63;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-jakarta), sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-size: clamp(26px, 4vw, 38px);
+  line-height: 1.1;
+  color: #14161a;
+}
+
+.lede {
+  margin: 14px 0 0;
+  max-width: 62ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #494640;
+}
+
+.statRule {
+  margin: 24px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+.stat {
+  min-width: 0;
+}
+.statLabel {
+  display: block;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9c988f;
+}
+.statValue {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-jakarta), sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: #14161a;
+}
+
+/* ---- Body: index rail + main column ---- */
+
+.body {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.indexRail {
+  position: sticky;
+  /* Sits below the sticky enroll bar's own rendered height once both are pinned — see
+     sticky-enroll-bar.module.css for that bar's z-index/positioning rationale. */
+  top: 76px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.indexRail a {
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #6d6a63;
+  text-decoration: none;
+}
+.indexRail a:hover {
+  background: #fbfaf7;
+  color: #14161a;
+}
+
+.mainCol {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.section {
+  scroll-margin-top: 92px;
+}
+
+.sectionTitle {
+  margin: 0 0 16px;
+  font-family: var(--font-jakarta), sans-serif;
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+  color: #14161a;
+}
+
+/* ---- Outcomes ---- */
+
+.outcomesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.outcomeCard {
+  border-radius: 12px;
+  background: #fbfaf7;
+  border: 1px solid #e3ded4;
+  padding: 14px 16px;
+}
+.outcomeTitle {
+  margin: 0;
+  font-family: var(--font-jakarta), sans-serif;
+  font-weight: 600;
+  font-size: 13.5px;
+  color: #14161a;
+}
+.outcomeDetail {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #6d6a63;
+}
+
+/* ---- Who it's for ---- */
+
+.fitGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.fitCard {
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.fitCard[data-kind='good'] {
+  background: color-mix(in oklch, var(--primary) 6%, #fbfaf7);
+  border: 1px solid color-mix(in oklch, var(--primary) 22%, transparent);
+}
+.fitCard[data-kind='not-yet'] {
+  background: #fbfaf7;
+  border: 1px solid #e3ded4;
+}
+.fitHeading {
+  margin: 0 0 10px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.fitCard[data-kind='good'] .fitHeading {
+  color: var(--primary);
+}
+.fitCard[data-kind='not-yet'] .fitHeading {
+  color: #9c988f;
+}
+.fitList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.fitItem {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #35322d;
+}
+.fitDot {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  margin-top: 6px;
+  border-radius: 999px;
+}
+.fitCard[data-kind='good'] .fitDot {
+  background: var(--primary);
+}
+.fitCard[data-kind='not-yet'] .fitDot {
+  background: #b8b2a6;
+}
+
+/* ---- Projects ---- */
+
+.projectList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.projectItem {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  border-radius: 10px;
+  background: #fbfaf7;
+  border: 1px solid #e3ded4;
+  padding: 11px 14px;
+}
+.projectIndex {
+  flex: 0 0 auto;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  color: #b8b2a6;
+}
+.projectTitle {
+  font-size: 13.5px;
+  color: #14161a;
+}
+
+/* ---- Cross-sell ---- */
+
+.crossSellTile {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  border-radius: 14px;
+  background: #fbfaf7;
+  border: 1px solid #e3ded4;
+  padding: 16px;
+  text-decoration: none;
+  max-width: 30rem;
+  transition: border-color 0.15s ease;
+}
+.crossSellTile:hover {
+  border-color: color-mix(in oklch, var(--primary) 35%, transparent);
+}
+.crossSellThumb {
+  flex: 0 0 auto;
+  width: 76px;
+  height: 54px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: color-mix(in oklch, var(--primary) 12%, #fbfaf7);
+  font-family: var(--font-jakarta), sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--primary);
+}
+.crossSellBody {
+  min-width: 0;
+}
+.crossSellTitle {
+  margin: 0;
+  font-family: var(--font-jakarta), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: #14161a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crossSellMeta {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #6d6a63;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.crossSellPriceRow {
+  margin-top: 6px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.crossSellPrice {
+  font-family: var(--font-jakarta), sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: #14161a;
+}
+.crossSellMrp {
+  font-size: 11.5px;
+  color: #9c988f;
+  text-decoration: line-through;
+}
+
+@media (max-width: 860px) {
+  .shell {
+    padding: 22px 18px 30px;
+  }
+  .body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .indexRail {
+    position: static;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 4px;
+    padding-bottom: 4px;
+  }
+  .indexRail a {
+    white-space: nowrap;
+  }
+}

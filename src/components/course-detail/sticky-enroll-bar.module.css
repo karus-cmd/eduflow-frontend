@@ -1,0 +1,156 @@
+/* Sticky enroll bar — dark surface, always-visible purchase CTA for the course detail page.
+   Colors are hardcoded per the plan-cards.module.css convention (design handoff palette). */
+
+.bar {
+  position: sticky;
+  top: 0;
+  /* AppShell's own header is `sticky top-0 z-30` (see app-shell.tsx) and shares this same
+     top offset — this bar intentionally sits ABOVE it (higher z-index) once both are pinned,
+     so the purchase CTA is never the one hidden. No scroll listener needed either way. */
+  z-index: 40;
+  margin: 0 0 20px;
+  border-radius: 14px;
+  background: #14161a;
+  border: 1px solid #45423c;
+  box-shadow: 0 14px 32px -18px rgba(20, 22, 26, 0.55);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px;
+  flex-wrap: wrap;
+}
+
+.titleWrap {
+  min-width: 0;
+  flex: 1 1 160px;
+}
+.eyebrow {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-jakarta), sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #f4f2ee;
+}
+
+.toggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(244, 242, 238, 0.06);
+  border: 1px solid #45423c;
+  flex: 0 0 auto;
+}
+.toggleBtn,
+.toggleBtnActive {
+  border: none;
+  border-radius: 999px;
+  padding: 6px 13px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.toggleBtn {
+  background: transparent;
+  color: #9c988f;
+}
+.toggleBtn:hover {
+  color: #f4f2ee;
+}
+.toggleBtnActive {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.priceWrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+.priceGroup {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.price {
+  font-family: var(--font-jakarta), sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #f4f2ee;
+  font-variant-numeric: tabular-nums;
+}
+.mrp {
+  font-size: 12px;
+  color: #9c988f;
+  text-decoration: line-through;
+  font-variant-numeric: tabular-nums;
+}
+.freeNotice {
+  font-size: 12px;
+  color: #9c988f;
+  max-width: 22rem;
+}
+
+.cta,
+.enrolledPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 9px 18px;
+  font-family: var(--font-jakarta), sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.cta {
+  background: var(--primary);
+  color: #ffffff;
+}
+.cta:hover {
+  opacity: 0.92;
+}
+.cta:active {
+  transform: translateY(1px);
+}
+.enrolledPill {
+  background: rgba(244, 242, 238, 0.08);
+  color: #f4f2ee;
+  border: 1px solid #45423c;
+}
+.ctaOutline {
+  background: transparent;
+  color: #f4f2ee;
+  border: 1px solid #45423c;
+}
+.ctaOutline:hover {
+  border-color: #9c988f;
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .inner {
+    padding: 10px 14px;
+  }
+  .eyebrow {
+    flex-basis: 100%;
+  }
+  .priceWrap {
+    margin-left: 0;
+    width: 100%;
+    justify-content: space-between;
+  }
+}

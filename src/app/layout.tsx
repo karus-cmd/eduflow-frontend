@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo, IBM_Plex_Sans, IBM_Plex_Mono, Sora } from "next/font/google";
+import { Archivo, IBM_Plex_Sans, IBM_Plex_Mono, Sora, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
 // Chrome Machine theme fonts (see design/README handoff). Variable names kept as
@@ -34,6 +34,14 @@ const sora = Sora({
   weight: ["500", "600"],
 });
 
+// Plus Jakarta Sans — used only by the course detail page's warm-paper editorial layout (see
+// course-detail-view.module.css); a one-off voice for that page, not a site-wide replacement.
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
 export const metadata: Metadata = {
   title: "STEIN-X",
   description: "STEIN-X — enrollment CRM, LMS & commission ledger",
@@ -43,7 +51,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${body.variable} ${mono.variable} ${display.variable} ${sora.variable} h-full antialiased`}
+      className={`${body.variable} ${mono.variable} ${display.variable} ${sora.variable} ${jakarta.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

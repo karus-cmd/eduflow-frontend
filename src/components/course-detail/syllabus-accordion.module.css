@@ -1,0 +1,145 @@
+/* Syllabus accordion — bespoke visual language for the course detail page (distinct from the
+   plainer syllabus-tree.tsx <details> version used on the older course page layout). */
+
+.list {
+  border-radius: 14px;
+  border: 1px solid #e3ded4;
+  background: #fbfaf7;
+  overflow: hidden;
+}
+.section + .section {
+  border-top: 1px solid #e3ded4;
+}
+
+.summary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.summary:hover {
+  background: color-mix(in oklch, var(--primary) 4%, transparent);
+}
+.summary:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+.chevron {
+  flex: 0 0 auto;
+  display: inline-flex;
+  color: #b8b2a6;
+  transition: transform 0.2s ease;
+}
+.chevron[data-open='true'] {
+  transform: rotate(180deg);
+  color: var(--primary);
+}
+
+.sectionTitle {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-jakarta), sans-serif;
+  font-weight: 600;
+  font-size: 14.5px;
+  color: #14161a;
+}
+
+.sectionMeta {
+  flex: 0 0 auto;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: #9c988f;
+  white-space: nowrap;
+}
+
+.lessons {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid #e3ded4;
+  background: color-mix(in oklch, #14161a 2%, #fbfaf7);
+}
+
+.lessonLink {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.lessonLink:hover .lessonRow,
+.lessonLink:focus-visible .lessonRow {
+  background: color-mix(in oklch, var(--primary) 6%, transparent);
+}
+
+.lessonRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px 10px 42px;
+}
+
+.lessonState {
+  flex: 0 0 auto;
+  display: inline-flex;
+  color: #b8b2a6;
+}
+.lessonState[data-playable='true'] {
+  color: var(--primary);
+}
+
+.lessonTitle {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13.5px;
+  color: #35322d;
+}
+.lessonTitle[data-locked='true'] {
+  color: #9c988f;
+}
+
+.previewBadge {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--primary) 12%, transparent);
+  color: var(--primary);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+}
+
+.lessonDuration {
+  flex: 0 0 auto;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  color: #9c988f;
+  font-variant-numeric: tabular-nums;
+}
+
+.emptyLesson {
+  padding: 10px 18px 10px 42px;
+  font-size: 13px;
+  color: #9c988f;
+}
+
+.empty {
+  border-radius: 14px;
+  border: 1px dashed #ddd8ce;
+  background: #fbfaf7;
+  padding: 24px;
+  text-align: center;
+  font-size: 13.5px;
+  color: #6d6a63;
+}

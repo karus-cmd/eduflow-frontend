@@ -42,17 +42,21 @@ export function CheckoutClient({
   course,
   user,
   upgradeOnly = false,
+  initialTier = 'standard',
 }: {
   course: CheckoutCourse;
   user: CheckoutUser;
   /** True when the student already holds a Standard enrollment and is here only to upgrade —
    *  Standard isn't offered again (they'd be re-paying for what they already have). */
   upgradeOnly?: boolean;
+  /** Carries the course page's sticky-enroll-bar plan choice through to checkout (its `?tier=`
+   *  search param) — ignored when `upgradeOnly` forces 'complete'. */
+  initialTier?: CourseTier;
 }) {
   const router = useRouter();
   const scriptReady = useRef(false);
   const hasPremium = course.premiumPricePaise != null;
-  const [tier, setTier] = useState<CourseTier>(upgradeOnly ? 'complete' : 'standard');
+  const [tier, setTier] = useState<CourseTier>(upgradeOnly ? 'complete' : initialTier);
   const [referral, setReferral] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');

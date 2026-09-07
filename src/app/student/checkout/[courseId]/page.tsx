@@ -11,6 +11,9 @@ export const metadata = { title: 'Checkout · STEIN-X' };
 
 export default async function CheckoutPage(props: PageProps<'/student/checkout/[courseId]'>) {
   const { courseId } = await props.params;
+  const searchParams = await props.searchParams;
+  const tierParam = Array.isArray(searchParams.tier) ? searchParams.tier[0] : searchParams.tier;
+  const initialTier = tierParam === 'complete' ? 'complete' : 'standard';
   const me = await requireRole(['student']);
 
   let course: CourseDetail;
@@ -63,6 +66,7 @@ export default async function CheckoutPage(props: PageProps<'/student/checkout/[
         }}
         user={{ fullName: me.fullName, email: me.email, phone: me.phone }}
         upgradeOnly={canUpgrade}
+        initialTier={initialTier}
       />
     </AppShell>
   );
