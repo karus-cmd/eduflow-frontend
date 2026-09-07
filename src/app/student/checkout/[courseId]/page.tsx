@@ -28,6 +28,16 @@ export default async function CheckoutPage(props: PageProps<'/student/checkout/[
   if (course.enrolled && !canUpgrade) redirect(`/student/learn/${course.id}`);
   if (Number(course.pricePaise) <= 0) redirect(`/student/courses/${course.id}`);
 
+  // Derived from the real section tree (never hardcoded) so the plan cards' lesson counts and
+  // topic names can't drift from what the course actually contains.
+  const standardSections = course.sections.filter((s) => s.tier === 'standard');
+  const completeSections = course.sections.filter((s) => s.tier === 'complete');
+  const standardLessons = standardSections.reduce((n, s) => n + s.lessons.length, 0);
+  const standardTopicRange = standardSections.length
+    ? `${standardSections[0].title} through ${standardSections[standardSections.length - 1].title}`
+    : '';
+  const completeTopics = completeSections.map((s) => s.title).join(', ');
+
   return (
     <AppShell title="Checkout" user={me} nav={STUDENT_NAV} homeHref="/student">
       <Link
@@ -46,6 +56,10 @@ export default async function CheckoutPage(props: PageProps<'/student/checkout/[
           premiumPricePaise: course.premiumPricePaise,
           premiumMrpPaise: course.premiumMrpPaise,
           thumbnailUrl: course.thumbnailUrl,
+          totalLessons: course.totalLessons,
+          standardLessons,
+          standardTopicRange,
+          completeTopics,
         }}
         user={{ fullName: me.fullName, email: me.email, phone: me.phone }}
         upgradeOnly={canUpgrade}

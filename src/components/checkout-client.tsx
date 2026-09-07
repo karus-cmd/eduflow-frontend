@@ -26,6 +26,11 @@ interface CheckoutCourse {
   premiumPricePaise: string | null;
   premiumMrpPaise: string | null;
   thumbnailUrl: string | null;
+  /** Real counts/topic names from the course's own section tree — never hardcoded here. */
+  totalLessons: number;
+  standardLessons: number;
+  standardTopicRange: string;
+  completeTopics: string;
 }
 interface CheckoutUser {
   fullName: string;
@@ -167,6 +172,15 @@ export function CheckoutClient({
                     blurb="The core curriculum."
                     pricePaise={course.pricePaise}
                     mrpPaise={course.mrpPaise}
+                    points={[
+                      `${course.standardLessons} lessons${course.standardTopicRange ? ` — ${course.standardTopicRange}` : ''}`,
+                      'Resume-building session',
+                      '3 AI mock interview sessions',
+                      '1 person-to-person mock interview',
+                      '6 months of access',
+                      'Progress tracking + streaks',
+                      'Certificate of completion',
+                    ]}
                   />
                 )}
                 <PlanOption
@@ -176,6 +190,16 @@ export function CheckoutClient({
                   blurb={upgradeOnly ? 'Unlocks every remaining advanced module.' : 'Standard, plus every advanced module.'}
                   pricePaise={course.premiumPricePaise!}
                   mrpPaise={course.premiumMrpPaise}
+                  points={[
+                    `All ${course.totalLessons} lessons${course.completeTopics ? ` — adds ${course.completeTopics}` : ''}`,
+                    'Resume-building session',
+                    '5 AI mock interview sessions',
+                    '3 person-to-person mock interviews',
+                    'Full lifetime access',
+                    'Progress tracking + streaks',
+                    'Certificate of completion',
+                    'LinkedIn/portfolio review',
+                  ]}
                 />
               </div>
             </div>
@@ -226,6 +250,7 @@ function PlanOption({
   blurb,
   pricePaise,
   mrpPaise,
+  points,
 }: {
   active: boolean;
   onSelect: () => void;
@@ -233,6 +258,7 @@ function PlanOption({
   blurb: string;
   pricePaise: string;
   mrpPaise: string | null;
+  points: string[];
 }) {
   return (
     <button
@@ -249,6 +275,14 @@ function PlanOption({
       </div>
       <p className="text-xs text-muted-foreground">{blurb}</p>
       <Price pricePaise={pricePaise} mrpPaise={mrpPaise} size="sm" />
+      <ul className="mt-1 space-y-1.5">
+        {points.map((point) => (
+          <li key={point} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+            <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-primary" />
+            <span>{point}</span>
+          </li>
+        ))}
+      </ul>
     </button>
   );
 }
