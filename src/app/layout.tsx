@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Archivo, IBM_Plex_Sans, IBM_Plex_Mono, Sora } from "next/font/google";
 import "./globals.css";
 
 // Chrome Machine theme fonts (see design/README handoff). Variable names kept as
@@ -26,6 +26,14 @@ const display = Archivo({
   weight: ["400", "500", "600", "700", "800"],
 });
 
+// Sora — used only by the checkout plan cards (see plan-cards.module.css); a one-off editorial
+// voice for that section, not a site-wide replacement for --font-display.
+const sora = Sora({
+  variable: "--font-sora",
+  subsets: ["latin"],
+  weight: ["500", "600"],
+});
+
 export const metadata: Metadata = {
   title: "STEIN-X",
   description: "STEIN-X — enrollment CRM, LMS & commission ledger",
@@ -35,7 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${body.variable} ${mono.variable} ${display.variable} h-full antialiased`}
+      className={`${body.variable} ${mono.variable} ${display.variable} ${sora.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

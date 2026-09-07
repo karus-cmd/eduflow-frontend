@@ -3,16 +3,16 @@
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
-import { CheckCircle2, Loader2, ShieldCheck, Tag } from 'lucide-react';
+import { Loader2, ShieldCheck, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { CourseThumb } from '@/components/course-thumb';
 import { Price } from '@/components/price';
+import { PlanCards, type PlanCardData } from '@/components/plan-cards';
 import { clientApi, ClientApiError } from '@/lib/client-api';
 import { formatPaise } from '@/lib/money';
-import { cn } from '@/lib/utils';
 import type { CheckoutResult, CourseTier } from '@/lib/api/types';
 
 const RAZORPAY_SRC = 'https://checkout.razorpay.com/v1/checkout.js';
@@ -161,36 +161,41 @@ export function CheckoutClient({
           </Card>
 
           {hasPremium && (
-            <div>
-              <h2 className="mb-2.5 font-medium">{upgradeOnly ? 'Upgrade' : 'Choose your plan'}</h2>
-              <div className={cn('grid gap-3', !upgradeOnly && 'sm:grid-cols-2')}>
-                {!upgradeOnly && (
-                  <PlanOption
-                    active={tier === 'standard'}
-                    onSelect={() => setTier('standard')}
-                    title="Standard"
-                    blurb="The core curriculum."
-                    pricePaise={course.pricePaise}
-                    mrpPaise={course.mrpPaise}
-                    points={[
-                      `${course.standardLessons} lessons${course.standardTopicRange ? ` — ${course.standardTopicRange}` : ''}`,
-                      'Resume-building session',
-                      '3 AI mock interview sessions',
-                      '1 person-to-person mock interview',
-                      '6 months of access',
-                      'Progress tracking + streaks',
-                      'Certificate of completion',
-                    ]}
-                  />
-                )}
-                <PlanOption
-                  active={tier === 'complete'}
-                  onSelect={() => setTier('complete')}
-                  title="Complete"
-                  blurb={upgradeOnly ? 'Unlocks every remaining advanced module.' : 'Standard, plus every advanced module.'}
-                  pricePaise={course.premiumPricePaise!}
-                  mrpPaise={course.premiumMrpPaise}
-                  points={[
+            <PlanCards
+              courseTitle={course.title}
+              selected={tier}
+              onSelect={(id) => setTier(id as CourseTier)}
+              plans={[
+                ...(upgradeOnly
+                  ? []
+                  : [
+                      {
+                        id: 'standard',
+                        label: 'Standard',
+                        tagline: 'The core curriculum, start to finish.',
+                        pricePaise: course.pricePaise,
+                        mrpPaise: course.mrpPaise,
+                        points: [
+                          `${course.standardLessons} lessons${course.standardTopicRange ? ` — ${course.standardTopicRange}` : ''}`,
+                          'Resume-building session',
+                          '3 AI mock interview sessions',
+                          '1 person-to-person mock interview',
+                          '6 months of access',
+                          'Progress tracking + streaks',
+                          'Certificate of completion',
+                        ],
+                      } satisfies PlanCardData,
+                    ]),
+                {
+                  id: 'complete',
+                  label: 'Complete',
+                  tagline: upgradeOnly
+                    ? 'Unlocks every remaining advanced module.'
+                    : 'Standard, plus every advanced module.',
+                  pricePaise: course.premiumPricePaise!,
+                  mrpPaise: course.premiumMrpPaise,
+                  premium: true,
+                  points: [
                     `All ${course.totalLessons} lessons${course.completeTopics ? ` — adds ${course.completeTopics}` : ''}`,
                     'Resume-building session',
                     '5 AI mock interview sessions',
@@ -199,10 +204,10 @@ export function CheckoutClient({
                     'Progress tracking + streaks',
                     'Certificate of completion',
                     'LinkedIn/portfolio review',
-                  ]}
-                />
-              </div>
-            </div>
+                  ],
+                } satisfies PlanCardData,
+              ]}
+            />
           )}
         </div>
 
@@ -240,49 +245,5 @@ export function CheckoutClient({
         </aside>
       </div>
     </>
-  );
-}
-
-function PlanOption({
-  active,
-  onSelect,
-  title,
-  blurb,
-  pricePaise,
-  mrpPaise,
-  points,
-}: {
-  active: boolean;
-  onSelect: () => void;
-  title: string;
-  blurb: string;
-  pricePaise: string;
-  mrpPaise: string | null;
-  points: string[];
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={cn(
-        'flex flex-col items-start gap-2 rounded-xl border p-4 text-left transition-colors',
-        active ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-border hover:border-primary/40',
-      )}
-    >
-      <div className="flex w-full items-center justify-between">
-        <span className="font-medium">{title}</span>
-        {active && <CheckCircle2 className="size-4 text-primary" />}
-      </div>
-      <p className="text-xs text-muted-foreground">{blurb}</p>
-      <Price pricePaise={pricePaise} mrpPaise={mrpPaise} size="sm" />
-      <ul className="mt-1 space-y-1.5">
-        {points.map((point) => (
-          <li key={point} className="flex items-start gap-1.5 text-xs text-muted-foreground">
-            <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-primary" />
-            <span>{point}</span>
-          </li>
-        ))}
-      </ul>
-    </button>
   );
 }
