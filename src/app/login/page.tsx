@@ -85,6 +85,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleError, setGoogleError] = useState('');
+  const [googleUnavailable, setGoogleUnavailable] = useState(false);
 
   const signInDivRef = useRef<HTMLDivElement>(null);
   const googleInitialized = useRef(false);
@@ -108,6 +109,7 @@ export default function LoginPage() {
   function onGoogleScriptLoad() {
     if (!GOOGLE_CLIENT_ID || googleInitialized.current || !window.google) return;
     googleInitialized.current = true;
+    setGoogleUnavailable(false);
     window.google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: handleGoogleCredential,
@@ -129,6 +131,12 @@ export default function LoginPage() {
         width: Math.min(signInDivRef.current.offsetWidth || 360, 400),
       });
     }
+  }
+
+  /** The script itself failed to load — an ad/privacy blocker, offline, or a Google outage.
+   *  Surface it instead of leaving a silent gap where the button should be. */
+  function onGoogleScriptError() {
+    setGoogleUnavailable(true);
   }
 
   async function submit(e: React.FormEvent) {
@@ -208,10 +216,21 @@ export default function LoginPage() {
             <Script
               src="https://accounts.google.com/gsi/client"
               strategy="afterInteractive"
-              onLoad={onGoogleScriptLoad}
+              // `onLoad` only fires the FIRST time this script src is ever loaded in the page's
+              // lifetime — not once per mount. A visitor who leaves /login and comes back via
+              // client-side navigation (e.g. "Back to home" then Login again) re-mounts this
+              // component while the script is already cached, so onLoad never fires again and
+              // the button silently never renders. `onReady` is the variant Next documents for
+              // exactly this — it fires on first load AND on every subsequent re-mount.
+              onReady={onGoogleScriptLoad}
+              onError={onGoogleScriptError}
             />
             <div className={styles.google}>
-              <div ref={signInDivRef} className={styles.googleBtn} />
+              {googleUnavailable ? (
+                <p className={styles.error}>Google Sign-In isn&rsquo;t available right now — use email below.</p>
+              ) : (
+                <div ref={signInDivRef} className={styles.googleBtn} />
+              )}
               {googleError && <p className={styles.error}>{googleError}</p>}
             </div>
             <div className={styles.divider}>or continue with email</div>
