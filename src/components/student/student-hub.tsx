@@ -177,20 +177,24 @@ export function StudentHub(props: HubProps) {
             label={`${avgPct}% of your tracks complete`}
           />
         </div>
-        <div className={styles.heat}>
+        <div className={styles.heat} {...(heatSeen ? { 'data-in': '' } : {})}>
+          {/* One pre-painted light crossing the card, replacing the per-cell box-shadow flare.
+              Purely decorative, and it costs a single composited transform. */}
+          <span className={styles.heatSweep} aria-hidden="true" />
           <div ref={heatRef} className={styles.heatGrid} {...(heatSeen ? { 'data-in': '' } : {})}>
             {heatmap.map((lvl, i) => {
               // Grid fills top-to-bottom then column-to-column (grid-auto-flow: column, 7 rows),
-              // so a cell's (row, col) is i % 7 / i / 7 — delaying by their sum makes the glow
-              // travel through the actual cells as a diagonal wave, not a separate overlay
-              // sweeping over them.
+              // so a cell's (row, col) is i % 7 / i / 7 — delaying by their sum makes the fill
+              // travel through the actual cells as a diagonal wave. 9ms a step, not 14: across
+              // ~18 columns the old value put a third of a second of dead delay on the last
+              // cells, which read as the section lagging rather than as a wave.
               const row = i % 7;
               const col = Math.floor(i / 7);
               return (
                 <span
                   key={i}
                   className={`${styles.heatCell} ${styles[`h${lvl}`]}`}
-                  style={{ animationDelay: `${(row + col) * 14}ms` }}
+                  style={{ animationDelay: `${(row + col) * 9}ms` }}
                   /* `lvl` is an intensity bucket, not a session count — the backend records
                      daily activity minutes, and nothing counts discrete sessions. */
                   title={lvl === 0 ? 'no activity' : `${['', 'light', 'steady', 'strong', 'heavy'][lvl]} activity`}

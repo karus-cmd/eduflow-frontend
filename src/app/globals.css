@@ -719,6 +719,28 @@
   animation-timing-function: steps(1, end);
 }
 
+/* Two more characters, so a page can hold a population rather than one behaviour. Both are
+   transform-only, like the other three. */
+@keyframes mf-sway {
+  0%, 100% { transform: rotate(calc(var(--mf-rot, 3deg) * -1)); }
+  50%      { transform: rotate(var(--mf-rot, 3deg)); }
+}
+.mf-sway {
+  animation-name: mf-sway;
+  animation-timing-function: var(--ease-inout);
+  /* Hung from its top edge — a plumb bob, not a spinning icon. */
+  transform-origin: 50% 0%;
+}
+
+@keyframes mf-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.085); }
+}
+.mf-pulse {
+  animation-name: mf-pulse;
+  animation-timing-function: var(--ease-inout);
+}
+
 /* The swap: two stacked compositions cross-dissolving with a counter-rotation.
    These marks are multi-element groups, not single paths, so numeric path morphing (which
    morph-shapes.ts does for the big shapes) is not available to them. At 20px a dissolve with

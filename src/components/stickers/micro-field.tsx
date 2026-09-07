@@ -12,9 +12,13 @@ import { MICRO_ART, type MicroName } from './micro-art';
  * server and client, and no two marks in step. The negative start offsets matter — without them
  * every mark begins its cycle at page load and the whole field pulses in unison on first paint,
  * which is the single most AI-looking thing a backdrop can do.
+ *
+ * Every character animates TRANSFORM ONLY. Opacity is set once, inline, from intensity × depth, so
+ * a mark's place in the depth stack can never be stolen by a keyframe — and so nothing here ever
+ * costs a repaint.
  */
 
-export type MicroMotion = 'orbit' | 'bob' | 'tick';
+export type MicroMotion = 'orbit' | 'bob' | 'tick' | 'sway' | 'pulse';
 export type MicroTone = 'signal' | 'mint' | 'ink' | 'warning';
 
 export type MicroMark = {
@@ -23,15 +27,20 @@ export type MicroMark = {
   top: string;
   left?: string;
   right?: string;
-  /** On-screen px. 12–20 nano, 20–28 micro, 28–40 small. */
+  /** On-screen px. 7–12 nano, 13–20 micro, 20–30 small, 30–48 large. */
   size: number;
   tone?: MicroTone;
   /** Multiplies the field intensity — pushes one mark forward or lets it sink back. */
   depth?: number;
   /** px of travel. Overrides the size-derived default. */
   amp?: number;
-  /** deg of roll. Only orbit and tick use it. */
+  /** deg of roll. Used by orbit, tick and sway. */
   rot?: number;
+  /**
+   * Overrides the field character for this one mark. A page where every object moves the same way
+   * reads as a single animated texture; two or three dissenters make it read as a population.
+   */
+  motion?: MicroMotion;
 };
 
 const TONE: Record<MicroTone, string> = {
@@ -46,6 +55,8 @@ const TIMING: Record<MicroMotion, { base: number; spread: number }> = {
   orbit: { base: 26, spread: 9 },
   bob: { base: 11, spread: 5 },
   tick: { base: 15, spread: 7 },
+  sway: { base: 19, spread: 6 },
+  pulse: { base: 8, spread: 4 },
 };
 
 export function MicroField({
@@ -59,8 +70,6 @@ export function MicroField({
   intensity?: number;
   className?: string;
 }) {
-  const { base, spread } = TIMING[motion];
-
   return (
     <div
       aria-hidden="true"
@@ -72,6 +81,8 @@ export function MicroField({
       style={{ minHeight: '100vh' }}
     >
       {marks.map((m, i) => {
+        const kind = m.motion ?? motion;
+        const { base, spread } = TIMING[kind];
         // Coprime strides against the spread so the sequence does not repeat across a field of
         // this size; every mark ends up with its own period AND its own point in that period.
         const dur = base + ((i * 7) % spread) + ((i % 3) * 0.6);
@@ -79,7 +90,7 @@ export function MicroField({
         return (
           <span
             key={`${m.name}-${i}`}
-            className={`mf-item mf-${motion}`}
+            className={`mf-item mf-${kind}`}
             style={
               {
                 top: m.top,

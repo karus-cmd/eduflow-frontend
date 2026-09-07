@@ -110,18 +110,49 @@
 .doneTag { display: inline-flex; align-items: center; gap: 4px; color: var(--primary); font-weight: 600; }
 
 /* ---- Activity heatmap ------------------------------------------------- */
-.heat { padding: 20px; border-radius: 20px; background: var(--card); border: 1px solid var(--border); box-shadow: 0 14px 34px -24px rgba(31, 28, 43, 0.4); }
+.heat { position: relative; overflow: hidden; padding: 20px; border-radius: 20px; background: var(--card); border: 1px solid var(--border); box-shadow: 0 14px 34px -24px rgba(31, 28, 43, 0.4); }
 .heatGrid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 1fr); gap: 5px; overflow-x: auto; padding-bottom: 4px; }
 .heatCell { width: 15px; height: 15px; border-radius: 4px; }
-.heatGrid[data-in] .heatCell { animation: cellGlowWave var(--dur-4) var(--s-ease) both; }
-/* The glow itself travels through the actual cells as a wave (each one flares in its own diagonal
-   turn — see the row+col delay in student-hub.tsx), rather than a separate bar sweeping over an
-   already-lit grid. The glow colour is always primary regardless of the cell's own h0–h4 shade,
-   so it still reads as one coherent light passing through, not cells flashing independently. */
-@keyframes cellGlowWave {
-  0% { opacity: 0; transform: scale(0.5); box-shadow: 0 0 0 0 transparent; filter: brightness(1); }
-  50% { opacity: 1; transform: scale(1.25); box-shadow: 0 0 10px 3px color-mix(in oklch, var(--primary) 65%, transparent); filter: brightness(1.7); }
-  100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 transparent; filter: brightness(1); }
+/* The wave used to be 126 cells each animating box-shadow AND filter: brightness(). Both are
+   PAINT properties, so every frame re-rasterised 126 elements whose shadow blur (0 0 10px 3px)
+   inflated each one to ~3,250 device pixels on this 2.19x display. That is the lag.
+
+   Same reading, split in two, and neither half paints:
+     - each cell does a composited scale+opacity pop, so the grid still fills in diagonally;
+     - ONE pre-painted light (.heatSweep) crosses the card on a transform, which is what the
+       old comment actually wanted — a single coherent light passing through the cells rather
+       than cells flashing independently.
+   The stagger is tighter too (9ms a step, 240ms a cell): the old 336ms of delay on top of a
+   320ms animation meant the last cells lit two thirds of a second after you looked at them. */
+.heatGrid[data-in] .heatCell { animation: cellRise 240ms var(--s-ease) both; }
+@keyframes cellRise {
+  0%   { opacity: 0; transform: scale(0.55); }
+  62%  { opacity: 1; transform: scale(1.18); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* The travelling light. 1400px of travel clears the widest the card can ever be (the shell caps
+   content at max-w-6xl = 1152px), and .heat clips it. */
+.heatSweep {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 220px;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklch, var(--primary) 34%, transparent),
+    transparent 100%
+  );
+}
+.heat[data-in] .heatSweep { animation: heatSweep 820ms var(--s-ease) both; }
+@keyframes heatSweep {
+  0%   { opacity: 0; transform: translate3d(-260px, 0, 0); }
+  14%  { opacity: 1; }
+  78%  { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(1400px, 0, 0); }
 }
 .h0 { background: color-mix(in oklch, var(--foreground) 7%, transparent); }
 .h1 { background: color-mix(in oklch, var(--primary) 30%, transparent); }
@@ -141,7 +172,15 @@
 @media (max-width: 480px) { .badges { grid-template-columns: repeat(2, 1fr); } }
 .badge { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 10px; border-radius: 16px; background: var(--card); border: 1px solid var(--border); text-align: center; }
 .badges[data-in] .badge { animation: badgeStamp var(--dur-3) var(--s-ease) both; }
-@keyframes badgeStamp { 0% { opacity: 0; transform: scale(0.5) rotate(-12deg); } 60% { opacity: 1; transform: scale(1.08) rotate(3deg); } 100% { transform: scale(1) rotate(0); } }
+/* Was scale(0.5) rotate(-12deg) on six 394x241-device-pixel cards carrying text: the glyphs get
+   re-rasterised at every intermediate scale, and both reveals fire at the same scroll position, so
+   this landed on the frame budget at the same moment as the heatmap. Same arrival, a twentieth of
+   the scale delta — the text never goes soft and the card never re-rasterises visibly. */
+@keyframes badgeStamp {
+  0%   { opacity: 0; transform: translateY(9px) scale(0.965) rotate(-2.5deg); }
+  62%  { opacity: 1; transform: translateY(-2px) scale(1.012) rotate(0.6deg); }
+  100% { opacity: 1; transform: none; }
+}
 .badgeIcon { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; }
 .badgeIcon svg { width: 22px; height: 22px; }
 .badgeOn .badgeIcon { background: color-mix(in oklch, var(--primary) 16%, transparent); color: var(--primary); }
@@ -329,6 +368,7 @@
   .flame { animation: none; }
   .dot { animation: none; transform: scale(1); }
   .heatGrid[data-in] .heatCell, .badges[data-in] .badge { animation: none; opacity: 1; transform: none; }
+  .heat[data-in] .heatSweep { animation: none; opacity: 0; }
   .ringProg, .courseRingProg, .resumeFill, .courseImg { transition: none; }
   .celOverlay, .celOverlayShow, .celModal, .celModalShow { transition: none; }
   .celBlobA, .celBlobB, .celBlobC, .celFlame, .celFlameGrow, .celFlameAlive,
