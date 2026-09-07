@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { Search } from 'lucide-react';
+import { Clock3, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
 import { CourseCard } from '@/components/course-card';
 import type { Course } from '@/lib/api/types';
 
@@ -58,6 +59,12 @@ export function CatalogGrid({
         (c.description ?? '').toLowerCase().includes(needle),
     );
   }, [courses, q]);
+
+  // No Web Development course is built yet — rather than a fake purchasable card, an honest
+  // "coming soon" teaser. Shown whenever the search is empty or could plausibly mean this (so the
+  // "Web Development" quick-filter pill, term "web", surfaces it too, matching how every other
+  // pill only ever narrows toward something real).
+  const showComingSoon = 'web development'.includes(q.trim().toLowerCase());
 
   useEffect(() => {
     const root = gridRef.current;
@@ -146,18 +153,48 @@ export function CatalogGrid({
         className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
         style={rowMode ? ROW_STYLE : undefined}
       >
-        {filtered.length === 0 ? (
+        {filtered.length === 0 && !showComingSoon ? (
           <div className="col-span-full rounded-xl border border-dashed py-16 text-center text-muted-foreground">
             {courses.length === 0 ? 'No courses are published yet.' : `No courses match “${q}”.`}
           </div>
         ) : (
-          filtered.map((c) => (
-            <div key={c.id} style={rowMode ? ROW_ITEM_STYLE : undefined}>
-              <CourseCard course={c} enrolled={enrolled.has(c.id)} progressPct={progressByCourseId[c.id]} />
-            </div>
-          ))
+          <>
+            {filtered.map((c) => (
+              <div key={c.id} style={rowMode ? ROW_ITEM_STYLE : undefined}>
+                <CourseCard course={c} enrolled={enrolled.has(c.id)} progressPct={progressByCourseId[c.id]} />
+              </div>
+            ))}
+            {showComingSoon && (
+              <div key="coming-soon-web-dev" style={rowMode ? ROW_ITEM_STYLE : undefined}>
+                <ComingSoonCard title="Web Development" blurb="Full-stack, from first commit to production deploy." />
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
+  );
+}
+
+/** An honest placeholder for a track that's announced but not built yet — same tile footprint as
+ *  CourseCard so it sits naturally in the grid, but visibly inert: no link, no price, dashed
+ *  border. Never a real course row standing in for one that doesn't exist. */
+function ComingSoonCard({ title, blurb }: { title: string; blurb: string }) {
+  return (
+    <Card className="h-full gap-0 border-dashed py-0 opacity-80">
+      <div className="flex aspect-video w-full items-center justify-center bg-muted/60">
+        <Clock3 className="size-8 text-muted-foreground/50" />
+      </div>
+      <div className="flex flex-1 flex-col gap-2.5 p-4">
+        <h3 className="font-heading text-[17px] font-bold leading-snug tracking-tight text-muted-foreground">
+          {title}
+        </h3>
+        <p className="text-sm text-muted-foreground">{blurb}</p>
+        <span className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground">
+          <Clock3 className="size-3.5" />
+          Coming soon
+        </span>
+      </div>
+    </Card>
   );
 }
